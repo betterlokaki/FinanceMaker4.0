@@ -1,0 +1,4 @@
+"""Abstract scanner classes."""
+from .scanner import Scanner
+
+__all__ = ['Scanner']
