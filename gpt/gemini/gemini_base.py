@@ -114,12 +114,16 @@ class GeminiClient(GPTBase):
             "model": self._config.model,
             "messages": [
                 {
+                    "role": "system",
+                    "content": "You are a financial stock analyst. Analyze the provided earnings stocks using deep research and real-time market data. Provide your top recommendations with stock tickers."
+                },
+                {
                     "role": "user",
                     "content": prompt
                 }
             ],
             "max_tokens": self._config.max_tokens,
-            "temperature": 0.7,
+            "temperature": 0.3,
         }
         
         logger.debug(f"Calling Gemini API with model: {self._config.model}")

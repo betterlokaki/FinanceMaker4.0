@@ -25,6 +25,10 @@ class FinvizConfig(BaseSettings):
 
 class GrokConfig(BaseSettings):
     """Grok AI API configuration."""
+    model_config = SettingsConfigDict(
+        env_prefix="GROK_",
+        case_sensitive=False,
+    )
     base_url: str = Field(default="https://api.x.ai/v1")
     api_key: str = Field(default="", description="Grok API key from .env")
     model: str = Field(default="grok-beta")
@@ -34,6 +38,10 @@ class GrokConfig(BaseSettings):
 
 class GeminiConfig(BaseSettings):
     """Google Gemini API configuration."""
+    model_config = SettingsConfigDict(
+        env_prefix="GEMINI_",
+        case_sensitive=False,
+    )
     base_url: str = Field(default="https://generativelanguage.googleapis.com/v1beta/openai/")
     api_key: str = Field(default="", description="Gemini API key from .env")
     model: str = Field(default="gemini-2.0-flash")
@@ -134,6 +142,12 @@ def create_settings() -> Settings:
     # Load YAML config
     config_path = Path(__file__).parent.parent / "config.yaml"
     yaml_config = load_yaml_config(config_path)
+    
+    # Load .env file explicitly to ensure it's loaded
+    env_path = Path(__file__).parent.parent / ".env"
+    if env_path.exists():
+        from dotenv import load_dotenv
+        load_dotenv(env_path)
     
     # Create settings with YAML data merged
     settings = Settings(**yaml_config)

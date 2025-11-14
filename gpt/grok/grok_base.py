@@ -113,12 +113,19 @@ class GrokClient(GPTBase):
             "model": self._config.model,
             "messages": [
                 {
+                    "role": "system",
+                    "content": "You are a financial stock analyst with access to real-time market data. Use your deep reasoning to analyze earnings stocks and provide your best trading recommendations with stock tickers."
+                },
+                {
                     "role": "user",
                     "content": prompt
                 }
             ],
+            "search_parameters": {
+                "mode": "on"  # Enables forced DeepSearch-like live search across web, news, and X
+            },
             "max_tokens": self._config.max_tokens,
-            "temperature": 0.7,
+            "temperature": 0.3,
         }
         
         logger.debug(f"Calling Grok API with model: {self._config.model}")

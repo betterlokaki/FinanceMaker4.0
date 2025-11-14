@@ -24,7 +24,6 @@ async def main() -> None:
     # Get instances from the container (created once, reused)
     # The container manages the lifecycle automatically
     http_client = container.http_client()
-    earnings_scanner = container.earning_tomorrow_scanner()
     grok_client = container.grok_client()
     gemini_client = container.gemini_client()
     

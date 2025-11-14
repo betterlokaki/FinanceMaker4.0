@@ -4,7 +4,7 @@
 
 # HTTP Client Configuration
 http:
-  timeout: 30.0
+  timeout: 300000000.0
   follow_redirects: true
   max_connections: 5
   max_keepalive_connections: 2
@@ -22,8 +22,8 @@ finviz:
 # API key loaded from .env file
 grok:
   base_url: "https://api.x.ai/v1"
-  model: "grok-beta"
-  timeout: 30.0
+  model: "grok-4"
+  timeout: 3000000000000.0
   max_tokens: 1000
   # api_key: loaded from .env
 
@@ -46,17 +46,16 @@ user_agent:
 ai_scanner:
   prompt_template: |
     You are a quant analyst tasked with maximizing alpha by identifying stocks most likely to gap up ≥4% on earnings tomorrow. Main goal: make money. INPUT: {TICKERS} ← comma-separated list of symbols reporting earnings tomorrow (pre-market or post-market). STEP 1 – DEEP MULTI-SOURCE SCAN (run on ALL tickers):
-
     Technicals: 1D, 4H, 1H, 15m on TradingView – RSI, MACD, Bollinger squeeze, VWAP deviation, volume surge, pre-earnings run-up % – Option chain: IV rank/percentile, skew, put/call ratio, unusual flow (CBOE/Bloomberg)
     Fundamentals & Catalysts: Yahoo Finance, Finviz, Nasdaq, SEC EDGAR: last 4Q EPS/whisper beat rate, revenue surprise, guidance history – Benzinga, Bloomberg, Seeking Alpha: analyst revisions last 7 days, PT changes – Reddit (r/wallstreetbets, r/stocks, r/options): sentiment (upvote velocity, mentions/hour) – X/Twitter: hashtag volume, influencer calls – Sector: relative strength vs SPY, XLF, XLK
     Historical Gaps: Last 8 earnings reactions (EarningsWhispers/Barchart) – % gap-up ≥4%, avg move, volatility cone STEP 2 – SCORING (0–100): Score = 0.30×TechnicalSetup + 0.25×EarningsBeatProbability + 0.20×OptionsSignal + 0.15×Sentiment + 0.10×SectorTailwind 80+ = HIGH-CONVICTION | <50 = IGNORE STEP 3 – OUTPUT (one line per ticker): TICKER | SCORE | WHY (≤12 words) Example: NVDA | 94 | IV 92nd %ile + 4Q beat streak STEP 4 – FINAL: **DISCLAIMER:** Past performance ≠ future results. Not financial advice. ONLY LIST TICKERS ≥80 (sorted descending). If none: NO HIGH-CONVICTION PLAYS. RULES:
-
-    Run on 100% of {TICKERS}– no skips.
-    Use real-time data (refresh Yahoo/Finviz/Reddit now).
-    WHY must include one quantifiable metric (e.g., "WSB 12k mentions").
-    Missing data → score 0, skip. GOAL: Deliver only 80+ scorers to allocate capital before close today.
-  extraction_method: "line_based"  # How to extract tickers from AI responses
+    - Run on 100% of {TICKERS} – no skips.
+    - Use real-time data (refresh Yahoo/Finviz/Reddit now).
+    - WHY must include one quantifiable metric (e.g., "WSB 12k mentions").
+    - Missing data → score 0, skip. GOAL: Deliver only ******80+ scorers***** to allocate capital before close today. do not dare to write any ticker that its score is below 80!!!
+  extraction_method: "line_based"
 
 # Application Settings
 debug: false
 log_level: "INFO"
+    
