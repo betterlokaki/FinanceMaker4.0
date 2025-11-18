@@ -24,7 +24,7 @@ grok:
   base_url: "https://api.x.ai/v1"
   model: "grok-4"
   timeout: 3000000000000.0
-  max_tokens: 1000
+  max_tokens: 20000
   # api_key: loaded from .env
 
 # Google Gemini Configuration
@@ -33,7 +33,7 @@ gemini:
   base_url: "https://generativelanguage.googleapis.com/v1beta/openai/"
   model: "gemini-2.0-flash"
   timeout: 30.0
-  max_tokens: 1000
+  max_tokens: 20000
   # api_key: loaded from .env
 
 # User-Agent Configuration

@@ -115,7 +115,7 @@ class GeminiClient(GPTBase):
             "messages": [
                 {
                     "role": "system",
-                    "content": "You are a financial stock analyst. Analyze the provided earnings stocks using deep research and real-time market data. Provide your top recommendations with stock tickers."
+                    "content": "You are a financial stock analyst. Analyze the provided earnings stocks using deep research and real-time market data. Provide your top recommendations with stock tickers. when you talk about stock you ***deep Research*** the web news, market data history and realtime for both interday and daily data,"
                 },
                 {
                     "role": "user",

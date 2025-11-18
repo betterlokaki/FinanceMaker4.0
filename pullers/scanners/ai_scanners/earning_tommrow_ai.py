@@ -101,6 +101,7 @@ class EarningTomorrowAI(Scanner):
             grok_suggestions = await self._get_ai_suggestions(
                 self._grok_client, earnings_tickers, "Grok"
             )
+            # grok_suggestions = set()  # Temporarily disable Grok suggestions    
             gemini_suggestions = await self._get_ai_suggestions(
                 self._gemini_client, earnings_tickers, "Gemini"
             )
