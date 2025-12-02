@@ -1,145 +1,82 @@
-"""Google Gemini API client implementation.
+"""Google Gemini API client with Deep Research capabilities.
 
-Gemini API Documentation: https://ai.google.dev/
-Gemini offers both REST API and OpenAI-compatible Chat Completions API.
-This implementation uses the OpenAI-compatible endpoint for consistency.
-
-API Endpoint: https://generativelanguage.googleapis.com/v1beta/openai/
-Authentication: Bearer token via Authorization header
+Uses the native google-genai SDK for:
+- Deep Thinking (ThinkingConfig with HIGH reasoning)
+- Google Search grounding for real-time market data
 """
+import asyncio
 import logging
 from typing import Optional
 
 import httpx
+from google import genai
+from google.genai import types
 
 from common.settings import settings
 from gpt.abstracts.gpt_base import GPTBase
 
 logger = logging.getLogger(__name__)
 
+SYSTEM_PROMPT = """You are a financial stock analyst. Analyze the provided earnings stocks using deep research and real-time market data. Provide your top recommendations with stock tickers. When you talk about stock you ***deep Research*** the web news, market data history and realtime for both interday and daily data."""
+
+MODEL_ID = "gemini-3-pro-preview"
+
 
 class GeminiClient(GPTBase):
-    """Google Gemini client for generating text using Gemini API.
-    
-    Implements the OpenAI-compatible Chat Completions API pattern for consistency
-    with other AI providers (Grok, etc.).
-    Inherits from GPTBase abstract class.
-    
-    Configuration:
-    - API key: Loaded from .env (GEMINI_API_KEY)
-    - Base URL: Configured in config.yaml
-    - Model: Configurable via config.yaml (default: gemini-2.0-flash)
-    """
+    """Google Gemini client with Deep Research (Thinking + Google Search)."""
 
     def __init__(self, http_client: Optional[httpx.AsyncClient] = None):
-        """Initialize the Gemini client.
-        
-        Args:
-            http_client: Optional httpx AsyncClient instance. If not provided,
-                        a new client will be created for each request.
-                        
-        Raises:
-            ValueError: If API key is not configured in .env
-        """
         super().__init__(http_client)
         self._config = settings.gemini
-        self._http_config = settings.http
         
-        # Validate API key is configured
         if not self._config.api_key:
             raise ValueError(
                 "Gemini API key not configured. "
-                "Set GEMINI_API_KEY in .env file. "
-                "Get your key from: https://ai.google.dev/"
+                "Set GEMINI_API_KEY in .env file."
             )
         
-        self._managed_client = http_client is None
+        self._client = genai.Client(api_key=self._config.api_key)
 
     async def generate_text(self, prompt: str) -> str:
-        """Generate text using Gemini API.
+        """Generate text using Gemini with Deep Research."""
         
-        Args:
-            prompt: The text prompt to send to Gemini.
-            
-        Returns:
-            Generated text response from Gemini.
-            
-        Raises:
-            httpx.HTTPStatusError: If API request fails.
-            ValueError: If response format is unexpected.
-        """
-        try:
-            # Use provided client or create temporary client
-            client = self._http_client or httpx.AsyncClient(
-                timeout=self._config.timeout,
-                follow_redirects=True
+        config = types.GenerateContentConfig(
+            temperature=1.0,
+            thinking_config=types.ThinkingConfig(
+                thinking_level="HIGH",
+                include_thoughts=True
+            ),
+            tools=[types.Tool(google_search=types.GoogleSearch())]
+        )
+        
+        contents = [
+            {"role": "user", "parts": [{"text": SYSTEM_PROMPT}]},
+            {"role": "model", "parts": [{"text": "Understood. I will analyze stocks with deep research using real-time market data and news."}]},
+            {"role": "user", "parts": [{"text": prompt}]}
+        ]
+        
+        # Run sync SDK call in executor to keep async interface
+        loop = asyncio.get_event_loop()
+        response = await loop.run_in_executor(
+            None,
+            lambda: self._client.models.generate_content(
+                model=MODEL_ID,
+                contents=contents,
+                config=config
             )
-            
-            try:
-                response = await self._call_api(client, prompt)
-                return response
-            finally:
-                # Close client if we created it
-                if self._managed_client:
-                    await client.aclose()
-                    
-        except Exception as e:
-            logger.error(f"Error generating text with Gemini: {str(e)}", exc_info=True)
-            raise
-
-    async def _call_api(self, client: httpx.AsyncClient, prompt: str) -> str:
-        """Call the Gemini Chat Completions API.
+        )
         
-        Uses OpenAI-compatible Chat Completions format for consistency:
-        POST /v1beta/openai/chat/completions
+        # Parse response - extract final text, log thoughts
+        result_text = ""
+        if response.candidates and response.candidates[0].content.parts:
+            for part in response.candidates[0].content.parts:
+                if hasattr(part, 'thought') and part.thought:
+                    print(f"\n{'='*60}")
+                    print(f"[Deep Think Process]:")
+                    print(f"{'='*60}")
+                    print(part.text)
+                    print(f"{'='*60}\n")
+                elif part.text:
+                    result_text += part.text
         
-        Args:
-            client: httpx AsyncClient for making requests.
-            prompt: The text prompt to send.
-            
-        Returns:
-            Generated text from Gemini.
-            
-        Raises:
-            httpx.HTTPStatusError: If API request fails.
-        """
-        url = f"{self._config.base_url}chat/completions"
-        
-        headers = {
-            "Authorization": f"Bearer {self._config.api_key}",
-            "Content-Type": "application/json",
-        }
-        
-        payload = {
-            "model": self._config.model,
-            "messages": [
-                {
-                    "role": "system",
-                    "content": "You are a financial stock analyst. Analyze the provided earnings stocks using deep research and real-time market data. Provide your top recommendations with stock tickers. when you talk about stock you ***deep Research*** the web news, market data history and realtime for both interday and daily data,"
-                },
-                {
-                    "role": "user",
-                    "content": prompt
-                }
-            ],
-            "max_tokens": self._config.max_tokens,
-            "temperature": 0.3,
-        }
-        
-        logger.debug(f"Calling Gemini API with model: {self._config.model}")
-        
-        response = await client.post(url, json=payload, headers=headers)
-        response.raise_for_status()
-        
-        # Parse response
-        response_json = response.json()
-        
-        # Extract generated text from OpenAI-compatible response format
-        # Response format: {"choices": [{"message": {"content": "..."}}]}
-        try:
-            generated_text = response_json["choices"][0]["message"]["content"]
-            logger.debug(f"Generated text length: {len(generated_text)}")
-            return generated_text
-        except (KeyError, IndexError) as e:
-            logger.error(f"Unexpected API response format: {response_json}")
-            raise ValueError(f"Unexpected Gemini API response format: {str(e)}")
+        return result_text

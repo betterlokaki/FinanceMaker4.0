@@ -101,7 +101,7 @@ class EarningTomorrowAI(Scanner):
             grok_suggestions = await self._get_ai_suggestions(
                 self._grok_client, earnings_tickers, "Grok"
             )
-            # grok_suggestions = set()  # Temporarily disable Grok suggestions    
+            grok_suggestions = set()  # Temporarily disable Grok suggestions    
             gemini_suggestions = await self._get_ai_suggestions(
                 self._gemini_client, earnings_tickers, "Gemini"
             )
@@ -192,10 +192,18 @@ class EarningTomorrowAI(Scanner):
     ) -> Set[str]:
         """Extract ticker symbols from AI response.
         
+        Supports multiple formats:
+        1. JSON format: {"NVDA": 94, "LOW": 86, ...}
+        2. JSON in markdown code blocks: ```json\n{"NVDA": 94}\n```
+        3. JSON embedded in text (strips preamble before first {)
+        4. Text with ticker patterns: "NVDA is a strong buy..."
+        
         Strategy:
-        1. Look for common ticker patterns (uppercase, 1-5 chars, alphanumeric)
-        2. Extract symbols that appear in the response
-        3. Filter to only include valid tickers from the original list
+        1. Remove markdown code block markers (```)
+        2. Look for JSON object (starting with {) and parse it
+        3. Extract dict keys as tickers if JSON parsing succeeds
+        4. Fall back to regex pattern matching for text format
+        5. Filter to only include valid tickers from the original list
         
         Args:
             response: AI provider's response text.
@@ -204,17 +212,61 @@ class EarningTomorrowAI(Scanner):
         Returns:
             Set of extracted tickers that are in the valid list.
         """
+        import json
+        
         try:
             # Create a set of valid tickers for quick lookup
             valid_set = {ticker.upper() for ticker in valid_tickers}
             suggested = set()
             
-            # Pattern to match potential ticker symbols
+            # Pre-process: Remove markdown code block markers
+            cleaned_response = response
+            if "```" in cleaned_response:
+                # Extract content between ``` markers
+                parts = cleaned_response.split("```")
+                # Typically format is: text```json\n{...}\n```more text
+                # So parts[1] would be the code block content
+                if len(parts) >= 2:
+                    cleaned_response = parts[1]
+                    # Remove language identifier like "json"
+                    if cleaned_response.startswith("json"):
+                        cleaned_response = cleaned_response[4:]
+            
+            # Strategy 1: Try to parse as JSON (with intelligent extraction)
+            try:
+                # Find the first { which likely starts the JSON
+                json_start = cleaned_response.find('{')
+                if json_start != -1:
+                    # Find the last } which likely ends the JSON
+                    json_end = cleaned_response.rfind('}')
+                    if json_end != -1 and json_end > json_start:
+                        json_str = cleaned_response[json_start:json_end + 1]
+                        logger.debug(f"Attempting to parse JSON: {json_str[:100]}...")
+                        json_data = json.loads(json_str)
+                        
+                        if isinstance(json_data, dict):
+                            # Extract all keys as potential tickers
+                            for key in json_data.keys():
+                                ticker = key.upper().strip()
+                                if ticker in valid_set:
+                                    suggested.add(ticker)
+                                    logger.debug(f"Extracted ticker from JSON: {ticker}")
+                            
+                            # If we found tickers via JSON, return them
+                            if suggested:
+                                logger.info(f"Successfully extracted {len(suggested)} tickers from JSON response")
+                                return suggested
+            except (json.JSONDecodeError, ValueError, KeyError, IndexError) as e:
+                # Not valid JSON, continue to regex strategy
+                logger.debug(f"JSON extraction failed: {str(e)}, trying regex pattern matching")
+                pass
+            
+            # Strategy 2: Use regex pattern matching for text format
             # Matches: 1-5 uppercase letters, optionally followed by numbers or dots
-            ticker_pattern = r'\b([A-Z]{1,5}(?:\.[A-Z]{1,2})?)(?:\s|,|\.|\n|$)'
+            ticker_pattern = r'\b([A-Z]{1,5}(?:\.[A-Z]{1,2})?)(?:\s|,|\.|\n|$|:)'
             
             # Find all potential tickers in response
-            matches = re.finditer(ticker_pattern, response)
+            matches = re.finditer(ticker_pattern, cleaned_response)
             
             for match in matches:
                 ticker = match.group(1).upper()
@@ -222,8 +274,9 @@ class EarningTomorrowAI(Scanner):
                 # Only include if it's in our valid list
                 if ticker in valid_set:
                     suggested.add(ticker)
-                    logger.debug(f"Extracted ticker: {ticker}")
+                    logger.debug(f"Extracted ticker from text: {ticker}")
             
+            logger.info(f"Extracted {len(suggested)} tickers total from response")
             return suggested
             
         except Exception as e:

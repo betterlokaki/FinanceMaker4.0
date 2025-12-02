@@ -22,7 +22,7 @@ finviz:
 # API key loaded from .env file
 grok:
   base_url: "https://api.x.ai/v1"
-  model: "grok-4"
+  model: "grok-4-1"
   timeout: 3000000000000.0
   max_tokens: 20000
   # api_key: loaded from .env
@@ -45,14 +45,55 @@ user_agent:
 # AI Scanner Configuration
 ai_scanner:
   prompt_template: |
-    You are a quant analyst tasked with maximizing alpha by identifying stocks most likely to gap up ≥4% on earnings tomorrow. Main goal: make money. INPUT: {TICKERS} ← comma-separated list of symbols reporting earnings tomorrow (pre-market or post-market). STEP 1 – DEEP MULTI-SOURCE SCAN (run on ALL tickers):
-    Technicals: 1D, 4H, 1H, 15m on TradingView – RSI, MACD, Bollinger squeeze, VWAP deviation, volume surge, pre-earnings run-up % – Option chain: IV rank/percentile, skew, put/call ratio, unusual flow (CBOE/Bloomberg)
-    Fundamentals & Catalysts: Yahoo Finance, Finviz, Nasdaq, SEC EDGAR: last 4Q EPS/whisper beat rate, revenue surprise, guidance history – Benzinga, Bloomberg, Seeking Alpha: analyst revisions last 7 days, PT changes – Reddit (r/wallstreetbets, r/stocks, r/options): sentiment (upvote velocity, mentions/hour) – X/Twitter: hashtag volume, influencer calls – Sector: relative strength vs SPY, XLF, XLK
-    Historical Gaps: Last 8 earnings reactions (EarningsWhispers/Barchart) – % gap-up ≥4%, avg move, volatility cone STEP 2 – SCORING (0–100): Score = 0.30×TechnicalSetup + 0.25×EarningsBeatProbability + 0.20×OptionsSignal + 0.15×Sentiment + 0.10×SectorTailwind 80+ = HIGH-CONVICTION | <50 = IGNORE STEP 3 – OUTPUT (one line per ticker): TICKER | SCORE | WHY (≤12 words) Example: NVDA | 94 | IV 92nd %ile + 4Q beat streak STEP 4 – FINAL: **DISCLAIMER:** Past performance ≠ future results. Not financial advice. ONLY LIST TICKERS ≥80 (sorted descending). If none: NO HIGH-CONVICTION PLAYS. RULES:
-    - Run on 100% of {TICKERS} – no skips.
-    - Use real-time data (refresh Yahoo/Finviz/Reddit now).
-    - WHY must include one quantifiable metric (e.g., "WSB 12k mentions").
-    - Missing data → score 0, skip. GOAL: Deliver only ******80+ scorers***** to allocate capital before close today. do not dare to write any ticker that its score is below 80!!!
+    You are a quant analyst tasked with maximizing alpha by identifying stocks most likely to gap up ≥4% on earnings tomorrow. Main goal: make money.
+
+    INPUT: {TICKERS} ← comma-separated list of symbols reporting earnings today (pre-market or post-market).
+
+    REFERENCE ARCHETYPES (must always compare every ticker against these three real pre-earnings setups from Nov 2025):
+    1. AZN / DDOG “Oversold-Bounce Blueprint” (both gapped +4.6% and +15.4%)
+      - Technicals day-before: RSI 7–57, Stoch %K <25, MFI <55, price hugging lower Bollinger (%B <0.3), negative MACD hist, sharp or mild pullback last 5d, volume surge 110–180% of 20d avg
+      - News & sentiment: low hype, routine previews, 6–8 articles in 72h, muted expectations, no red-flag headlines
+      - Sector: resilient or neutral
+      - Result: rubber-band gap on beat
+
+    2. TSEM “Overbought-Chase Blueprint” (gapped +9% on momentum continuation)
+      - Technicals day-before: RSI >80, Stoch %K >90, %B >1.0, strongly positive MACD hist, +15–25% run-up last 5–10d, volume surge
+      - News & sentiment: high hype, +40–50% article surge, “explosive growth / capacity expansion” headlines
+      - Sector: red-hot (e.g. Semiconductors, AI-related)
+      - Result: momentum chase gap
+
+    STEP 1 – DEEP MULTI-SOURCE SCAN (run on 100% of tickers, lock data at market close day before earnings)
+      Technicals (1D/4H/1H/15m TradingView): RSI(14), MACD hist, Bollinger %B/squeeze, Stoch %K, MFI(14), VWAP dev, 5-day run-up %, volume vs 20d avg, OBV trend
+      Options (CBOE/Barchart): IV rank/percentile, put/call ratio, call-heavy skew flag (<0.7 = red flag), unusual flow
+      Fundamentals: last 8Q EPS & revenue beat/miss rate, whisper number delta, guidance raise trend, analyst revisions & PT changes last 7 days
+      Sentiment & News (48–72h): Reddit WSB/stocks/options mentions & upvote velocity, X hashtag volume, news article count vs average, presence of China/risk headlines, hype ratio
+      Sector: relative strength vs SPY + relevant ETF last 10 days
+      Explicitly classify each ticker as: “AZN-DDOG oversold-bounce type” | “TSEM chase type” | “Neither / red-flagged”
+
+    STEP 2 – SCORING (0–100, calibrated on historical ≥4% gap outcomes)
+      Score = 0.32 × TechnicalSetup (reward AZN-DDOG extreme oversold + volume OR TSEM extreme overbought + momentum; penalize middle-ground)
+            + 0.25 × EarningsBeatProbability (beat streak + whisper + guidance history)
+            + 0.18 × OptionsSignal (favor neutral PCR 0.8–1.2; penalize call-heavy <0.7)
+            + 0.15 × SentimentNewsMatch (reward AZN-DDOG low-hype OR TSEM high-hype; penalize wrong-type hype)
+            + 0.10 × SectorTailwind
+      Auto-cap at 75 if ANY red flag: RSI>75 with no pullback, PCR<0.7, hype surge wrong for archetype, China-risk headlines, OBV divergence
+
+    STEP 3 – FINAL RESPONSE FORMAT
+      Respond with ONLY the following JSON object (nothing else, no disclaimers, no extra text):
+    {{
+    "Ticker1":{{" Score": Score, "Why": "one sentence 12 words max that explains your score and which pattern stocks (AZN DDOG or TSEM  or Other pattern)}},
+    ...
+    }}
+
+
+
+      → Include ONLY tickers that scored ≥80 (sorted descending by score).  
+      → If none reach ≥80, return exactly: {{"NO HIGH-CONVICTION PLAYS TODAY": 1}}
+
+    RULES
+    - Run on 100% of input tickers – never skip
+    - Use only data available at today’s close
+    - Goal: deliver only bulletproof 80+ plays that match one of the two proven gap archetypes
   extraction_method: "line_based"
 
 # Application Settings

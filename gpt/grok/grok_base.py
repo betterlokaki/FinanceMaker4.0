@@ -1,15 +1,20 @@
-"""Grok AI API client implementation.
+"""Grok AI API client implementation using xAI SDK.
 
 Grok API Documentation: https://docs.x.ai/
-Grok uses OpenAI-compatible Chat Completions API.
+Uses the official xAI SDK with web_search, x_search, and code_execution tools.
 
-API Endpoint: https://api.x.ai/v1/chat/completions
-Authentication: Bearer token via Authorization header
+API Key: XAI_API_KEY environment variable
+Model: grok-4-fast (reasoning model with server-side tools)
 """
 import logging
+import os
+import re
 from typing import Optional
 
 import httpx
+from xai_sdk import Client
+from xai_sdk.chat import user
+from xai_sdk.tools import web_search, x_search, code_execution
 
 from common.settings import settings
 from gpt.abstracts.gpt_base import GPTBase
@@ -18,132 +23,124 @@ logger = logging.getLogger(__name__)
 
 
 class GrokClient(GPTBase):
-    """Grok AI client for generating text using Grok API.
+    """Grok AI client for generating text using xAI SDK.
     
-    Implements the OpenAI-compatible Chat Completions API pattern.
-    Inherits from GPTBase abstract class to provide consistent interface
-    with other AI providers (Gemini, etc.).
+    Uses the official xAI SDK with hardcoded tools:
+    - web_search: Search the web for real-time data
+    - x_search: Search X (Twitter) for market sentiment
+    - code_execution: Execute code for analysis
     
     Configuration:
-    - API key: Loaded from .env (GROK_API_KEY)
-    - Base URL: Configured in config.yaml
-    - Model: Configurable via config.yaml (default: grok-beta)
+    - API key: Loaded from .env (XAI_API_KEY)
+    - Model: grok-4-fast (reasoning model)
     """
 
     def __init__(self, http_client: Optional[httpx.AsyncClient] = None):
-        """Initialize the Grok client.
+        """Initialize the Grok client with xAI SDK.
         
         Args:
-            http_client: Optional httpx AsyncClient instance. If not provided,
-                        a new client will be created for each request.
+            http_client: Ignored (kept for GPTBase interface compatibility)
                         
         Raises:
-            ValueError: If API key is not configured in .env
+            ValueError: If XAI_API_KEY is not configured in .env
         """
         super().__init__(http_client)
-        self._config = settings.grok
-        self._http_config = settings.http
         
-        # Validate API key is configured
-        if not self._config.api_key:
+        # Get API key from environment
+        api_key = os.getenv("GROK_API_KEY")
+        if not api_key:
             raise ValueError(
                 "Grok API key not configured. "
                 "Set GROK_API_KEY in .env file. "
                 "Get your key from: https://console.x.ai/"
             )
         
-        self._managed_client = http_client is None
+        # Initialize xAI client with tools
+        self._client = Client(api_key=api_key)
 
     async def generate_text(self, prompt: str) -> str:
-        """Generate text using Grok API.
+        """Generate text using Grok with tools.
+        
+        Uses hardcoded tools: web_search, x_search, code_execution
+        Streams response and prints tool calls in real-time.
         
         Args:
             prompt: The text prompt to send to Grok.
             
         Returns:
-            Generated text response from Grok.
+            Generated text response from Grok (final answer only).
             
         Raises:
-            httpx.HTTPStatusError: If API request fails.
-            ValueError: If response format is unexpected.
+            Exception: If API request fails.
         """
         try:
-            # Use provided client or create temporary client
-            client = self._http_client or httpx.AsyncClient(
-                timeout=self._config.timeout,
-                follow_redirects=True
+            logger.debug(f"Generating text with prompt: {prompt[:100]}...")
+            
+            # Create chat with hardcoded tools
+            chat = self._client.chat.create(
+                model="grok-4-1-fast-reasoning-latest",
+                tools=[
+                    web_search(),
+                    x_search(),
+                    code_execution(),
+                ],
             )
             
-            try:
-                response = await self._call_api(client, prompt)
-                return response
-            finally:
-                # Close client if we created it
-                if self._managed_client:
-                    await client.aclose()
-                    
+            # Append user message
+            chat.append(user(prompt))
+            
+            # Stream response and collect final text
+            final_response = ""
+            is_thinking = True
+            
+            for response, chunk in chat.stream():
+                # Print tool calls as they happen
+                for tool_call in chunk.tool_calls:
+                    print(f"\nCalling tool: {tool_call.function.name} with arguments: {tool_call.function.arguments}")
+                
+                # Print thinking progress
+                if response.usage.reasoning_tokens and is_thinking:
+                    print(f"\rThinking... ({response.usage.reasoning_tokens} tokens)", end="", flush=True)
+                
+                # Print final response start
+                if chunk.content and is_thinking:
+                    print("\n\nFinal Response:")
+                    is_thinking = False
+                
+                # Collect final response
+                if chunk.content and not is_thinking:
+                    print(chunk.content, end="", flush=True)
+                    final_response += chunk.content
+            
+            print("\n")
+            
+            # Extract tickers from response
+            tickers = self._extract_tickers(final_response)
+            logger.debug(f"Extracted tickers: {tickers}")
+            
+            return final_response
+            
         except Exception as e:
             logger.error(f"Error generating text with Grok: {str(e)}", exc_info=True)
             raise
 
-    async def _call_api(self, client: httpx.AsyncClient, prompt: str) -> str:
-        """Call the Grok Chat Completions API.
+    def _extract_tickers(self, text: str) -> list[str]:
+        """Extract stock tickers from response text.
         
-        Uses OpenAI-compatible Chat Completions format:
-        POST /v1/chat/completions
+        Looks for patterns like $AAPL or AAPL mentioned in context of stocks.
         
         Args:
-            client: httpx AsyncClient for making requests.
-            prompt: The text prompt to send.
+            text: The response text to extract tickers from.
             
         Returns:
-            Generated text from Grok.
-            
-        Raises:
-            httpx.HTTPStatusError: If API request fails.
+            List of unique stock ticker symbols found.
         """
-        url = f"{self._config.base_url}/chat/completions"
+        # Match $TICKER or TICKER in stock context
+        ticker_pattern = r'\$([A-Z]{1,5})\b|(?:ticker|symbol|stock)[:\s]+([A-Z]{1,5})\b'
+        matches = re.findall(ticker_pattern, text, re.IGNORECASE)
         
-        headers = {
-            "Authorization": f"Bearer {self._config.api_key}",
-            "Content-Type": "application/json",
-        }
+        # Flatten results and remove empty strings
+        tickers = [m[0] or m[1] for m in matches if m[0] or m[1]]
         
-        payload = {
-            "model": self._config.model,
-            "messages": [
-                {
-                    "role": "system",
-                    "content": "You are an ***expert*** financial stock analyst with access to real-time market data and history market-data. Use your deep reasoning to analyze earnings stocks and provide your best trading recommendations with stock tickers."
-                },
-                {
-                    "role": "user",
-                    "content": prompt
-                }
-            ],
-            "web_search": {
-        "enable": True,
-        "mode": "deep"  # enable Deep Search
-    },
-            "max_tokens": self._config.max_tokens,
-            "temperature": 0.0,
-        }
-        
-        logger.debug(f"Calling Grok API with model: {self._config.model}")
-        
-        response = await client.post(url, json=payload, headers=headers)
-        logger.debug(f"Grok API response status: {response.text}")
-        response.raise_for_status()
-        
-        # Parse response
-        response_json = response.json()
-        
-        # Extract generated text from OpenAI-compatible response format
-        # Response format: {"choices": [{"message": {"content": "..."}}]}
-        try:
-            generated_text = response_json["choices"][0]["message"]["content"]
-            logger.debug(f"Generated text length: {len(generated_text)}")
-            return generated_text
-        except (KeyError, IndexError) as e:
-            logger.error(f"Unexpected API response format: {response_json}")
-            raise ValueError(f"Unexpected Grok API response format: {str(e)}")
+        return list(set(tickers))  # Return unique tickers
+
