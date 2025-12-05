@@ -6,7 +6,7 @@ Uses the native google-genai SDK for:
 """
 import asyncio
 import logging
-from typing import Optional
+from typing import Any, Final
 
 import httpx
 from google import genai
@@ -15,17 +15,30 @@ from google.genai import types
 from common.settings import settings
 from gpt.abstracts.gpt_base import GPTBase
 
-logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 
-SYSTEM_PROMPT = """You are a financial stock analyst. Analyze the provided earnings stocks using deep research and real-time market data. Provide your top recommendations with stock tickers. When you talk about stock you ***deep Research*** the web news, market data history and realtime for both interday and daily data."""
+SYSTEM_PROMPT: Final[str] = (
+    "You are a financial stock analyst. Analyze the provided earnings stocks "
+    "using deep research and real-time market data. Provide your top recommendations "
+    "with stock tickers. When you talk about stock you ***deep Research*** the web news, "
+    "market data history and realtime for both interday and daily data."
+)
 
-MODEL_ID = "gemini-3-pro-preview"
+MODEL_ID: Final[str] = "gemini-3-pro-preview"
 
 
 class GeminiClient(GPTBase):
     """Google Gemini client with Deep Research (Thinking + Google Search)."""
 
-    def __init__(self, http_client: Optional[httpx.AsyncClient] = None):
+    def __init__(self, http_client: httpx.AsyncClient):
+        """Initialize the Gemini client.
+        
+        Args:
+            http_client: httpx AsyncClient (kept for interface compatibility).
+            
+        Raises:
+            ValueError: If GEMINI_API_KEY is not configured in .env
+        """
         super().__init__(http_client)
         self._config = settings.gemini
         
@@ -38,45 +51,53 @@ class GeminiClient(GPTBase):
         self._client = genai.Client(api_key=self._config.api_key)
 
     async def generate_text(self, prompt: str) -> str:
-        """Generate text using Gemini with Deep Research."""
+        """Generate text using Gemini with Deep Research.
         
+        Args:
+            prompt: The text prompt to send to Gemini.
+            
+        Returns:
+            Generated text response from Gemini.
+        """
         config = types.GenerateContentConfig(
             temperature=1.0,
             thinking_config=types.ThinkingConfig(
-                thinking_level="HIGH",
+                thinking_level=types.ThinkingLevel.HIGH,
                 include_thoughts=True
             ),
             tools=[types.Tool(google_search=types.GoogleSearch())]
         )
         
-        contents = [
+        contents: list[dict[str, Any]] = [
             {"role": "user", "parts": [{"text": SYSTEM_PROMPT}]},
             {"role": "model", "parts": [{"text": "Understood. I will analyze stocks with deep research using real-time market data and news."}]},
             {"role": "user", "parts": [{"text": prompt}]}
         ]
         
-        # Run sync SDK call in executor to keep async interface
         loop = asyncio.get_event_loop()
         response = await loop.run_in_executor(
             None,
             lambda: self._client.models.generate_content(
                 model=MODEL_ID,
-                contents=contents,
+                contents=contents,  # type: ignore[arg-type]
                 config=config
             )
         )
         
-        # Parse response - extract final text, log thoughts
-        result_text = ""
-        if response.candidates and response.candidates[0].content.parts:
-            for part in response.candidates[0].content.parts:
-                if hasattr(part, 'thought') and part.thought:
-                    print(f"\n{'='*60}")
-                    print(f"[Deep Think Process]:")
-                    print(f"{'='*60}")
-                    print(part.text)
-                    print(f"{'='*60}\n")
-                elif part.text:
-                    result_text += part.text
+        result_text: str = ""
+        if response.candidates:
+            candidate = response.candidates[0]
+            if candidate.content and candidate.content.parts:
+                for part in candidate.content.parts:
+                    if hasattr(part, 'thought') and part.thought:
+                        logger.info("=" * 60)
+                        logger.info("[Deep Think Process]:")
+                        logger.info("=" * 60)
+                        logger.debug(part.text)
+                        logger.info("=" * 60)
+                    elif part.text:
+                        result_text += part.text
         
+        logger.info(f"Gemini response completed: {len(result_text)} chars")
         return result_text
+

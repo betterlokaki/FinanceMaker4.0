@@ -1,19 +1,21 @@
-"""Abstract scanner class for stock scanning operations."""
+"""Abstract scanner base class for stock scanning operations."""
 from abc import ABC, abstractmethod
-from typing import List
 
 from common.models.scanner_params import ScannerParams
 
 
-class Scanner(ABC):
+class ScannerBase(ABC):
     """Abstract base class for stock scanners.
     
     Provides an interface for implementing different scanning strategies
     that identify and return lists of stock tickers meeting specific criteria.
+    
+    All scanner implementations should inherit from this class and implement
+    the scan method. This class implements the IScanner protocol.
     """
 
     @abstractmethod
-    async def scan(self, params: ScannerParams) -> List[str]:
+    async def scan(self, params: ScannerParams) -> list[str]:
         """Scan for stocks matching the given parameters.
         
         Args:
@@ -21,9 +23,6 @@ class Scanner(ABC):
             
         Returns:
             List of stock ticker symbols (strings) that match the scan criteria.
-            
-        Raises:
-            NotImplementedError: This is an abstract method and must be implemented
-                by subclasses.
         """
         pass
+

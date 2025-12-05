@@ -8,18 +8,15 @@ Model: grok-4-fast (reasoning model with server-side tools)
 """
 import logging
 import os
-import re
-from typing import Optional
 
 import httpx
 from xai_sdk import Client
 from xai_sdk.chat import user
 from xai_sdk.tools import web_search, x_search, code_execution
 
-from common.settings import settings
 from gpt.abstracts.gpt_base import GPTBase
 
-logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 
 
 class GrokClient(GPTBase):
@@ -35,19 +32,18 @@ class GrokClient(GPTBase):
     - Model: grok-4-fast (reasoning model)
     """
 
-    def __init__(self, http_client: Optional[httpx.AsyncClient] = None):
+    def __init__(self, http_client: httpx.AsyncClient):
         """Initialize the Grok client with xAI SDK.
         
         Args:
-            http_client: Ignored (kept for GPTBase interface compatibility)
+            http_client: httpx AsyncClient (kept for GPTBase interface compatibility)
                         
         Raises:
             ValueError: If XAI_API_KEY is not configured in .env
         """
         super().__init__(http_client)
         
-        # Get API key from environment
-        api_key = os.getenv("GROK_API_KEY")
+        api_key: str | None = os.getenv("GROK_API_KEY")
         if not api_key:
             raise ValueError(
                 "Grok API key not configured. "
@@ -55,14 +51,13 @@ class GrokClient(GPTBase):
                 "Get your key from: https://console.x.ai/"
             )
         
-        # Initialize xAI client with tools
-        self._client = Client(api_key=api_key)
+        self._client: Client = Client(api_key=api_key)
 
     async def generate_text(self, prompt: str) -> str:
         """Generate text using Grok with tools.
         
         Uses hardcoded tools: web_search, x_search, code_execution
-        Streams response and prints tool calls in real-time.
+        Streams response and logs tool calls in real-time.
         
         Args:
             prompt: The text prompt to send to Grok.
@@ -76,7 +71,6 @@ class GrokClient(GPTBase):
         try:
             logger.debug(f"Generating text with prompt: {prompt[:100]}...")
             
-            # Create chat with hardcoded tools
             chat = self._client.chat.create(
                 model="grok-4-1-fast-reasoning-latest",
                 tools=[
@@ -86,61 +80,34 @@ class GrokClient(GPTBase):
                 ],
             )
             
-            # Append user message
             chat.append(user(prompt))
             
-            # Stream response and collect final text
-            final_response = ""
-            is_thinking = True
+            final_response: str = ""
+            is_thinking: bool = True
             
             for response, chunk in chat.stream():
-                # Print tool calls as they happen
                 for tool_call in chunk.tool_calls:
-                    print(f"\nCalling tool: {tool_call.function.name} with arguments: {tool_call.function.arguments}")
+                    logger.info(
+                        f"Calling tool: {tool_call.function.name} "
+                        f"with arguments: {tool_call.function.arguments}"
+                    )
                 
-                # Print thinking progress
                 if response.usage.reasoning_tokens and is_thinking:
-                    print(f"\rThinking... ({response.usage.reasoning_tokens} tokens)", end="", flush=True)
+                    logger.debug(f"Thinking... ({response.usage.reasoning_tokens} tokens)")
                 
-                # Print final response start
                 if chunk.content and is_thinking:
-                    print("\n\nFinal Response:")
+                    logger.info("Final Response started")
                     is_thinking = False
                 
-                # Collect final response
                 if chunk.content and not is_thinking:
-                    print(chunk.content, end="", flush=True)
+                    logger.debug(chunk.content)
                     final_response += chunk.content
             
-            print("\n")
-            
-            # Extract tickers from response
-            tickers = self._extract_tickers(final_response)
-            logger.debug(f"Extracted tickers: {tickers}")
-            
+            logger.info(f"Grok response completed: {len(final_response)} chars")
             return final_response
             
         except Exception as e:
             logger.error(f"Error generating text with Grok: {str(e)}", exc_info=True)
             raise
 
-    def _extract_tickers(self, text: str) -> list[str]:
-        """Extract stock tickers from response text.
-        
-        Looks for patterns like $AAPL or AAPL mentioned in context of stocks.
-        
-        Args:
-            text: The response text to extract tickers from.
-            
-        Returns:
-            List of unique stock ticker symbols found.
-        """
-        # Match $TICKER or TICKER in stock context
-        ticker_pattern = r'\$([A-Z]{1,5})\b|(?:ticker|symbol|stock)[:\s]+([A-Z]{1,5})\b'
-        matches = re.findall(ticker_pattern, text, re.IGNORECASE)
-        
-        # Flatten results and remove empty strings
-        tickers = [m[0] or m[1] for m in matches if m[0] or m[1]]
-        
-        return list(set(tickers))  # Return unique tickers
 

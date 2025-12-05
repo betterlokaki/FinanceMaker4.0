@@ -11,23 +11,22 @@ Workflow:
 5. Extract suggested tickers from both AI responses
 6. Find intersection - only return tickers suggested by BOTH AIs
 """
-import asyncio
 import logging
-import re
-from typing import List, Optional, Set
 
 import httpx
 
+from common.helpers.ai_consensus_helpers import find_consensus, get_ai_suggestions
+from common.helpers.prompt_helpers import build_ticker_analysis_prompt
 from common.models.scanner_params import ScannerParams
 from common.settings import settings
 from gpt.abstracts.gpt_base import GPTBase
-from pullers.scanners.abstracts.scanner import Scanner
+from pullers.scanners.abstracts.scanner import ScannerBase
 from pullers.scanners.finviz.earning_tommrow import EarningTommrow
 
-logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 
 
-class EarningTomorrowAI(Scanner):
+class EarningTomorrowAI(ScannerBase):
     """AI-powered scanner using consensus from Grok and Gemini.
     
     This scanner combines earnings date filtering with AI analysis:
@@ -44,28 +43,38 @@ class EarningTomorrowAI(Scanner):
 
     def __init__(
         self,
-        http_client: Optional[httpx.AsyncClient] = None,
-        earnings_scanner: Optional[EarningTommrow] = None,
-        grok_client: Optional[GPTBase] = None,
-        gemini_client: Optional[GPTBase] = None,
+        http_client: httpx.AsyncClient,
+        earnings_scanner: EarningTommrow,
+        grok_client: GPTBase,
+        gemini_client: GPTBase,
     ):
         """Initialize the AI consensus scanner.
         
         Args:
-            http_client: Optional httpx AsyncClient instance.
-            earnings_scanner: Optional EarningTomorrow scanner instance.
-            grok_client: Optional Grok client instance.
-            gemini_client: Optional Gemini client instance.
-                          If not provided, will be obtained from DI container.
+            http_client: httpx AsyncClient instance for HTTP requests.
+            earnings_scanner: EarningTomorrow scanner instance.
+            grok_client: Grok client instance.
+            gemini_client: Gemini client instance.
+            
+        Raises:
+            ValueError: If any required dependency is None.
         """
-        self._http_client = http_client
-        self._managed_client = http_client is None
-        self._earnings_scanner = earnings_scanner
-        self._grok_client = grok_client
-        self._gemini_client = gemini_client
+        if http_client is None:
+            raise ValueError("http_client is required")
+        if earnings_scanner is None:
+            raise ValueError("earnings_scanner is required")
+        if grok_client is None:
+            raise ValueError("grok_client is required")
+        if gemini_client is None:
+            raise ValueError("gemini_client is required")
+            
+        self._http_client: httpx.AsyncClient = http_client
+        self._earnings_scanner: EarningTommrow = earnings_scanner
+        self._grok_client: GPTBase = grok_client
+        self._gemini_client: GPTBase = gemini_client
         self._config = settings.ai_scanner
 
-    async def scan(self, params: ScannerParams) -> List[str]:
+    async def scan(self, params: ScannerParams) -> list[str]:
         """Scan for earnings stocks with AI consensus recommendation.
         
         Args:
@@ -75,44 +84,34 @@ class EarningTomorrowAI(Scanner):
             List of stock ticker symbols recommended by both Grok and Gemini.
             
         Raises:
-            ValueError: If Grok or Gemini clients are not available.
             Exception: If scanning fails.
         """
         try:
             logger.info("Starting AI consensus scan for earnings stocks...")
             
-            # Get Grok and Gemini clients if not provided
-            if self._grok_client is None or self._gemini_client is None:
-                from common.di_container import container
-                self._grok_client = container.grok_client()
-                self._gemini_client = container.gemini_client()
-            
-            # Step 1: Get earnings tickers
-            logger.info("Step 1: Fetching earnings tickers from EarningTomorrow...")
-            earnings_tickers = await self._get_earnings_tickers(params)
+            earnings_tickers: list[str] = await self._earnings_scanner.scan(params)
             logger.info(f"Found {len(earnings_tickers)} stocks earning tomorrow")
             
             if not earnings_tickers:
                 logger.warning("No earnings stocks found")
                 return []
             
-            # Step 2: Send to both AIs
-            logger.info("Step 2: Sending tickers to AI providers...")
-            grok_suggestions = await self._get_ai_suggestions(
-                self._grok_client, earnings_tickers, "Grok"
+            prompt: str = build_ticker_analysis_prompt(
+                earnings_tickers, self._config.prompt_template
             )
-            #grok_suggestions = set()  # Temporarily disable Grok suggestions    
-            gemini_suggestions = await self._get_ai_suggestions(
-                self._gemini_client, earnings_tickers, "Gemini"
+            
+            grok_suggestions: set[str] = await get_ai_suggestions(
+                self._grok_client, prompt, earnings_tickers, "Grok"
+            )
+            gemini_suggestions: set[str] = await get_ai_suggestions(
+                self._gemini_client, prompt, earnings_tickers, "Gemini"
             )
             
             logger.info(f"Grok suggested: {len(grok_suggestions)} tickers")
             logger.info(f"Gemini suggested: {len(gemini_suggestions)} tickers")
             
-            # Step 3: Find consensus (intersection)
-            logger.info("Step 3: Finding consensus between AI providers...")
-            consensus_tickers = await self._find_consensus(
-                grok_suggestions, gemini_suggestions
+            consensus_tickers: set[str] = find_consensus(
+                grok_suggestions, gemini_suggestions, "Grok", "Gemini"
             )
             
             logger.info(
@@ -122,221 +121,6 @@ class EarningTomorrowAI(Scanner):
             
             return list(consensus_tickers)
             
-        except ValueError as e:
-            logger.error(f"Configuration error: {str(e)}")
-            raise
         except Exception as e:
             logger.error(f"Error during AI consensus scan: {str(e)}", exc_info=True)
             raise
-
-    async def _get_earnings_tickers(self, params: ScannerParams) -> List[str]:
-        """Get stocks with earnings tomorrow.
-        
-        Args:
-            params: Scan parameters.
-            
-        Returns:
-            List of tickers earning tomorrow.
-        """
-        try:
-            # Create earnings scanner if not provided
-            if self._earnings_scanner is None:
-                self._earnings_scanner = EarningTommrow(self._http_client)
-            
-            # Scan for earnings tickers
-            tickers = await self._earnings_scanner.scan(params)
-            return tickers
-            
-        except Exception as e:
-            logger.error(f"Error fetching earnings tickers: {str(e)}", exc_info=True)
-            raise
-
-    async def _get_ai_suggestions(
-        self, ai_client: GPTBase, tickers: List[str], ai_name: str
-    ) -> Set[str]:
-        """Get ticker suggestions from an AI provider.
-        
-        Args:
-            ai_client: The AI client (Grok or Gemini).
-            tickers: List of tickers to analyze.
-            ai_name: Name of the AI provider (for logging).
-            
-        Returns:
-            Set of suggested tickers extracted from AI response.
-        """
-        try:
-            # Create prompt with tickers
-            tickers_str = ", ".join(tickers)
-            prompt = self._config.prompt_template.format(TICKERS=tickers_str)
-            
-            logger.debug(f"Sending prompt to {ai_name}:\n{prompt[:100]}...")
-            
-            # Get AI response
-            response = await ai_client.generate_text(prompt)
-            logger.debug(f"{ai_name} response length: {len(response)} chars")
-            
-            # Extract tickers from response
-            suggested_tickers = self._extract_tickers_from_response(response, tickers)
-            logger.info(f"{ai_name} extracted {len(suggested_tickers)} tickers")
-            
-            return suggested_tickers
-            
-        except Exception as e:
-            logger.error(
-                f"Error getting suggestions from {ai_name}: {str(e)}", exc_info=True
-            )
-            raise
-
-    def _extract_tickers_from_response(
-        self, response: str, valid_tickers: List[str]
-    ) -> Set[str]:
-        """Extract ticker symbols from AI response.
-        
-        Supports multiple formats:
-        1. JSON array format: [{"Ticker": "NVDA", "Score": 94}, ...]
-        2. JSON object format: {"NVDA": 94, "LOW": 86, ...}
-        3. JSON in markdown code blocks: ```json\n[...]\n```
-        4. JSON embedded in text (strips preamble before first [ or {)
-        5. Text with ticker patterns: "NVDA is a strong buy..."
-        
-        Strategy:
-        1. Remove markdown code block markers (```)
-        2. Check if response starts with [ (array) or { (object)
-        3. Parse JSON array and extract "Ticker" field from each object
-        4. Parse JSON object and extract keys as tickers
-        5. Fall back to regex pattern matching for text format
-        6. Filter to only include valid tickers from the original list
-        
-        Args:
-            response: AI provider's response text.
-            valid_tickers: List of original tickers to filter against.
-            
-        Returns:
-            Set of extracted tickers that are in the valid list.
-        """
-        import json
-        
-        try:
-            # Create a set of valid tickers for quick lookup
-            valid_set = {ticker.upper() for ticker in valid_tickers}
-            suggested = set()
-            
-            # Pre-process: Remove markdown code block markers
-            cleaned_response = response
-            if "```" in cleaned_response:
-                # Extract content between ``` markers
-                parts = cleaned_response.split("```")
-                # Typically format is: text```json\n{...}\n```more text
-                # So parts[1] would be the code block content
-                if len(parts) >= 2:
-                    cleaned_response = parts[1]
-                    # Remove language identifier like "json"
-                    if cleaned_response.startswith("json"):
-                        cleaned_response = cleaned_response[4:]
-            
-            # Strategy 1: Try to parse as JSON (with intelligent extraction)
-            try:
-                # First, try to find a JSON array (starts with [)
-                json_array_start = cleaned_response.find('[')
-                json_obj_start = cleaned_response.find('{')
-                
-                # Determine if it's an array or object format
-                if json_array_start != -1 and (json_obj_start == -1 or json_array_start < json_obj_start):
-                    # JSON Array format: [{"Ticker": "NCNO", ...}, ...]
-                    json_end = cleaned_response.rfind(']')
-                    if json_end != -1 and json_end > json_array_start:
-                        json_str = cleaned_response[json_array_start:json_end + 1]
-                        logger.debug(f"Attempting to parse JSON array: {json_str[:100]}...")
-                        json_data = json.loads(json_str)
-                        
-                        if isinstance(json_data, list):
-                            for item in json_data:
-                                if isinstance(item, dict):
-                                    # Look for "Ticker" key (case-insensitive)
-                                    ticker_value = None
-                                    for key in item.keys():
-                                        if key.lower() == "ticker":
-                                            ticker_value = item[key]
-                                            break
-                                    
-                                    if ticker_value:
-                                        ticker = str(ticker_value).upper().strip()
-                                        if ticker in valid_set:
-                                            suggested.add(ticker)
-                                            logger.debug(f"Extracted ticker from JSON array: {ticker}")
-                            
-                            if suggested:
-                                logger.info(f"Successfully extracted {len(suggested)} tickers from JSON array response")
-                                return suggested
-                
-                elif json_obj_start != -1:
-                    # JSON Object format: {"NVDA": 94, "LOW": 86, ...}
-                    json_end = cleaned_response.rfind('}')
-                    if json_end != -1 and json_end > json_obj_start:
-                        json_str = cleaned_response[json_obj_start:json_end + 1]
-                        logger.debug(f"Attempting to parse JSON object: {json_str[:100]}...")
-                        json_data = json.loads(json_str)
-                        
-                        if isinstance(json_data, dict):
-                            # Extract all keys as potential tickers
-                            for key in json_data.keys():
-                                ticker = key.upper().strip()
-                                if ticker in valid_set:
-                                    suggested.add(ticker)
-                                    logger.debug(f"Extracted ticker from JSON: {ticker}")
-                            
-                            # If we found tickers via JSON, return them
-                            if suggested:
-                                logger.info(f"Successfully extracted {len(suggested)} tickers from JSON response")
-                                return suggested
-            except (json.JSONDecodeError, ValueError, KeyError, IndexError) as e:
-                # Not valid JSON, continue to regex strategy
-                logger.debug(f"JSON extraction failed: {str(e)}, trying regex pattern matching")
-                pass
-            
-            # Strategy 2: Use regex pattern matching for text format
-            # Matches: 1-5 uppercase letters, optionally followed by numbers or dots
-            ticker_pattern = r'\b([A-Z]{1,5}(?:\.[A-Z]{1,2})?)(?:\s|,|\.|\n|$|:)'
-            
-            # Find all potential tickers in response
-            matches = re.finditer(ticker_pattern, cleaned_response)
-            
-            for match in matches:
-                ticker = match.group(1).upper()
-                
-                # Only include if it's in our valid list
-                if ticker in valid_set:
-                    suggested.add(ticker)
-                    logger.debug(f"Extracted ticker from text: {ticker}")
-            
-            logger.info(f"Extracted {len(suggested)} tickers total from response")
-            return suggested
-            
-        except Exception as e:
-            logger.error(f"Error extracting tickers: {str(e)}", exc_info=True)
-            # Return empty set if extraction fails
-            return set()
-
-    async def _find_consensus(
-        self, grok_suggestions: Set[str], gemini_suggestions: Set[str]
-    ) -> Set[str]:
-        """Find tickers suggested by both AI providers.
-        
-        Args:
-            grok_suggestions: Set of tickers suggested by Grok.
-            gemini_suggestions: Set of tickers suggested by Gemini.
-            
-        Returns:
-            Set of tickers in both suggestions (intersection).
-        """
-        # Find intersection - only tickers both AIs suggested
-        consensus = grok_suggestions.intersection(gemini_suggestions)
-        
-        logger.info(
-            f"Consensus analysis:\n"
-            f"  - Grok only: {grok_suggestions - gemini_suggestions}\n"
-            f"  - Gemini only: {gemini_suggestions - grok_suggestions}\n"
-            f"  - Both (consensus): {consensus}"
-        )
-        
-        return consensus

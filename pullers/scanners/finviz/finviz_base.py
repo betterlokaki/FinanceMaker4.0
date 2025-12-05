@@ -1,19 +1,18 @@
 """Finviz stock scanner implementation."""
 import logging
-from typing import List, Optional
 
 import httpx
-from lxml import html
 
+from common.helpers.html_helpers import parse_finviz_tickers
 from common.models.scanner_params import ScannerParams
 from common.user_agent import UserAgentManager
 from common.settings import settings
-from pullers.scanners.abstracts.scanner import Scanner
+from pullers.scanners.abstracts.scanner import ScannerBase
 
-logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 
 
-class FinvizScanner(Scanner):
+class FinvizScanner(ScannerBase):
     """Finviz-based stock scanner.
     
     Scrapes the Finviz screener to find stocks matching specified criteria.
@@ -22,44 +21,66 @@ class FinvizScanner(Scanner):
     Configuration is loaded from config.yaml and can be overridden via environment variables.
     """
 
-    def __init__(self, http_client: Optional[httpx.AsyncClient] = None):
+    def __init__(self, http_client: httpx.AsyncClient):
         """Initialize the FinvizScanner.
         
         Args:
-            http_client: Optional httpx AsyncClient instance. If not provided,
-                        a new client will be created for each request.
+            http_client: httpx AsyncClient instance for HTTP requests.
+            
+        Raises:
+            ValueError: If http_client is None.
         """
-        self._http_client = http_client
-        self._managed_client = http_client is None
-        # Load configuration from settings
+        if http_client is None:
+            raise ValueError("http_client is required")
+            
+        self._http_client: httpx.AsyncClient = http_client
         self._config = settings.finviz
-        self.BASE_URL = self._config.base_url
+        self.BASE_URL: str = self._config.base_url
 
-    async def scan(self, params: ScannerParams) -> List[str]:
-        """Scan Finviz for stocks matching the given parameters."""
-        client = self._http_client or httpx.AsyncClient(timeout=30.0, follow_redirects=True)
-        tickers = await self._get_tickers(client, params)
-        if self._managed_client:
-            await client.aclose()
+    async def scan(self, params: ScannerParams) -> list[str]:
+        """Scan Finviz for stocks matching the given parameters.
+        
+        Args:
+            params: ScannerParams object containing scan configuration.
+            
+        Returns:
+            List of stock ticker symbols matching the scan criteria.
+        """
+        tickers: list[str] = await self._get_tickers(params)
         return tickers
 
-    async def _get_tickers(self, client: httpx.AsyncClient, params: ScannerParams) -> List[str]:
-        """Fetch tickers from Finviz screener with pagination."""
-        tickers: List[str] = []
+    async def _get_tickers(self, params: ScannerParams) -> list[str]:
+        """Fetch tickers from Finviz screener with pagination.
+        
+        Args:
+            params: Scan parameters.
+            
+        Returns:
+            List of all tickers found across all pages.
+        """
+        tickers: list[str] = []
         
         for page in range(self._config.max_pages):
-            page_tickers = await self._fetch_page(client, params, page)
+            page_tickers: list[str] = await self._fetch_page(params, page)
             if not page_tickers:
                 break
             tickers.extend(page_tickers)
         
         return tickers
 
-    async def _fetch_page(self, client: httpx.AsyncClient, params: ScannerParams, page: int) -> List[str]:
-        """Fetch and parse a single page of results."""
-        url = self._build_url(params, page)
+    async def _fetch_page(self, params: ScannerParams, page: int) -> list[str]:
+        """Fetch and parse a single page of results.
         
-        headers = {
+        Args:
+            params: Scan parameters.
+            page: Page number (0-indexed).
+            
+        Returns:
+            List of tickers from this page.
+        """
+        url: str = self._build_url(params, page)
+        
+        headers: dict[str, str] = {
             "User-Agent": UserAgentManager.get_random_user_agent(),
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
             "Accept-Language": "en-US,en;q=0.5",
@@ -68,11 +89,12 @@ class FinvizScanner(Scanner):
             "Upgrade-Insecure-Requests": "1",
         }
         
-        response = await client.get(url, headers=headers)
+        response: httpx.Response = await self._http_client.get(url, headers=headers)
         if response.status_code != 200:
             logger.error(f"Failed to fetch Finviz page {page + 1}: {response.status_code}")
             return []
-        return self._parse_tickers(response.text)
+        
+        return parse_finviz_tickers(response.text)
 
     def _build_url(self, params: ScannerParams, page: int) -> str:
         """Build Finviz screener URL with filters and pagination.
@@ -84,42 +106,6 @@ class FinvizScanner(Scanner):
         Returns:
             Complete URL with filters and pagination parameter.
         """
-        url = self.BASE_URL
-        
-        # Add pagination (Finviz uses 1-indexed, results_per_page results per page)
-        pagination_param = f"&r={page * self._config.results_per_page + 1}"
-        
+        url: str = self.BASE_URL
+        pagination_param: str = f"&r={page * self._config.results_per_page + 1}"
         return url + pagination_param
-
-    def _parse_tickers(self, html_content: str) -> List[str]:
-        """Parse tickers from Finviz HTML response using XPath."""
-        tree = html.fromstring(html_content)
-        comments = tree.xpath('//comment()')
-        
-        ticker_data = None
-        for comment in comments:
-            comment_text = comment.text or ""
-            if "TS" in comment_text:
-                ticker_data = comment_text
-                break
-        
-        if not ticker_data:
-            return []
-        
-        start_idx = ticker_data.find("TS")
-        end_idx = ticker_data.find("TE")
-        
-        if start_idx == -1 or end_idx == -1:
-            return []
-        
-        data_section = ticker_data[start_idx + 2:end_idx].strip()
-        
-        tickers: List[str] = []
-        for line in data_section.split("\n"):
-            if not line.strip():
-                continue
-            parts = line.split("|")
-            if parts and parts[0].strip():
-                tickers.append(parts[0].strip())
-        
-        return tickers

@@ -92,6 +92,7 @@ def get_earnings_gainers(tickers):
                 continue
 
             # Find close before: last close before edate
+
             before_df = hist[hist.index.date < edate.date()]
             if before_df.empty:
                 continue
