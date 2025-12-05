@@ -101,7 +101,7 @@ class EarningTomorrowAI(Scanner):
             grok_suggestions = await self._get_ai_suggestions(
                 self._grok_client, earnings_tickers, "Grok"
             )
-            grok_suggestions = set()  # Temporarily disable Grok suggestions    
+            #grok_suggestions = set()  # Temporarily disable Grok suggestions    
             gemini_suggestions = await self._get_ai_suggestions(
                 self._gemini_client, earnings_tickers, "Gemini"
             )
@@ -193,17 +193,19 @@ class EarningTomorrowAI(Scanner):
         """Extract ticker symbols from AI response.
         
         Supports multiple formats:
-        1. JSON format: {"NVDA": 94, "LOW": 86, ...}
-        2. JSON in markdown code blocks: ```json\n{"NVDA": 94}\n```
-        3. JSON embedded in text (strips preamble before first {)
-        4. Text with ticker patterns: "NVDA is a strong buy..."
+        1. JSON array format: [{"Ticker": "NVDA", "Score": 94}, ...]
+        2. JSON object format: {"NVDA": 94, "LOW": 86, ...}
+        3. JSON in markdown code blocks: ```json\n[...]\n```
+        4. JSON embedded in text (strips preamble before first [ or {)
+        5. Text with ticker patterns: "NVDA is a strong buy..."
         
         Strategy:
         1. Remove markdown code block markers (```)
-        2. Look for JSON object (starting with {) and parse it
-        3. Extract dict keys as tickers if JSON parsing succeeds
-        4. Fall back to regex pattern matching for text format
-        5. Filter to only include valid tickers from the original list
+        2. Check if response starts with [ (array) or { (object)
+        3. Parse JSON array and extract "Ticker" field from each object
+        4. Parse JSON object and extract keys as tickers
+        5. Fall back to regex pattern matching for text format
+        6. Filter to only include valid tickers from the original list
         
         Args:
             response: AI provider's response text.
@@ -234,14 +236,45 @@ class EarningTomorrowAI(Scanner):
             
             # Strategy 1: Try to parse as JSON (with intelligent extraction)
             try:
-                # Find the first { which likely starts the JSON
-                json_start = cleaned_response.find('{')
-                if json_start != -1:
-                    # Find the last } which likely ends the JSON
+                # First, try to find a JSON array (starts with [)
+                json_array_start = cleaned_response.find('[')
+                json_obj_start = cleaned_response.find('{')
+                
+                # Determine if it's an array or object format
+                if json_array_start != -1 and (json_obj_start == -1 or json_array_start < json_obj_start):
+                    # JSON Array format: [{"Ticker": "NCNO", ...}, ...]
+                    json_end = cleaned_response.rfind(']')
+                    if json_end != -1 and json_end > json_array_start:
+                        json_str = cleaned_response[json_array_start:json_end + 1]
+                        logger.debug(f"Attempting to parse JSON array: {json_str[:100]}...")
+                        json_data = json.loads(json_str)
+                        
+                        if isinstance(json_data, list):
+                            for item in json_data:
+                                if isinstance(item, dict):
+                                    # Look for "Ticker" key (case-insensitive)
+                                    ticker_value = None
+                                    for key in item.keys():
+                                        if key.lower() == "ticker":
+                                            ticker_value = item[key]
+                                            break
+                                    
+                                    if ticker_value:
+                                        ticker = str(ticker_value).upper().strip()
+                                        if ticker in valid_set:
+                                            suggested.add(ticker)
+                                            logger.debug(f"Extracted ticker from JSON array: {ticker}")
+                            
+                            if suggested:
+                                logger.info(f"Successfully extracted {len(suggested)} tickers from JSON array response")
+                                return suggested
+                
+                elif json_obj_start != -1:
+                    # JSON Object format: {"NVDA": 94, "LOW": 86, ...}
                     json_end = cleaned_response.rfind('}')
-                    if json_end != -1 and json_end > json_start:
-                        json_str = cleaned_response[json_start:json_end + 1]
-                        logger.debug(f"Attempting to parse JSON: {json_str[:100]}...")
+                    if json_end != -1 and json_end > json_obj_start:
+                        json_str = cleaned_response[json_obj_start:json_end + 1]
+                        logger.debug(f"Attempting to parse JSON object: {json_str[:100]}...")
                         json_data = json.loads(json_str)
                         
                         if isinstance(json_data, dict):

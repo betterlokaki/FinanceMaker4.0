@@ -14,4 +14,4 @@ class EarningTommrow(FinvizScanner):
     
     def __init__(self, http_client: Optional[httpx.AsyncClient] = None):
         super().__init__(http_client)
-        self.BASE_URL = "https://finviz.com/screener.ashx?v=111&f=earningsdate_tomorrow%2Csh_avgvol_o1000&ft=4"
+        self.BASE_URL = "https://finviz.com/screener.ashx?v=111&f=earningsdate_today%2Csh_avgvol_o1000&ft=4"
