@@ -7,6 +7,10 @@ from common.user_agent import UserAgentManager
 from gpt.abstracts import IGPTClient
 from gpt.gemini import GeminiClient
 from gpt.grok import GrokClient
+from publishers.abstracts import IBroker
+from publishers.interactive_brokers import InteractiveWebapiBroker
+from pullers.market.abstracts import IMarketProvider
+from pullers.market.yahoo import YahooMarketProvider
 from pullers.scanners.abstracts import IScanner
 from pullers.scanners.ai_scanners import EarningTomorrowAI
 from pullers.scanners.finviz.earning_tommrow import EarningTommrow
@@ -63,6 +67,18 @@ class Container(containers.DeclarativeContainer):
         earnings_scanner=finviz_scanner,
         grok_client=grok_client,
         gemini_client=gemini_client,
+    )
+
+    # Brokers
+    ibkr_broker: providers.Provider[IBroker] = providers.Singleton(
+        InteractiveWebapiBroker,
+        config=providers.Object(settings.ibkr),
+    )
+
+    # Market Providers
+    yahoo_market_provider: providers.Provider[IMarketProvider] = providers.Singleton(
+        YahooMarketProvider,
+        http_client=http_client,
     )
 
 

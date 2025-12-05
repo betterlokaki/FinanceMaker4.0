@@ -76,6 +76,29 @@ class AIScannerConfig(BaseSettings):
     )
 
 
+class IBKRConfig(BaseSettings):
+    """Interactive Brokers API configuration."""
+    model_config = SettingsConfigDict(
+        env_prefix="IBKR_",
+        case_sensitive=False,
+    )
+    access_token: str = Field(default="", description="IBKR OAuth access token")
+    access_token_secret: str = Field(default="", description="IBKR OAuth access token secret")
+    consumer_key: str = Field(default="", description="IBKR OAuth consumer key")
+    dh_param_path: str = Field(default="", description="Path to DH param file")
+    encryption_key_path: str = Field(default="", description="Path to encryption key file")
+    signature_key_path: str = Field(default="", description="Path to signature key file")
+    listing_exchange: str = Field(default="SMART", description="Default listing exchange")
+    outside_rth: bool = Field(default=True, description="Allow outside regular trading hours")
+
+
+class YahooConfig(BaseSettings):
+    """Yahoo Finance API configuration."""
+    base_url: str = Field(default="https://query1.finance.yahoo.com")
+    timeout: float = Field(default=30.0)
+    max_retries: int = Field(default=3)
+    intraday_chunk_days: int = Field(default=7, description="Chunk size for intraday requests")
+
 
 class Settings(BaseSettings):
     """Main application settings.
@@ -93,6 +116,7 @@ class Settings(BaseSettings):
         env_file_encoding="utf-8",
         case_sensitive=False,
         env_nested_delimiter="__",  # For nested env vars: HTTP__TIMEOUT=60
+        extra="ignore",  # Ignore extra fields from config.yaml
     )
 
     # Service configurations
@@ -102,6 +126,8 @@ class Settings(BaseSettings):
     http: HttpConfig = Field(default_factory=HttpConfig)
     user_agent: UserAgentConfig = Field(default_factory=UserAgentConfig)
     ai_scanner: AIScannerConfig = Field(default_factory=AIScannerConfig)
+    ibkr: IBKRConfig = Field(default_factory=IBKRConfig)
+    yahoo: YahooConfig = Field(default_factory=YahooConfig)
 
     # Application settings
     debug: bool = Field(default=False)
