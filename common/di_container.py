@@ -11,6 +11,8 @@ from publishers.abstracts import IBroker
 from publishers.interactive_brokers import InteractiveWebapiBroker
 from pullers.market.abstracts import IMarketProvider
 from pullers.market.yahoo import YahooMarketProvider
+from pullers.realtime.abstracts import IRealtimeProvider
+from pullers.realtime.yahoo import YahooRealtimeProvider
 from pullers.scanners.abstracts import IScanner
 from pullers.scanners.ai_scanners import EarningTomorrowAI
 from pullers.scanners.finviz.earning_tommrow import EarningTommrow
@@ -79,6 +81,14 @@ class Container(containers.DeclarativeContainer):
     yahoo_market_provider: providers.Provider[IMarketProvider] = providers.Singleton(
         YahooMarketProvider,
         http_client=http_client,
+    )
+
+    # Realtime Providers
+    yahoo_realtime_provider: providers.Provider[IRealtimeProvider] = providers.Singleton(
+        YahooRealtimeProvider,
+        base_url=settings.realtime.base_url,
+        reconnect_delay=settings.realtime.reconnect_delay,
+        max_reconnect_attempts=settings.realtime.max_reconnect_attempts,
     )
 
 

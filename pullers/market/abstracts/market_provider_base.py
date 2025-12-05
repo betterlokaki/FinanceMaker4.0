@@ -6,9 +6,10 @@ import httpx
 import pandas as pd
 
 from common.models.period import Period
+from pullers.market.abstracts.i_market_provider import IMarketProvider
 
 
-class MarketProviderBase(ABC):
+class MarketProviderBase(IMarketProvider, ABC):
     """Abstract base class for market data providers.
     
     Implements the IMarketProvider protocol. Concrete implementations

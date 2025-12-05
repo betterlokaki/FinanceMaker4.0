@@ -100,6 +100,22 @@ class YahooConfig(BaseSettings):
     intraday_chunk_days: int = Field(default=7, description="Chunk size for intraday requests")
 
 
+class RealtimeConfig(BaseSettings):
+    """Real-time WebSocket data feed configuration."""
+    base_url: str = Field(
+        default="wss://streamer.finance.yahoo.com/?version=2",
+        description="WebSocket URL for real-time data"
+    )
+    reconnect_delay: float = Field(
+        default=1.0,
+        description="Initial delay between reconnection attempts (seconds)"
+    )
+    max_reconnect_attempts: int = Field(
+        default=5,
+        description="Maximum number of reconnection attempts"
+    )
+
+
 class Settings(BaseSettings):
     """Main application settings.
     
@@ -128,6 +144,7 @@ class Settings(BaseSettings):
     ai_scanner: AIScannerConfig = Field(default_factory=AIScannerConfig)
     ibkr: IBKRConfig = Field(default_factory=IBKRConfig)
     yahoo: YahooConfig = Field(default_factory=YahooConfig)
+    realtime: RealtimeConfig = Field(default_factory=RealtimeConfig)
 
     # Application settings
     debug: bool = Field(default=False)
