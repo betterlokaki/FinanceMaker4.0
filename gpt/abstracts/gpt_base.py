@@ -3,8 +3,10 @@ import abc
 
 import httpx
 
+from gpt.abstracts.i_gpt_client import IGPTClient
 
-class GPTBase(abc.ABC):
+
+class GPTBase(IGPTClient, abc.ABC):
     """Abstract base class for GPT/AI text generation clients.
     
     Provides an interface for implementing different AI provider clients

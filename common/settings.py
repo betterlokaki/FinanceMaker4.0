@@ -116,6 +116,26 @@ class RealtimeConfig(BaseSettings):
     )
 
 
+class SchedulerConfig(BaseSettings):
+    """Trading scheduler configuration."""
+    exchange: str = Field(
+        default="XNYS",
+        description="Exchange calendar code (XNYS = NYSE)"
+    )
+    timezone: str = Field(
+        default="America/New_York",
+        description="Market timezone"
+    )
+    strategy_max_retries: int = Field(
+        default=3,
+        description="Max retry attempts for failed strategies"
+    )
+    strategy_retry_delay: float = Field(
+        default=5.0,
+        description="Delay between strategy retry attempts (seconds)"
+    )
+
+
 class Settings(BaseSettings):
     """Main application settings.
     
@@ -145,6 +165,7 @@ class Settings(BaseSettings):
     ibkr: IBKRConfig = Field(default_factory=IBKRConfig)
     yahoo: YahooConfig = Field(default_factory=YahooConfig)
     realtime: RealtimeConfig = Field(default_factory=RealtimeConfig)
+    scheduler: SchedulerConfig = Field(default_factory=SchedulerConfig)
 
     # Application settings
     debug: bool = Field(default=False)

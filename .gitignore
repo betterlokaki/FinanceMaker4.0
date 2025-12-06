@@ -3,6 +3,9 @@
 .env.local
 .env.*.local
 
+# Secrets (PEM files, keys, etc.)
+secrets/
+
 # IDE
 .vscode/
 .idea/

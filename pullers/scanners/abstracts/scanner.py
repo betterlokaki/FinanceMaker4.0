@@ -2,9 +2,10 @@
 from abc import ABC, abstractmethod
 
 from common.models.scanner_params import ScannerParams
+from pullers.scanners.abstracts.i_scanner import IScanner
 
 
-class ScannerBase(ABC):
+class ScannerBase(IScanner, ABC):
     """Abstract base class for stock scanners.
     
     Provides an interface for implementing different scanning strategies

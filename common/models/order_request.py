@@ -16,6 +16,8 @@ class OrderRequest:
         order_type: Market, limit, stop, etc.
         limit_price: Price for limit orders.
         stop_price: Trigger price for stop orders.
+        stop_loss_price: Stop loss price for bracket orders.
+        take_profit_price: Take profit price for bracket orders.
         time_in_force: How long the order remains active.
     """
     ticker: str
@@ -24,6 +26,8 @@ class OrderRequest:
     order_type: OrderType = OrderType.MARKET
     limit_price: Optional[float] = None
     stop_price: Optional[float] = None
+    stop_loss_price: Optional[float] = None
+    take_profit_price: Optional[float] = None
     time_in_force: TimeInForce = TimeInForce.DAY
     
     def __post_init__(self) -> None:

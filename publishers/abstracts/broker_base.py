@@ -4,9 +4,10 @@ from abc import ABC, abstractmethod
 from common.models.order_request import OrderRequest
 from common.models.order_response import OrderResponse
 from common.models.portfolio import Portfolio
+from publishers.abstracts.i_broker import IBroker
 
 
-class BrokerBase(ABC):
+class BrokerBase(IBroker, ABC):
     """Abstract base class for broker implementations.
     
     Provides a common interface for different broker integrations

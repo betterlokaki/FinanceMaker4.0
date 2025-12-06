@@ -2,6 +2,7 @@
 import httpx
 from dependency_injector import containers, providers
 
+from common.helpers.market_calendar import MarketCalendar
 from common.settings import settings
 from common.user_agent import UserAgentManager
 from gpt.abstracts import IGPTClient
@@ -16,6 +17,11 @@ from pullers.realtime.yahoo import YahooRealtimeProvider
 from pullers.scanners.abstracts import IScanner
 from pullers.scanners.ai_scanners import EarningTomorrowAI
 from pullers.scanners.finviz.earning_tommrow import EarningTommrow
+from scheduler.abstracts import IScheduler
+from scheduler.strategy_runner import StrategyRunner
+from scheduler.trading_scheduler import TradingScheduler
+from strategy.abstracts import ITradingStrategy
+from strategy.earning_strategy import EarningStrategy
 
 
 class Container(containers.DeclarativeContainer):
@@ -89,6 +95,41 @@ class Container(containers.DeclarativeContainer):
         base_url=settings.realtime.base_url,
         reconnect_delay=settings.realtime.reconnect_delay,
         max_reconnect_attempts=settings.realtime.max_reconnect_attempts,
+    )
+
+    # Trading Strategies
+    earning_strategy: providers.Provider[ITradingStrategy] = providers.Singleton(
+        EarningStrategy,
+        realtime_provider=yahoo_realtime_provider,
+        earnings_scanner=earning_tomorrow_ai_scanner,
+        broker=ibkr_broker,
+    )
+
+    # Strategy list for scheduler
+    strategies: providers.Provider[list[ITradingStrategy]] = providers.List(
+        earning_strategy,
+    )
+
+    # Market Calendar
+    market_calendar = providers.Singleton(
+        MarketCalendar,
+        exchange=settings.scheduler.exchange,
+        timezone=settings.scheduler.timezone,
+    )
+
+    # Strategy Runner
+    strategy_runner = providers.Singleton(
+        StrategyRunner,
+        strategies=strategies,
+        max_retries=settings.scheduler.strategy_max_retries,
+        retry_delay=settings.scheduler.strategy_retry_delay,
+    )
+
+    # Scheduler
+    trading_scheduler: providers.Provider[IScheduler] = providers.Singleton(
+        TradingScheduler,
+        strategy_runner=strategy_runner,
+        market_calendar=market_calendar,
     )
 
 
