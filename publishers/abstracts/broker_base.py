@@ -90,6 +90,15 @@ class BrokerBase(IBroker, ABC):
         """
         pass
 
+    async def get_buying_power(self) -> float:
+        """Get the current buying power available for trading.
+        
+        Returns:
+            Available buying power in account currency.
+        """
+        portfolio: Portfolio = await self.get_portfolio()
+        return portfolio.buying_power
+
     @property
     def is_connected(self) -> bool:
         """Check if broker is currently connected.

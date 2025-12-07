@@ -44,6 +44,7 @@ user_agent:
 
 # AI Scanner Configuration
 ai_scanner:
+  scan_passes: 2  # Number of AI consensus scan passes to run
   prompt_template: |
     You are a Quant Financial advisor specialized
     in predicting post-earnings stock moves. 

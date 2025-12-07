@@ -8,6 +8,7 @@ from common.models.candlestick import CandleStick
 from common.models.order import OrderSide, OrderType
 from common.models.order_request import OrderRequest
 from common.models.scanner_params import ScannerParams
+from common.settings import AIScannerConfig
 from publishers.abstracts.i_broker import IBroker
 from pullers.realtime.abstracts.i_realtime_provider import IRealtimeProvider
 from pullers.scanners.ai_scanners.earning_tommrow_ai import EarningTomorrowAI
@@ -22,7 +23,7 @@ MARKET_WARMUP_TIME: time = time(9, 35)  # 9:35 AM NY (market open + 5 min)
 ENTRY_OFFSET_PCT: float = 0.01  # 1% below candle low
 STOP_LOSS_PCT: float = 0.04  # 4% below entry
 TAKE_PROFIT_PCT: float = 0.08  # 8% above entry
-DEFAULT_QUANTITY: int = 100  # Shares per order
+MIN_QUANTITY: int = 1  # Minimum shares per order
 
 
 class EarningStrategy(RealTimeTradingBase):
@@ -45,6 +46,7 @@ class EarningStrategy(RealTimeTradingBase):
         realtime_provider: IRealtimeProvider,
         earnings_scanner: EarningTomorrowAI,
         broker: IBroker,
+        ai_scanner_config: AIScannerConfig,
     ) -> None:
         """Initialize the earnings strategy.
         
@@ -52,33 +54,49 @@ class EarningStrategy(RealTimeTradingBase):
             realtime_provider: Real-time market data provider.
             earnings_scanner: EarningTomorrowAI scanner (concrete, run twice).
             broker: Broker interface for placing orders.
+            ai_scanner_config: AI scanner configuration with scan_passes.
         """
         super().__init__(realtime_provider)
         self._earnings_scanner: EarningTomorrowAI = earnings_scanner
         self._broker: IBroker = broker
+        self._ai_scanner_config: AIScannerConfig = ai_scanner_config
         self._warmup_complete: bool = False
         self._orders_placed: set[str] = set()  # Track tickers with orders
+        self._buying_power_per_ticker: float = 0.0  # Allocated buying power per ticker
+        self._total_tickers: int = 0  # Total number of tickers to trade
 
     async def load_tickers(self) -> list[str]:
-        """Load tickers by running AI consensus scanner TWICE."""
+        """Load tickers by running AI consensus scanner multiple passes."""
         params: ScannerParams = ScannerParams(
             name="earning_strategy",
             config={"source": "ai_consensus"},
         )
         
-        logger.info("Running earnings scanner - first pass...")
-        first_scan: list[str] = await self._earnings_scanner.scan(params)
-        logger.info("First scan returned %d tickers: %s", len(first_scan), first_scan)
+        combined: set[str] = set()
+        scan_passes: int = self._ai_scanner_config.scan_passes
         
-        logger.info("Running earnings scanner - second pass...")
-        second_scan: list[str] = await self._earnings_scanner.scan(params)
-        logger.info("Second scan returned %d tickers: %s", len(second_scan), second_scan)
+        for pass_num in range(1, scan_passes + 1):
+            logger.info("Running earnings scanner - pass %d/%d...", pass_num, scan_passes)
+            scan_result: list[str] = await self._earnings_scanner.scan(params)
+            logger.info("Pass %d returned %d tickers: %s", pass_num, len(scan_result), scan_result)
+            combined.update(scan_result)
         
-        # Combine unique tickers from both scans
-        combined: set[str] = set(first_scan) | set(second_scan)
         result: list[str] = sorted(combined)
         
         logger.info("Combined %d unique tickers: %s", len(result), result)
+        
+        # Calculate buying power allocation per ticker
+        self._total_tickers = len(result)
+        if self._total_tickers > 0:
+            buying_power: float = await self._broker.get_buying_power()
+            self._buying_power_per_ticker = buying_power / self._total_tickers
+            logger.info(
+                "💰 Buying power: $%.2f, Tickers: %d, Per ticker: $%.2f",
+                buying_power,
+                self._total_tickers,
+                self._buying_power_per_ticker,
+            )
+        
         return result
 
     def _is_warmup_complete(self) -> bool:
@@ -127,18 +145,31 @@ class EarningStrategy(RealTimeTradingBase):
         stop_loss_price: float = round(entry_price * (1 - STOP_LOSS_PCT), 2)
         take_profit_price: float = round(entry_price * (1 + TAKE_PROFIT_PCT), 2)
         
+        # Calculate quantity based on allocated buying power per ticker
+        quantity: int = self._calculate_quantity(entry_price)
+        if quantity < MIN_QUANTITY:
+            logger.warning(
+                "⚠️ %s: Insufficient buying power for minimum quantity (entry=%.2f, allocated=$%.2f)",
+                ticker,
+                entry_price,
+                self._buying_power_per_ticker,
+            )
+            return
+        
         logger.info(
-            "📊 %s order: Entry=%.2f (LOW-1%%), SL=%.2f (-4%%), TP=%.2f (+8%%)",
+            "📊 %s order: Entry=%.2f (LOW-1%%), SL=%.2f (-4%%), TP=%.2f (+8%%), Qty=%d ($%.2f)",
             ticker,
             entry_price,
             stop_loss_price,
             take_profit_price,
+            quantity,
+            self._buying_power_per_ticker,
         )
         
         # Create and place the order
         order_request: OrderRequest = OrderRequest(
             ticker=ticker,
-            quantity=DEFAULT_QUANTITY,
+            quantity=quantity,
             side=OrderSide.BUY,
             order_type=OrderType.LIMIT,
             limit_price=entry_price,
@@ -157,3 +188,16 @@ class EarningStrategy(RealTimeTradingBase):
             response.order_id,
             response.status,
         )
+
+    def _calculate_quantity(self, entry_price: float) -> int:
+        """Calculate order quantity based on allocated buying power.
+        
+        Args:
+            entry_price: The entry price per share.
+            
+        Returns:
+            Number of shares to buy (floored to int).
+        """
+        if entry_price <= 0:
+            return 0
+        return int(self._buying_power_per_ticker / entry_price)

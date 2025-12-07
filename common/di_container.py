@@ -103,6 +103,7 @@ class Container(containers.DeclarativeContainer):
         realtime_provider=yahoo_realtime_provider,
         earnings_scanner=earning_tomorrow_ai_scanner,
         broker=ibkr_broker,
+        ai_scanner_config=providers.Object(settings.ai_scanner),
     )
 
     # Strategy list for scheduler

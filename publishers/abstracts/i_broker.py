@@ -76,6 +76,14 @@ class IBroker(Protocol):
         """
         ...
 
+    async def get_buying_power(self) -> float:
+        """Get the current buying power available for trading.
+        
+        Returns:
+            Available buying power in account currency.
+        """
+        ...
+
     @property
     def is_connected(self) -> bool:
         """Check if broker is currently connected.

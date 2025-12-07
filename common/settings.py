@@ -66,6 +66,10 @@ class UserAgentConfig(BaseSettings):
 
 class AIScannerConfig(BaseSettings):
     """AI scanner configuration."""
+    scan_passes: int = Field(
+        default=2,
+        description="Number of AI consensus scan passes to run"
+    )
     prompt_template: str = Field(
         default="From following tickers: {TICKERS}\n\nWhich ones do you suggest for trading today? "
                 "Please provide only the ticker symbols, one per line."

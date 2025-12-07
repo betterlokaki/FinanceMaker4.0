@@ -236,6 +236,33 @@ class InteractiveWebapiBroker(BrokerBase):
         
         return PortfolioConverter.from_ibkr_positions(positions_data, ledger_data)
     
+    async def get_buying_power(self) -> float:
+        """Get the current buying power available for trading.
+        
+        Optimized implementation that only fetches ledger data,
+        avoiding the positions endpoint.
+        
+        Returns:
+            Available buying power in account currency.
+        """
+        self._ensure_connected()
+        assert self._client is not None and self._account_id is not None
+        
+        # Get ledger data for cash balances (no positions needed)
+        ledger_result = self._client.get_ledger(self._account_id)
+        ledger_data: dict[str, Any] | None = (
+            ledger_result.data 
+            if isinstance(ledger_result.data, dict) 
+            else None
+        )
+        
+        if ledger_data is None:
+            return 0.0
+        
+        # Extract buying power from ledger - use BASE or USD
+        base_ledger = ledger_data.get("BASE", ledger_data.get("USD", {}))
+        return float(base_ledger.get("settledcash", 0) or 0)
+    
     async def _get_conid(self, ticker: str) -> int:
         """Get IBKR contract ID for a ticker symbol.
         
