@@ -3,6 +3,7 @@ import asyncio
 import logging
 from datetime import datetime
 
+from common.cache.abstracts import ITickerCache
 from common.helpers.market_calendar import MarketCalendar
 from scheduler.strategy_runner import StrategyRunner
 
@@ -24,15 +25,18 @@ class TradingScheduler:
         self,
         strategy_runner: StrategyRunner,
         market_calendar: MarketCalendar,
+        ticker_cache: ITickerCache,
     ) -> None:
         """Initialize the trading scheduler.
         
         Args:
             strategy_runner: Manages strategy lifecycle.
             market_calendar: Provides market hours info.
+            ticker_cache: Cache for clearing stale ticker data.
         """
         self._runner: StrategyRunner = strategy_runner
         self._calendar: MarketCalendar = market_calendar
+        self._ticker_cache: ITickerCache = ticker_cache
         self._is_running: bool = False
         self._should_stop: bool = False
 
@@ -81,6 +85,9 @@ class TradingScheduler:
         
         logger.info("🔕 After-hours closed!")
         await self._runner.stop_all()
+        
+        # Clear old cache files (keep only today's cache)
+        self._ticker_cache.clear_old_cache()
 
     async def _wait_until(self, target: datetime) -> None:
         """Wait until target time."""

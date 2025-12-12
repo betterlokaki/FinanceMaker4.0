@@ -80,7 +80,7 @@ class PremiumScanner(ScannerBase):
 ```
 IScanner (Protocol)          ← Interface for type hints
     ↑
-ScannerBase (ABC)            ← Abstract base class implements interface
+ScannerBase (ABC, IScanner)  ← Abstract base class EXPLICITLY implements interface
     ↑
 FinvizScanner               ← Concrete implementation (NO separate interface needed)
     ↑
@@ -88,13 +88,13 @@ EarningTommrow              ← Child class (inherits from FinvizScanner, NO int
 ```
 
 ```python
-# ✅ Correct - only base class has interface
+# ✅ Correct - only base class has interface, and EXPLICITLY inherits it
 # abstracts/i_scanner.py
 class IScanner(Protocol):
     async def scan(self, params: ScannerParams) -> list[str]: ...
 
 # abstracts/scanner_base.py
-class ScannerBase(ABC):  # Implements IScanner implicitly
+class ScannerBase(ABC, IScanner):  # MUST explicitly inherit the interface!
     @abstractmethod
     async def scan(self, params: ScannerParams) -> list[str]: ...
 
@@ -105,6 +105,11 @@ class FinvizScanner(ScannerBase):  # NO separate IFinvizScanner needed
 # implementations/earning_tomorrow.py
 class EarningTommrow(FinvizScanner):  # Inherits, NO interface needed
     pass
+
+# ❌ Wrong - base class does NOT inherit the interface (implicit is NOT allowed)
+class ScannerBase(ABC):  # MISSING IScanner inheritance!
+    @abstractmethod
+    async def scan(self, params: ScannerParams) -> list[str]: ...
 
 # ❌ Wrong - creating interface for every class
 class IFinvizScanner(Protocol): ...  # UNNECESSARY

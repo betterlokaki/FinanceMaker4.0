@@ -23,7 +23,7 @@ class RealTimeTradingBase(ITradingStrategy, ABC):
         - on_candle(ticker, candle): Handle confirmed candles
     """
 
-    CANDLE_TICKS: int = 300  # Number of ticks per candle
+    CANDLE_TICKS: int = 1  # Number of ticks per candle
 
     def __init__(self, realtime_provider: IRealtimeProvider) -> None:
         """Initialize the real-time trading strategy.
@@ -117,7 +117,8 @@ class RealTimeTradingBase(ITradingStrategy, ABC):
         
         state: dict = self._building_candles[ticker]
         elapsed: float = (data.time - state["start_time"]).total_seconds()
-        
+        print("Tick received for %s: price=%.2f, time=%s",
+                     ticker, data.price, data.time  )
         if elapsed >= self.CANDLE_TICKS:
             candle: CandleStick = self._finalize_candle(state)
             await self.on_candle(ticker, candle)

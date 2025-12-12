@@ -2,6 +2,8 @@
 import httpx
 from dependency_injector import containers, providers
 
+from common.cache.abstracts import ITickerCache
+from common.cache.file_ticker_cache import FileTickerCache
 from common.helpers.market_calendar import MarketCalendar
 from common.settings import settings
 from common.user_agent import UserAgentManager
@@ -50,6 +52,12 @@ class Container(containers.DeclarativeContainer):
 
     # Domain services
     user_agent_manager = providers.Singleton(UserAgentManager)
+
+    # Ticker Cache
+    ticker_cache: providers.Provider[ITickerCache] = providers.Singleton(
+        FileTickerCache,
+        config=providers.Object(settings.cache),
+    )
 
     # AI Clients (must be defined before scanners that depend on them)
     grok_client: providers.Provider[IGPTClient] = providers.Singleton(
@@ -104,6 +112,7 @@ class Container(containers.DeclarativeContainer):
         earnings_scanner=earning_tomorrow_ai_scanner,
         broker=ibkr_broker,
         ai_scanner_config=providers.Object(settings.ai_scanner),
+        ticker_cache=ticker_cache,
     )
 
     # Strategy list for scheduler
@@ -131,6 +140,7 @@ class Container(containers.DeclarativeContainer):
         TradingScheduler,
         strategy_runner=strategy_runner,
         market_calendar=market_calendar,
+        ticker_cache=ticker_cache,
     )
 
 

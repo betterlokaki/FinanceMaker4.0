@@ -140,6 +140,18 @@ class SchedulerConfig(BaseSettings):
     )
 
 
+class CacheConfig(BaseSettings):
+    """Ticker cache configuration."""
+    enabled: bool = Field(
+        default=True,
+        description="Enable/disable ticker caching"
+    )
+    cache_dir: str = Field(
+        default="./cache/tickers",
+        description="Directory path for cache files"
+    )
+
+
 class Settings(BaseSettings):
     """Main application settings.
     
@@ -170,6 +182,7 @@ class Settings(BaseSettings):
     yahoo: YahooConfig = Field(default_factory=YahooConfig)
     realtime: RealtimeConfig = Field(default_factory=RealtimeConfig)
     scheduler: SchedulerConfig = Field(default_factory=SchedulerConfig)
+    cache: CacheConfig = Field(default_factory=CacheConfig)
 
     # Application settings
     debug: bool = Field(default=False)

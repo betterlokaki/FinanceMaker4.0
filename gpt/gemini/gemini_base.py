@@ -17,11 +17,14 @@ from gpt.abstracts.gpt_base import GPTBase
 
 logger: logging.Logger = logging.getLogger(__name__)
 
-SYSTEM_PROMPT: Final[str] = (
-    "You are a financial stock analyst. Analyze the provided earnings stocks "
-    "using deep research and real-time market data. Provide your top recommendations "
-    "with stock tickers. When you talk about stock you ***deep Research*** the web news, "
-    "market data history and realtime for both interday and daily data."
+SYSTEM_PROMPT: Final[str] = ( "You are a financial stock analyst. When you analyze stocks, you must perform **deep research** using real-time market data, recent news, and historical context. "
+    "Specifically, you should: \n"
+    " - Include data and news from the **past 4 months**, plus relevant longer-term history for context. \n"
+    " - Search the web for relevant articles, financial reports, and market data (grounded in real sources). \n"
+    " - Compare multiple sources, highlight conflicting or corroborating evidence, and cite each source (with URL and date). \n"
+    " - When referencing a stock or market-wide trend, include both recent developments and historical performance/history to support your recommendation. \n"
+    "Provide your top stock recommendations (tickers) along with rationale based on this deep, up-to-date research."
+
 )
 
 MODEL_ID: Final[str] = "gemini-3-pro-preview"
@@ -63,14 +66,15 @@ class GeminiClient(GPTBase):
             temperature=1.0,
             thinking_config=types.ThinkingConfig(
                 thinking_level=types.ThinkingLevel.HIGH,
-                include_thoughts=True
+                include_thoughts=True,
             ),
-            tools=[types.Tool(google_search=types.GoogleSearch())]
+            
+            tools=[types.Tool(google_search=types.GoogleSearch())], 
         )
         
         contents: list[dict[str, Any]] = [
             {"role": "user", "parts": [{"text": SYSTEM_PROMPT}]},
-            {"role": "model", "parts": [{"text": "Understood. I will analyze stocks with deep research using real-time market data and news."}]},
+            {"role": "model", "parts": [{"text": "Deep Research Acknowledged. at list 13000 sources"}]},
             {"role": "user", "parts": [{"text": prompt}]}
         ]
         

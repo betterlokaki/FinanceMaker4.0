@@ -69,6 +69,11 @@ ai_scanner:
     ]
   extraction_method: "line_based"
 
+# Ticker Cache Configuration
+cache:
+  enabled: true
+  cache_dir: "./cache/tickers"
+
 # Application Settings
 debug: false
 log_level: "INFO"

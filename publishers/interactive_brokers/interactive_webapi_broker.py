@@ -14,6 +14,7 @@ from common.models.order_request import OrderRequest
 from common.models.order_response import OrderResponse
 from common.models.portfolio import Portfolio
 from common.settings import IBKRConfig
+from common.models.order import OrderSide, OrderStatus, OrderType
 from publishers.abstracts.broker_base import BrokerBase
 
 
@@ -118,8 +119,9 @@ class InteractiveWebapiBroker(BrokerBase):
             listing_exchange=self._config.listing_exchange,
             outside_rth=self._config.outside_rth,
         )
-        
-        # Place order - returns Result with data attribute
+        p = OrderResponse("", "", 0, 0, OrderSide.BUY, OrderType.LIMIT, OrderStatus.PENDING)
+        # for ibkr_order in ibkr_orders:
+            # Place order - returns Result with data attribute
         result = self._client.place_order(
             ibkr_order,
             self.DEFAULT_QUESTION_ANSWERS,
@@ -133,12 +135,14 @@ class InteractiveWebapiBroker(BrokerBase):
         # Check if response contains error
         if isinstance(result.data, dict) and "error" in result.data:
             raise ValueError(f"Order placement failed: {result.data['error']}")
-        
-        return OrderResponseConverter.from_place_order_response(
+    
+        p =  OrderResponseConverter.from_place_order_response(
             result.data,
             order_request,
         )
-    
+        order_id = p.order_id
+            
+        return p
     async def cancel_order(self, order_id: str) -> OrderResponse:
         """Cancel an existing order.
         
@@ -245,6 +249,7 @@ class InteractiveWebapiBroker(BrokerBase):
         Returns:
             Available buying power in account currency.
         """
+        await self.connect()
         self._ensure_connected()
         assert self._client is not None and self._account_id is not None
         

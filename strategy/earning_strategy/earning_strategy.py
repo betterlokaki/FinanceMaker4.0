@@ -1,9 +1,10 @@
 """Earnings-based trading strategy using AI consensus."""
 import logging
-from datetime import datetime, time
+from datetime import date, datetime, time
 
 from zoneinfo import ZoneInfo
 
+from common.cache.abstracts import ITickerCache
 from common.models.candlestick import CandleStick
 from common.models.order import OrderSide, OrderType
 from common.models.order_request import OrderRequest
@@ -47,6 +48,7 @@ class EarningStrategy(RealTimeTradingBase):
         earnings_scanner: EarningTomorrowAI,
         broker: IBroker,
         ai_scanner_config: AIScannerConfig,
+        ticker_cache: ITickerCache,
     ) -> None:
         """Initialize the earnings strategy.
         
@@ -55,18 +57,62 @@ class EarningStrategy(RealTimeTradingBase):
             earnings_scanner: EarningTomorrowAI scanner (concrete, run twice).
             broker: Broker interface for placing orders.
             ai_scanner_config: AI scanner configuration with scan_passes.
+            ticker_cache: Cache for storing/loading tickers across restarts.
         """
         super().__init__(realtime_provider)
         self._earnings_scanner: EarningTomorrowAI = earnings_scanner
         self._broker: IBroker = broker
         self._ai_scanner_config: AIScannerConfig = ai_scanner_config
+        self._ticker_cache: ITickerCache = ticker_cache
         self._warmup_complete: bool = False
         self._orders_placed: set[str] = set()  # Track tickers with orders
         self._buying_power_per_ticker: float = 0.0  # Allocated buying power per ticker
         self._total_tickers: int = 0  # Total number of tickers to trade
 
     async def load_tickers(self) -> list[str]:
-        """Load tickers by running AI consensus scanner multiple passes."""
+        """Load tickers by running AI consensus scanner multiple passes.
+        
+        Checks cache first to avoid expensive AI calls on process restart.
+        Saves results to cache for future use.
+        """
+        today: date = date.today()
+        
+        # Check cache first
+        cached_tickers: list[str] | None = self._ticker_cache.load_tickers(today)
+        if cached_tickers:
+            logger.info(
+                "📂 Using cached tickers (%d): %s",
+                len(cached_tickers),
+                cached_tickers,
+            )
+            result: list[str] = cached_tickers
+        else:
+            # No cache - run AI scanner
+            result = await self._run_ai_scanner()
+            
+            # Save to cache for future restarts
+            self._ticker_cache.save_tickers(result, today)
+        
+        # Calculate buying power allocation per ticker
+        self._total_tickers = len(result)
+        if self._total_tickers > 0:
+            buying_power: float = await self._broker.get_buying_power()
+            self._buying_power_per_ticker = buying_power / self._total_tickers
+            logger.info(
+                "💰 Buying power: $%.2f, Tickers: %d, Per ticker: $%.2f",
+                buying_power,
+                self._total_tickers,
+                self._buying_power_per_ticker,
+            )
+        
+        return result
+
+    async def _run_ai_scanner(self) -> list[str]:
+        """Run AI consensus scanner for multiple passes.
+        
+        Returns:
+            Combined unique tickers from all scan passes.
+        """
         params: ScannerParams = ScannerParams(
             name="earning_strategy",
             config={"source": "ai_consensus"},
@@ -82,20 +128,7 @@ class EarningStrategy(RealTimeTradingBase):
             combined.update(scan_result)
         
         result: list[str] = sorted(combined)
-        
         logger.info("Combined %d unique tickers: %s", len(result), result)
-        
-        # Calculate buying power allocation per ticker
-        self._total_tickers = len(result)
-        if self._total_tickers > 0:
-            buying_power: float = await self._broker.get_buying_power()
-            self._buying_power_per_ticker = buying_power / self._total_tickers
-            logger.info(
-                "💰 Buying power: $%.2f, Tickers: %d, Per ticker: $%.2f",
-                buying_power,
-                self._total_tickers,
-                self._buying_power_per_ticker,
-            )
         
         return result
 
