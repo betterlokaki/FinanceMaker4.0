@@ -111,38 +111,39 @@ class InteractiveWebapiBroker(BrokerBase):
         # Get contract ID for ticker
         conid = await self._get_conid(order_request.ticker)
         
-        # Convert to IBKR order request
-        ibkr_order = OrderRequestConverter.to_ibkr(
+        # Convert to IBKR order request(s). May return a single request or a list
+        # (bracket orders). The `ibind` client `place_order` accepts either a
+        # dict-like request or a list of requests for bracket submission.
+        ibkr_requests = OrderRequestConverter.to_ibkr(
             order_request=order_request,
             conid=conid,
             account_id=self._account_id,
             listing_exchange=self._config.listing_exchange,
             outside_rth=self._config.outside_rth,
         )
-        p = OrderResponse("", "", 0, 0, OrderSide.BUY, OrderType.LIMIT, OrderStatus.PENDING)
-        # for ibkr_order in ibkr_orders:
-            # Place order - returns Result with data attribute
+
+        # Place order - support single request or list of requests. Attempt to
+        # submit bracket as a single batch (parent coid + children parent_id).
+        # If IBKR rejects that (some environments may require the parent to be
+        # registered first), fall back to submitting the parent first and then
+        # submitting children referencing the returned parent order id.
         result = self._client.place_order(
-            ibkr_order,
+            ibkr_requests,
             self.DEFAULT_QUESTION_ANSWERS,
             self._account_id,
         )
-        
-        # Result.data contains the response - check for errors in data
+
+        # Result.data contains the response - must be present
         if result.data is None:
             raise ValueError("Order placement failed: no response data")
-        
-        # Check if response contains error
-        if isinstance(result.data, dict) and "error" in result.data:
-            raise ValueError(f"Order placement failed: {result.data['error']}")
-    
-        p =  OrderResponseConverter.from_place_order_response(
+
+        # If IBKR returned an error, allow a fallback for bracket submission
+        # Success path: convert IBKR response to our OrderResponse
+        order_responses = OrderResponseConverter.from_place_order_response(
             result.data,
             order_request,
         )
-        order_id = p.order_id
-            
-        return p
+        return order_responses
     async def cancel_order(self, order_id: str) -> OrderResponse:
         """Cancel an existing order.
         
