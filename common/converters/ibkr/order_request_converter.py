@@ -18,8 +18,9 @@ class OrderRequestConverter:
       take profit. The parent order will receive a `coid` (client id) which is
       referenced by child `parent_id` fields. This mirrors the `ibind` examples
       and IBKR WebAPI usage.
-    - Take profit and parent (limit) are allowed OTH (outside regular trading
-      hours). Stop loss child is explicitly set to NOT allow OTH.
+    - All bracket orders use GTC time-in-force.
+    - Parent (limit entry) and take profit are RTH-only (outside_rth=False).
+    - Stop loss child is also RTH-only (outside_rth=False).
     """
 
     # Mapping from our OrderSide to IBKR side strings
@@ -149,6 +150,7 @@ class OrderRequestConverter:
 
         # Parent order (entry). For bracket usage parent is typically a limit
         # entry; still mirror fields from the request.
+        # RTH-only for limit entry orders
         parent = IbkrOrderRequest(
             conid=conid,
             side=cls.SIDE_MAP[order_request.side],
@@ -157,7 +159,7 @@ class OrderRequestConverter:
             acct_id=account_id,
             ticker=order_request.ticker,
             listing_exchange=listing_exchange,
-            outside_rth=outside_rth,
+            outside_rth=False,  # RTH-only for limit entry
             tif=cls.TIF_MAP[order_request.time_in_force],
             price=order_request.limit_price,
         )
@@ -178,7 +180,7 @@ class OrderRequestConverter:
             parent_id=parent_coid,
         )
 
-        # Take profit child: opposite side, LMT order, allow OTH
+        # Take profit child: opposite side, LMT order, RTH-only
         take_profit = IbkrOrderRequest(
             conid=conid,
             side="SELL" if order_request.side == OrderSide.BUY else "BUY",
@@ -187,7 +189,7 @@ class OrderRequestConverter:
             acct_id=account_id,
             ticker=order_request.ticker,
             listing_exchange=listing_exchange,
-            outside_rth=True,
+            outside_rth=False,  # RTH-only for take profit
             tif="GTC",
             price=order_request.take_profit_price,
             parent_id=parent_coid,

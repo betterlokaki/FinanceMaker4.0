@@ -61,3 +61,29 @@ class MarketCalendar:
     def get_after_hours_close(self, trading_day: datetime) -> datetime:
         """Get after-hours close time (8:00 PM EST)."""
         return trading_day.replace(hour=self.AFTER_HOURS_CLOSE_HOUR, minute=0, second=0, microsecond=0)
+
+    def is_trading_day(self, date: datetime) -> bool:
+        """Check if a given date is a trading day.
+        
+        Args:
+            date: Date to check.
+            
+        Returns:
+            True if the date is a trading day, False otherwise.
+        """
+        ts = pd.Timestamp(date.date())
+        return self._calendar.is_session(ts)
+
+    def is_market_hours_open(self) -> bool:
+        """Check if currently within market hours (4 AM - 8 PM EST).
+        
+        Returns:
+            True if current time is between pre-market open and after-hours close
+            on a trading day, False otherwise.
+        """
+        now: datetime = self.now()
+        if not self.is_trading_day(now):
+            return False
+        pre_market: datetime = self.get_pre_market_open(now)
+        after_hours: datetime = self.get_after_hours_close(now)
+        return pre_market <= now <= after_hours

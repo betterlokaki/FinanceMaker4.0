@@ -1,4 +1,5 @@
 """Ticker extraction helper utilities."""
+import ast
 import json
 import logging
 import re
@@ -11,10 +12,11 @@ def extract_tickers_from_response(response: str, valid_tickers: list[str]) -> se
     
     Supports multiple formats:
     1. JSON array format: [{"Ticker": "NVDA", "Score": 94}, ...]
-    2. JSON object format: {"NVDA": 94, "LOW": 86, ...}
-    3. JSON in markdown code blocks: ```json\\n[...]\\n```
-    4. JSON embedded in text (strips preamble before first [ or {)
-    5. Text with ticker patterns: "NVDA is a strong buy..."
+    2. JSON array of strings: ["ARGX", "ALNY", "SNOW", ...]
+    3. JSON object format: {"NVDA": 94, "LOW": 86, ...}
+    4. JSON in markdown code blocks: ```json\\n[...]\\n```
+    5. JSON embedded in text (strips preamble before first [ or {)
+    6. Text with ticker patterns: "NVDA is a strong buy..."
     
     Strategy:
     1. Remove markdown code block markers (```)
@@ -101,6 +103,10 @@ def _extract_from_json_array(
 ) -> set[str]:
     """Extract tickers from JSON array format.
     
+    Supports two formats:
+    1. Array of objects: [{"Ticker": "NVDA", "Score": 94}, ...]
+    2. Array of strings: ["ARGX", "ALNY", "SNOW", ...]
+    
     Args:
         cleaned_response: Pre-processed response text.
         json_array_start: Index where JSON array starts.
@@ -115,17 +121,35 @@ def _extract_from_json_array(
     if json_end != -1 and json_end > json_array_start:
         json_str: str = cleaned_response[json_array_start:json_end + 1]
         logger.debug(f"Attempting to parse JSON array: {json_str[:100]}...")
-        json_data = json.loads(json_str)
+        
+        # Try JSON parsing first, fall back to ast.literal_eval for Python literal syntax
+        json_data = None
+        try:
+            json_data = json.loads(json_str)
+        except (json.JSONDecodeError, ValueError):
+            try:
+                json_data = ast.literal_eval(json_str)
+                logger.debug("JSON parsing failed, successfully used ast.literal_eval instead")
+            except (ValueError, SyntaxError) as e:
+                logger.debug(f"Both JSON and ast.literal_eval parsing failed: {str(e)}")
+                return suggested
         
         if isinstance(json_data, list):
             for item in json_data:
                 if isinstance(item, dict):
+                    # Handle array of objects format: [{"Ticker": "NVDA", ...}, ...]
                     ticker_value = _find_ticker_in_dict(item)
                     if ticker_value:
                         ticker: str = str(ticker_value).upper().strip()
                         if ticker in valid_set:
                             suggested.add(ticker)
-                            logger.debug(f"Extracted ticker from JSON array: {ticker}")
+                            logger.debug(f"Extracted ticker from JSON array (object format): {ticker}")
+                elif isinstance(item, str):
+                    # Handle array of strings format: ["ARGX", "ALNY", ...]
+                    ticker: str = item.upper().strip()
+                    if ticker in valid_set:
+                        suggested.add(ticker)
+                        logger.debug(f"Extracted ticker from JSON array (string format): {ticker}")
             
             if suggested:
                 logger.info(f"Successfully extracted {len(suggested)} tickers from JSON array response")
@@ -154,7 +178,18 @@ def _extract_from_json_object(
     if json_end != -1 and json_end > json_obj_start:
         json_str: str = cleaned_response[json_obj_start:json_end + 1]
         logger.debug(f"Attempting to parse JSON object: {json_str[:100]}...")
-        json_data = json.loads(json_str)
+        
+        # Try JSON parsing first, fall back to ast.literal_eval for Python literal syntax
+        json_data = None
+        try:
+            json_data = json.loads(json_str)
+        except (json.JSONDecodeError, ValueError):
+            try:
+                json_data = ast.literal_eval(json_str)
+                logger.debug("JSON parsing failed, successfully used ast.literal_eval instead")
+            except (ValueError, SyntaxError) as e:
+                logger.debug(f"Both JSON and ast.literal_eval parsing failed: {str(e)}")
+                return suggested
         
         if isinstance(json_data, dict):
             for key in json_data.keys():

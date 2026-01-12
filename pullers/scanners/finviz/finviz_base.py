@@ -82,11 +82,12 @@ class FinvizScanner(ScannerBase):
         
         headers: dict[str, str] = {
             "User-Agent": UserAgentManager.get_random_user_agent(),
-            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-            "Accept-Language": "en-US,en;q=0.5",
-            "Referer": "https://finviz.com/",
-            "Connection": "keep-alive",
-            "Upgrade-Insecure-Requests": "1",
+            # "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+            # "Accept-Language": "en-US,en;q=0.5",
+            # "Referer": "https://finviz.com/",
+            # "Connection": "keep-alive",
+            # "Upgrade-Insecure-Requests": "1",
+            "sec-fetch-dest": "document"
         }
         
         response: httpx.Response = await self._http_client.get(url, headers=headers)

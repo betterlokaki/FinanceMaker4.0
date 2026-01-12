@@ -67,7 +67,7 @@ class YahooRealtimeProvider(RealtimeProviderBase):
             return
             
         message: dict[str, list[str]] = {"subscribe": tickers}
-        await self._websocket.send(json.dumps(message))
+        data = await self._websocket.send(json.dumps(message))
         logger.debug("Subscribed to tickers: %s", tickers)
 
     async def _send_unsubscribe_message(self, tickers: list[str]) -> None:

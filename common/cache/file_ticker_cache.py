@@ -1,8 +1,9 @@
 """File-based ticker cache implementation."""
 import json
 import logging
-from datetime import date
+from datetime import date, datetime
 from pathlib import Path
+from typing import Any
 
 from common.cache.abstracts.ticker_cache_base import TickerCacheBase
 from common.settings import CacheConfig
@@ -114,3 +115,92 @@ class FileTickerCache(TickerCacheBase):
         
         if deleted_count > 0:
             logger.info("🗑️ Cleared %d old cache files", deleted_count)
+
+    def save_tickers_with_timestamp(
+        self, tickers: list[str], cache_key: str, ttl_hours: float = 2.0
+    ) -> None:
+        """Save tickers to cache with timestamp and TTL.
+        
+        Args:
+            tickers: List of stock ticker symbols to cache.
+            cache_key: Unique key for this cache entry (e.g., "demand_zone_tickers").
+            ttl_hours: Time-to-live in hours (default: 2.0).
+        """
+        if not self._config.enabled:
+            logger.debug("Cache disabled, skipping save")
+            return
+        
+        if not tickers:
+            return
+        
+        self._ensure_cache_dir_exists()
+        cache_file: Path = self._cache_dir / f"{cache_key}.json"
+        
+        cache_data: dict[str, Any] = {
+            "tickers": tickers,
+            "timestamp": datetime.now().isoformat(),
+            "ttl_hours": ttl_hours,
+        }
+        
+        with open(cache_file, "w", encoding="utf-8") as f:
+            json.dump(cache_data, f, indent=2)
+        
+        logger.info("💾 Cached %d tickers with %d hour TTL to %s", len(tickers), ttl_hours, cache_file)
+
+    def load_tickers_with_ttl(self, cache_key: str) -> list[str] | None:
+        """Load cached tickers if they're still within TTL.
+        
+        Args:
+            cache_key: Unique key for this cache entry (e.g., "demand_zone_tickers").
+            
+        Returns:
+            List of cached ticker symbols if cache exists and is valid, None otherwise.
+        """
+        if not self._config.enabled:
+            logger.debug("Cache disabled, skipping load")
+            return None
+        
+        cache_file: Path = self._cache_dir / f"{cache_key}.json"
+        
+        if not cache_file.exists():
+            logger.debug("No cache file found for key: %s", cache_key)
+            return None
+        
+        try:
+            with open(cache_file, "r", encoding="utf-8") as f:
+                cache_data: dict[str, Any] = json.load(f)
+            
+            # Check if cache has old format (just list of tickers)
+            if isinstance(cache_data, list):
+                logger.debug("Cache file has old format, ignoring")
+                return None
+            
+            timestamp_str: str = cache_data.get("timestamp")
+            ttl_hours: float = cache_data.get("ttl_hours", 2.0)
+            tickers: list[str] = cache_data.get("tickers", [])
+            
+            if not timestamp_str or not tickers:
+                logger.debug("Invalid cache data format")
+                return None
+            
+            # Check if cache is still valid
+            cache_time: datetime = datetime.fromisoformat(timestamp_str)
+            age_hours: float = (datetime.now() - cache_time).total_seconds() / 3600.0
+            
+            if age_hours > ttl_hours:
+                logger.info("Cache expired (age: %.2f hours, TTL: %.2f hours)", age_hours, ttl_hours)
+                cache_file.unlink()
+                return None
+            
+            logger.info(
+                "📂 Loaded %d tickers from cache (age: %.2f hours, TTL: %.2f hours): %s",
+                len(tickers),
+                age_hours,
+                ttl_hours,
+                tickers,
+            )
+            return tickers
+            
+        except (json.JSONDecodeError, ValueError, KeyError) as e:
+            logger.warning("Error reading cache file %s: %s", cache_file, e)
+            return None

@@ -105,7 +105,7 @@ class InteractiveWebapiBroker(BrokerBase):
             ValueError: If order request is invalid.
             ConnectionError: If not connected to broker.
         """
-        self._ensure_connected()
+        await self._ensure_connected()
         assert self._client is not None and self._account_id is not None
         
         # Get contract ID for ticker
@@ -156,7 +156,7 @@ class InteractiveWebapiBroker(BrokerBase):
         Raises:
             ValueError: If order_id is invalid or order cannot be cancelled.
         """
-        self._ensure_connected()
+        await self._ensure_connected()
         assert self._client is not None and self._account_id is not None
         
         # cancel_order takes (order_id, account_id) per ibind API
@@ -220,7 +220,7 @@ class InteractiveWebapiBroker(BrokerBase):
         Returns:
             Portfolio containing positions and account summary.
         """
-        self._ensure_connected()
+        await self._ensure_connected()
         assert self._client is not None and self._account_id is not None
         
         # Get positions using positions() method
@@ -250,8 +250,7 @@ class InteractiveWebapiBroker(BrokerBase):
         Returns:
             Available buying power in account currency.
         """
-        await self.connect()
-        self._ensure_connected()
+        await self._ensure_connected()
         assert self._client is not None and self._account_id is not None
         
         # Get ledger data for cash balances (no positions needed)

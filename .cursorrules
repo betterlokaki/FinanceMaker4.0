@@ -1,0 +1,51 @@
+# Event-Driven Trading Strategy Rules
+
+## Real-Time Trading Strategies MUST Be Event-Driven
+
+All real-time trading strategies MUST follow event-driven architecture patterns:
+
+1. **Always extend `RealTimeTradingBase`** for real-time trading strategies
+   - Never implement `ITradingStrategy` directly for real-time strategies
+   - The base class handles subscription management, initialization, and shutdown
+
+2. **NEVER use blocking waits or timeouts for price updates**
+   - ❌ NEVER use `await asyncio.wait_for()` for price updates
+   - ❌ NEVER use `asyncio.Event()` to wait for prices
+   - ❌ NEVER use timeouts when waiting for market data
+   - ✅ Prices arrive via `on_tick()` callback - process immediately, never wait
+
+3. **Subscribe once, process events**
+   - Subscribe to all tickers once in `initialize()` (handled by base class)
+   - Unsubscribe in `shutdown()` (handled by base class)
+   - Process prices immediately when they arrive via `on_tick()`
+
+4. **Event-driven flow**
+   - `initialize()` → `load_tickers()` → base class subscribes to all tickers
+   - `on_tick(price_data)` → process immediately when price arrives
+   - No blocking, no waiting, no timeouts - pure event-driven
+
+5. **When writing a real-time strategy:**
+   - Remember: you wait for price to come via events, not via `await` with timeout
+   - Prices arrive asynchronously via `on_tick()` callback
+   - Process each price immediately when it arrives
+   - Track processed tickers to avoid duplicate processing
+
+## Example Pattern
+
+```python
+class MyStrategy(RealTimeTradingBase):
+    async def load_tickers(self) -> list[str]:
+        # Return list of tickers to subscribe to
+        return ["AAPL", "MSFT"]
+    
+    async def on_tick(self, data: PricingData) -> None:
+        # Process price immediately when it arrives (event-driven)
+        ticker = data.id.upper()
+        price = data.price
+        # Process immediately - no waiting, no timeout
+        await self._process_with_price(ticker, price)
+    
+    async def on_candle(self, ticker: str, candle: CandleStick) -> None:
+        # Implement if using candle-based strategy
+        pass
+```

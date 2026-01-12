@@ -152,6 +152,27 @@ class CacheConfig(BaseSettings):
     )
 
 
+class DemandZoneStrategyConfig(BaseSettings):
+    """Demand zone strategy configuration."""
+    finviz_url: str = Field(
+        default="https://finviz.com/screener.ashx?v=111&f=cap_midover%2Cfa_epsqoq_pos%2Cta_perf_13wdown%2Cta_sma200_pa&ft=4",
+        description="Finviz screener URL for demand zone scanning"
+    )
+    trade_value: float = Field(
+        default=3000.0,
+        description="Trade value per order in USD"
+    )
+    run_time: str = Field(
+        default="14:30",
+        description="Run time in Israel timezone (HH:MM format)"
+    )
+    prompt_template: str = Field(
+        default="From following tickers: {TICKERS}\n\nWhich ones do you suggest for trading today? "
+                "Please provide only the ticker symbols, one per line.",
+        description="AI prompt template with {TICKERS} placeholder"
+    )
+
+
 class Settings(BaseSettings):
     """Main application settings.
     
@@ -183,6 +204,7 @@ class Settings(BaseSettings):
     realtime: RealtimeConfig = Field(default_factory=RealtimeConfig)
     scheduler: SchedulerConfig = Field(default_factory=SchedulerConfig)
     cache: CacheConfig = Field(default_factory=CacheConfig)
+    demand_zone_strategy: DemandZoneStrategyConfig = Field(default_factory=DemandZoneStrategyConfig)
 
     # Application settings
     debug: bool = Field(default=False)

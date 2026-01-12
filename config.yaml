@@ -74,6 +74,20 @@ cache:
   enabled: true
   cache_dir: "./cache/tickers"
 
+# Demand Zone Strategy Configuration
+demand_zone_strategy:
+  finviz_url: "https://finviz.com/screener.ashx?v=111&f=cap_midover%2Cfa_epsqoq_pos%2Cta_perf_13wdown%2Cta_sma200_pa&ft=4"
+  trade_value: 3000.0
+  run_time: "14:30"
+  prompt_template: |
+    You are an expert of swing trading, you always always always base on fundamentals, technical, news, market situation sector news and situation, and of course donald trump
+    twits and actions
+    Your goal is to predict from the following stock list which is a list of stocks that are good but fell down to a keylevel, which of the stocks would most probably explode (explode means, go up by at least 8% in the current month)
+    based on the data that is above
+    the tickers are from this list - {TICKERS}
+    your answer should look like this (6 most possible stocks only not more you can do less if
+    nothing seems to be suited for the task than give me an empty list [])
+
 # Application Settings
 debug: false
 log_level: "INFO"

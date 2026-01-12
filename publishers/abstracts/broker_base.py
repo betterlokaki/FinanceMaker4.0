@@ -108,11 +108,11 @@ class BrokerBase(IBroker, ABC):
         """
         return self._connected
 
-    def _ensure_connected(self) -> None:
-        """Validate that broker is connected before operations.
+    async def _ensure_connected(self) -> None:
+        """Ensure broker is connected, auto-connect if not connected.
         
         Raises:
-            ConnectionError: If not connected to broker.
+            ConnectionError: If connection fails.
         """
         if not self._connected:
-            raise ConnectionError("Not connected to broker. Call connect() first.")
+            await self.connect()
