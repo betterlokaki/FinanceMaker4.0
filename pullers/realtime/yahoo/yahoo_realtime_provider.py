@@ -6,6 +6,7 @@ import logging
 
 import websockets
 from websockets.asyncio.client import ClientConnection
+from websockets.exceptions import ConnectionClosed, ConnectionClosedOK, ConnectionClosedError
 
 from common.models.pricing_data import PricingData
 from pullers.realtime.abstracts.realtime_provider_base import RealtimeProviderBase
@@ -48,9 +49,19 @@ class YahooRealtimeProvider(RealtimeProviderBase):
 
     async def _connect(self) -> None:
         """Establish WebSocket connection to Yahoo Finance."""
+        # Clean up old websocket if it exists
+        if self._websocket is not None:
+            try:
+                await self._websocket.close()
+            except Exception as e:
+                logger.debug("Error closing old websocket: %s", e)
+            finally:
+                self._websocket = None
+        
+        # Create new connection
         self._websocket = await websockets.connect(self._base_url)
         self._is_connected = True
-        self._reconnect_count = 0
+        self._reconnect_count = 0  # Reset on successful connection
         logger.info("Connected to Yahoo Finance WebSocket")
 
     async def _send_subscribe_message(self, tickers: list[str]) -> None:
@@ -64,11 +75,22 @@ class YahooRealtimeProvider(RealtimeProviderBase):
             self._start_listener()
         
         if self._websocket is None:
+            logger.warning("Cannot subscribe to %s: websocket is None", tickers)
             return
-            
-        message: dict[str, list[str]] = {"subscribe": tickers}
-        data = await self._websocket.send(json.dumps(message))
-        logger.debug("Subscribed to tickers: %s", tickers)
+        
+        # Try to send subscribe message - handle connection errors
+        try:
+            message: dict[str, list[str]] = {"subscribe": tickers}
+            await self._websocket.send(json.dumps(message))
+            logger.debug("Subscribed to tickers: %s", tickers)
+        except (ConnectionClosedOK, ConnectionClosedError, ConnectionClosed) as e:
+            # Connection closed - reconnect will handle resubscription to all tickers
+            logger.warning("Connection closed while subscribing to %s: %s, reconnecting...", tickers, e)
+            self._is_connected = False
+            # Don't retry here - let _reconnect() handle resubscribing to all tickers
+            await self._handle_reconnect()
+        except Exception as e:
+            logger.error("Error subscribing to %s: %s", tickers, e)
 
     async def _send_unsubscribe_message(self, tickers: list[str]) -> None:
         """Send unsubscription message to Yahoo Finance.
@@ -77,27 +99,52 @@ class YahooRealtimeProvider(RealtimeProviderBase):
             tickers: Tickers to unsubscribe from.
         """
         if self._websocket is None or not self._is_connected:
+            logger.debug("Cannot unsubscribe from %s: websocket not connected", tickers)
             return
-            
-        message: dict[str, list[str]] = {"unsubscribe": tickers}
-        await self._websocket.send(json.dumps(message))
-        logger.debug("Unsubscribed from tickers: %s", tickers)
+        
+        # Try to send unsubscribe message - handle connection errors
+        try:
+            message: dict[str, list[str]] = {"unsubscribe": tickers}
+            await self._websocket.send(json.dumps(message))
+            logger.debug("Unsubscribed from tickers: %s", tickers)
+        except (ConnectionClosedOK, ConnectionClosedError, ConnectionClosed) as e:
+            # Connection already closed - this is fine, just log and continue
+            logger.debug("Cannot unsubscribe from %s: websocket connection closed (%s)", tickers, e)
+            self._is_connected = False
+            # If there are still other subscriptions, trigger reconnect to resubscribe
+            remaining_tickers = self.subscribed_tickers
+            if remaining_tickers:
+                logger.info("Connection closed during unsubscribe, will reconnect and resubscribe to %d tickers", len(remaining_tickers))
+                await self._handle_reconnect()
+        except Exception as e:
+            # Other errors - log but don't crash
+            logger.warning("Error unsubscribing from %s: %s", tickers, e)
 
     def _start_listener(self) -> None:
         """Start the background listener task."""
-        if self._listener_task is None or self._listener_task.done():
-            self._listener_task = asyncio.create_task(self._listen())
+        # Cancel existing task if it's still running
+        if self._listener_task is not None and not self._listener_task.done():
+            self._listener_task.cancel()
+            # Note: We don't await cancellation here to avoid blocking
+            # The task will be cleaned up when it's done
+        
+        # Create new listener task
+        self._listener_task = asyncio.create_task(self._listen())
 
     async def _listen(self) -> None:
         """Listen for incoming messages and dispatch to callbacks."""
         while self._should_reconnect:
             try:
                 await self._receive_messages()
+            except asyncio.CancelledError:
+                # Task was cancelled, exit cleanly
+                logger.debug("Listener task cancelled")
+                raise
             except websockets.ConnectionClosed:
-                logger.warning("WebSocket connection closed")
+                logger.warning("WebSocket connection closed in listener")
                 await self._handle_reconnect()
             except Exception as e:
-                logger.error("Error in WebSocket listener: %s", e)
+                logger.error("Error in WebSocket listener: %s", e, exc_info=True)
                 await self._handle_reconnect()
 
     async def _receive_messages(self) -> None:
@@ -130,33 +177,98 @@ class YahooRealtimeProvider(RealtimeProviderBase):
 
     async def _handle_reconnect(self) -> None:
         """Handle reconnection with exponential backoff."""
+        # Update state: mark as disconnected
         self._is_connected = False
+        
+        # Clean up old websocket
+        old_websocket = self._websocket
         self._websocket = None
+        if old_websocket is not None:
+            try:
+                await old_websocket.close()
+            except Exception as e:
+                logger.debug("Error closing old websocket during reconnect: %s", e)
         
         if not self._should_reconnect:
+            logger.debug("Reconnect disabled, not reconnecting")
             return
             
         if self._reconnect_count >= self._max_reconnect_attempts:
-            logger.error("Max reconnection attempts reached")
+            logger.error("Max reconnection attempts (%d) reached, giving up", self._max_reconnect_attempts)
+            self._should_reconnect = False  # Stop trying
             return
             
+        # Calculate delay with exponential backoff
         delay: float = self._reconnect_delay * (2 ** self._reconnect_count)
-        self._reconnect_count += 1
+        current_attempt: int = self._reconnect_count + 1
         
         logger.info("Reconnecting in %.1f seconds (attempt %d/%d)",
-                    delay, self._reconnect_count, self._max_reconnect_attempts)
+                    delay, current_attempt, self._max_reconnect_attempts)
+        
+        # Increment reconnect count before delay
+        self._reconnect_count += 1
         
         await asyncio.sleep(delay)
         
+        # Attempt reconnection
         await self._reconnect()
 
     async def _reconnect(self) -> None:
         """Reconnect and resubscribe to all tickers."""
-        await self._connect()
-        
-        tickers: list[str] = self.subscribed_tickers
-        if tickers:
-            await self._send_subscribe_message(tickers)
+        try:
+            # Connect to websocket (this updates _is_connected and resets _reconnect_count)
+            await self._connect()
+            
+            # Restart listener task
+            self._start_listener()
+            
+            # Get all currently subscribed tickers (from internal subscriptions dict)
+            # Use lock to ensure thread-safe access
+            async with self._lock:
+                tickers: list[str] = list(self._subscriptions.keys())
+            
+            if tickers:
+                logger.info("Resubscribing to %d tickers after reconnect: %s", len(tickers), tickers)
+                # Send subscribe message directly to avoid recursion
+                if self._websocket is not None and self._is_connected:
+                    try:
+                        message: dict[str, list[str]] = {"subscribe": tickers}
+                        await self._websocket.send(json.dumps(message))
+                        logger.info("Successfully resubscribed to %d tickers after reconnect", len(tickers))
+                    except (ConnectionClosedOK, ConnectionClosedError, ConnectionClosed) as e:
+                        logger.warning("Connection closed during resubscription: %s, will retry", e)
+                        self._is_connected = False
+                        # Retry reconnection
+                        if self._should_reconnect:
+                            await self._handle_reconnect()
+                        return
+                    except Exception as e:
+                        logger.error("Error sending resubscription message: %s", e)
+                        # Connection might be bad, try reconnecting again
+                        self._is_connected = False
+                        if self._should_reconnect:
+                            await self._handle_reconnect()
+                        return
+                else:
+                    logger.error("WebSocket not ready for resubscription (connected=%s, websocket=%s)",
+                                self._is_connected, self._websocket is not None)
+                    # Try reconnecting again
+                    self._is_connected = False
+                    if self._should_reconnect:
+                        await self._handle_reconnect()
+                    return
+            else:
+                logger.debug("No tickers to resubscribe after reconnect")
+                
+        except Exception as e:
+            logger.error("Error during reconnect: %s", e, exc_info=True)
+            # Update state: mark as disconnected
+            self._is_connected = False
+            # If reconnect fails, try again (if we haven't exceeded max attempts)
+            if self._should_reconnect and self._reconnect_count < self._max_reconnect_attempts:
+                await self._handle_reconnect()
+            else:
+                logger.error("Reconnection failed and max attempts reached or reconnect disabled")
 
     async def disconnect(self) -> None:
         """Disconnect from Yahoo Finance WebSocket."""

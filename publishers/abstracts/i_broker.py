@@ -75,6 +75,14 @@ class IBroker(Protocol):
             Portfolio containing positions and account summary.
         """
         ...
+    
+    async def get_open_orders(self) -> list[OrderResponse]:
+        """Get all open/pending orders.
+        
+        Returns:
+            List of OrderResponse objects for all active orders (pending, submitted, partially filled).
+        """
+        ...
 
     async def get_buying_power(self) -> float:
         """Get the current buying power available for trading.

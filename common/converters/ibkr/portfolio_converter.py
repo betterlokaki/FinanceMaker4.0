@@ -1,6 +1,7 @@
 """IBKR portfolio converter."""
 from typing import Any
 
+from common.models.order_response import OrderResponse
 from common.models.portfolio import Portfolio
 from common.models.position import Position
 
@@ -13,12 +14,14 @@ class PortfolioConverter:
         cls,
         positions_data: list[dict[str, Any]],
         ledger_data: dict[str, Any] | None = None,
+        open_orders: list[OrderResponse] | None = None,
     ) -> Portfolio:
         """Convert IBKR positions and ledger data to our Portfolio.
         
         Args:
             positions_data: List of position dictionaries from IBKR positions().
             ledger_data: Optional ledger data from get_ledger() - dict keyed by currency.
+            open_orders: Optional list of open orders (OrderResponse objects).
             
         Returns:
             Our Portfolio model.
@@ -35,6 +38,7 @@ class PortfolioConverter:
         # Field names from get_ledger() are lowercase
         return Portfolio(
             positions=positions,
+            open_orders=open_orders or [],
             cash_balance=float(base_ledger.get("cashbalance", 0) or 0),
             total_market_value=float(base_ledger.get("netliquidationvalue", 0) or 0),
             total_equity=float(base_ledger.get("netliquidationvalue", 0) or 0),

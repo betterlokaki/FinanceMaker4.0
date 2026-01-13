@@ -1,4 +1,5 @@
 """Interactive Brokers Web API broker implementation."""
+import logging
 from typing import Any
 
 from ibind import IbkrClient, QuestionType
@@ -16,6 +17,9 @@ from common.models.portfolio import Portfolio
 from common.settings import IBKRConfig
 from common.models.order import OrderSide, OrderStatus, OrderType
 from publishers.abstracts.broker_base import BrokerBase
+from publishers.interactive_brokers.always_yes_dict import AlwaysYesDict
+
+logger: logging.Logger = logging.getLogger(__name__)
 
 
 class InteractiveWebapiBroker(BrokerBase):
@@ -26,13 +30,15 @@ class InteractiveWebapiBroker(BrokerBase):
     """
     
     # Default answers for IBKR order confirmation questions
-    DEFAULT_QUESTION_ANSWERS: dict[QuestionType | str, bool] = {
+    # Uses AlwaysYesDict to automatically answer "yes" (True) to all questions,
+    # even if the specific QuestionType isn't explicitly listed
+    DEFAULT_QUESTION_ANSWERS = AlwaysYesDict({
         QuestionType.PRICE_PERCENTAGE_CONSTRAINT: True,
         QuestionType.ORDER_VALUE_LIMIT: True,
         QuestionType.MISSING_MARKET_DATA: True,
         QuestionType.MANDATORY_CAP_PRICE: True,
-        "Stop Variant Order Confirmation": True,
-    }
+        QuestionType.STOP_ORDER_RISKS: True,
+    })
     
     def __init__(self, config: IBKRConfig) -> None:
         """Initialize the Interactive Brokers broker.
@@ -215,10 +221,10 @@ class InteractiveWebapiBroker(BrokerBase):
         raise ValueError(f"Order not found: {order_id}")
     
     async def get_portfolio(self) -> Portfolio:
-        """Get the current portfolio with all positions.
+        """Get the current portfolio with all positions and open orders.
         
         Returns:
-            Portfolio containing positions and account summary.
+            Portfolio containing positions, open orders, and account summary.
         """
         await self._ensure_connected()
         assert self._client is not None and self._account_id is not None
@@ -239,7 +245,10 @@ class InteractiveWebapiBroker(BrokerBase):
             else None
         )
         
-        return PortfolioConverter.from_ibkr_positions(positions_data, ledger_data)
+        # Get open orders
+        open_orders = await self.get_open_orders()
+        
+        return PortfolioConverter.from_ibkr_positions(positions_data, ledger_data, open_orders)
     
     async def get_buying_power(self) -> float:
         """Get the current buying power available for trading.
@@ -267,6 +276,43 @@ class InteractiveWebapiBroker(BrokerBase):
         # Extract buying power from ledger - use BASE or USD
         base_ledger = ledger_data.get("BASE", ledger_data.get("USD", {}))
         return float(base_ledger.get("settledcash", 0) or 0)
+    
+    async def get_open_orders(self) -> list[OrderResponse]:
+        """Get all open/pending orders.
+        
+        Returns:
+            List of OrderResponse objects for all active orders (pending, submitted, partially filled).
+        """
+        await self._ensure_connected()
+        assert self._client is not None
+        
+        # Get live orders from ibind
+        orders_result = self._client.live_orders()
+        
+        if orders_result.data is None:
+            return []
+        
+        # live_orders returns dict with 'orders' key
+        orders_data = orders_result.data
+        if isinstance(orders_data, dict):
+            orders = orders_data.get("orders", [])
+        else:
+            orders = []
+        
+        # Convert to OrderResponse and filter for active orders only
+        open_orders: list[OrderResponse] = []
+        for order_data in orders:
+            try:
+                order_response = OrderResponseConverter.from_ibkr(order_data)
+                # Only include active orders (pending, submitted, partially filled)
+                if order_response.is_active:
+                    open_orders.append(order_response)
+            except Exception as e:
+                # Skip orders that can't be converted
+                logger.warning("Failed to convert order data: %s", e)
+                continue
+        
+        return open_orders
     
     async def _get_conid(self, ticker: str) -> int:
         """Get IBKR contract ID for a ticker symbol.

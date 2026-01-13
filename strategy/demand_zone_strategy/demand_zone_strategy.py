@@ -80,6 +80,22 @@ class DemandZoneStrategy(RealTimeTradingBase):
         self._finviz_url: str = finviz_url
         self._trade_value: float = trade_value
         self._processed_tickers: set[str] = set()  # Track processed tickers to avoid duplicates
+        self._orders_placed: set[str] = set()  # Track tickers with orders placed (including pending)
+
+    async def _safe_unsubscribe(self, tickers: list[str] | str) -> None:
+        """Safely unsubscribe from tickers, handling connection errors gracefully.
+        
+        Args:
+            tickers: Single ticker string or list of tickers to unsubscribe from.
+        """
+        if isinstance(tickers, str):
+            tickers = [tickers]
+        
+        try:
+            await self._realtime_provider.unsubscribe(tickers)
+        except Exception as e:
+            # Connection errors are handled in the provider, but catch any other exceptions
+            logger.debug("Error unsubscribing from %s (non-critical): %s", tickers, e)
 
     async def load_tickers(self) -> list[str]:
         """Load tickers to trade via scanning and AI consensus.
@@ -124,14 +140,32 @@ class DemandZoneStrategy(RealTimeTradingBase):
         
         Overrides base class to skip candle building and process tick-by-tick prices.
         Processes each ticker only once (on first price received).
+        Checks portfolio positions and open orders BEFORE processing to avoid duplicate orders.
         
         Args:
             data: Real-time pricing data from the subscribed ticker.
         """
         ticker: str = data.id.upper()
         
-        # Process only first tick for each ticker
-        if ticker in self._processed_tickers:
+        # Skip if already processed or order already placed
+        if ticker in self._processed_tickers or ticker in self._orders_placed:
+            return
+        
+        # Check portfolio positions and open orders BEFORE marking as processed to avoid race conditions
+        portfolio = await self._broker.get_portfolio()
+        if portfolio.has_position(ticker):
+            logger.info("Skipping %s: already has position in portfolio", ticker)
+            self._processed_tickers.add(ticker)
+            await self._safe_unsubscribe(ticker)
+            return
+        
+        if portfolio.has_open_order(ticker):
+            open_order = portfolio.get_open_order(ticker)
+            logger.info("Skipping %s: already has open order (ID=%s, Status=%s)", 
+                       ticker, open_order.order_id if open_order else "unknown", 
+                       open_order.status if open_order else "unknown")
+            self._processed_tickers.add(ticker)
+            await self._safe_unsubscribe(ticker)
             return
         
         # Mark as processed immediately to avoid race conditions
@@ -165,10 +199,26 @@ class DemandZoneStrategy(RealTimeTradingBase):
             price: Current price from real-time feed.
         """
         try:
+            # Double-check portfolio (defensive check, already checked in on_tick)
             portfolio = await self._broker.get_portfolio()
             if portfolio.has_position(ticker):
                 logger.info("Skipping %s: already has position, unsubscribing", ticker)
-                await self._realtime_provider.unsubscribe([ticker])
+                await self._safe_unsubscribe(ticker)
+                return
+            
+            # Double-check open orders (defensive check, already checked in on_tick)
+            if portfolio.has_open_order(ticker):
+                open_order = portfolio.get_open_order(ticker)
+                logger.info("Skipping %s: already has open order (ID=%s, Status=%s), unsubscribing",
+                           ticker, open_order.order_id if open_order else "unknown",
+                           open_order.status if open_order else "unknown")
+                await self._safe_unsubscribe(ticker)
+                return
+            
+            # Double-check if order already placed (defensive check)
+            if ticker in self._orders_placed:
+                logger.info("Skipping %s: order already placed", ticker)
+                await self._safe_unsubscribe(ticker)
                 return
             
             params = self._risk_calculator.calculate_order_params(
@@ -186,6 +236,9 @@ class DemandZoneStrategy(RealTimeTradingBase):
                 time_in_force=TimeInForce.GTC,
             )
             
+            # Mark as order placed BEFORE placing to prevent race conditions
+            self._orders_placed.add(ticker)
+            
             response = await self._broker.place_order(order_request)
             logger.info(
                 "Order placed for %s: ID=%s, Status=%s (price=%.2f)",
@@ -196,13 +249,14 @@ class DemandZoneStrategy(RealTimeTradingBase):
             )
             
             # Unsubscribe from this ticker after placing order (listener stays alive)
-            await self._realtime_provider.unsubscribe([ticker])
+            await self._safe_unsubscribe(ticker)
             logger.debug("Unsubscribed from %s after placing order", ticker)
             
         except Exception as e:
             logger.error("Error processing %s with price %.2f: %s", ticker, price, e, exc_info=True)
-            # Remove from processed set so it can be retried if needed
+            # Remove from both sets so it can be retried if needed
             self._processed_tickers.discard(ticker)
+            self._orders_placed.discard(ticker)
 
     async def shutdown(self) -> None:
         """Shutdown the strategy gracefully.
@@ -212,9 +266,10 @@ class DemandZoneStrategy(RealTimeTradingBase):
         """
         logger.info("Shutting down DemandZoneStrategy...")
         self._processed_tickers.clear()
+        self._orders_placed.clear()
         # Don't call super().shutdown() - we want to keep the listener alive
         # Only unsubscribe from remaining tickers if any
         if self._tickers:
-            await self._realtime_provider.unsubscribe(self._tickers)
+            await self._safe_unsubscribe(self._tickers)
         self._is_initialized = False
         logger.info("DemandZoneStrategy shutdown complete (listener may still be running)")

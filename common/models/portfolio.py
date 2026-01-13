@@ -2,6 +2,7 @@
 from dataclasses import dataclass, field
 from typing import Optional
 
+from common.models.order_response import OrderResponse
 from common.models.position import Position
 
 
@@ -11,6 +12,7 @@ class Portfolio:
     
     Attributes:
         positions: List of current positions.
+        open_orders: List of open/pending orders.
         cash_balance: Available cash in the account.
         total_market_value: Total value of all positions.
         total_equity: Cash + market value of positions.
@@ -19,6 +21,7 @@ class Portfolio:
         realized_pnl: Total realized profit/loss.
     """
     positions: list[Position] = field(default_factory=list)
+    open_orders: list[OrderResponse] = field(default_factory=list)
     cash_balance: float = 0.0
     total_market_value: float = 0.0
     total_equity: float = 0.0
@@ -50,6 +53,31 @@ class Portfolio:
             True if position exists, False otherwise.
         """
         return self.get_position(ticker) is not None
+    
+    def get_open_order(self, ticker: str) -> Optional[OrderResponse]:
+        """Get open order for a specific ticker.
+        
+        Args:
+            ticker: Stock ticker symbol.
+            
+        Returns:
+            OrderResponse if found, None otherwise.
+        """
+        for order in self.open_orders:
+            if order.ticker.upper() == ticker.upper():
+                return order
+        return None
+    
+    def has_open_order(self, ticker: str) -> bool:
+        """Check if portfolio has an open order for the given ticker.
+        
+        Args:
+            ticker: Stock ticker symbol.
+            
+        Returns:
+            True if open order exists, False otherwise.
+        """
+        return self.get_open_order(ticker) is not None
     
     @property
     def position_count(self) -> int:
