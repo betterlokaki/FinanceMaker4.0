@@ -46,7 +46,7 @@ jobs:
       - name: Build Docker image
         id: build-image
         run: |
-          IMAGE_TAG="${{ env.PROJECT_ID }}-docker.pkg.dev/${{ env.PROJECT_ID }}/financemaker-repo/financemaker:${{ github.sha }}"
+          IMAGE_TAG="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/financemaker-repo/financemaker:${{ github.sha }}"
           echo "image_tag=$IMAGE_TAG" >> $GITHUB_OUTPUT
           docker build -t $IMAGE_TAG .
       
@@ -92,7 +92,7 @@ jobs:
       - name: Deploy to Cloud Run (Dev - Paper Trading)
         run: |
           gcloud run deploy ${{ env.SERVICE_NAME_DEV }} \
-            --image ${{ env.PROJECT_ID }}-docker.pkg.dev/${{ env.PROJECT_ID }}/financemaker-repo/financemaker:${{ github.sha }} \
+            --image ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/financemaker-repo/financemaker:${{ github.sha }} \
             --region ${{ env.REGION }} \
             --platform managed \
             --allow-unauthenticated \
@@ -130,7 +130,7 @@ jobs:
   #     - name: Deploy to Cloud Run (Prod - Real Trading)
   #       run: |
   #         gcloud run deploy ${{ env.SERVICE_NAME_PROD }} \
-  #           --image ${{ env.PROJECT_ID }}-docker.pkg.dev/${{ env.PROJECT_ID }}/financemaker-repo/financemaker:${{ github.sha }} \
+  #           --image ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/financemaker-repo/financemaker:${{ github.sha }} \
   #           --region ${{ env.REGION }} \
   #           --platform managed \
   #           --allow-unauthenticated \
