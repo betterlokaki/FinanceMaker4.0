@@ -140,6 +140,7 @@ jobs:
               --image ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/financemaker-repo/financemaker:${{ github.sha }} \
               --region ${{ secrets.GCP_REGION }} \
               --platform managed \
+              --service-account ${{ secrets.GCP_SA_EMAIL }} \
               --allow-unauthenticated \
               --cpu 2 \
               --memory 4Gi \
@@ -155,6 +156,7 @@ jobs:
               --image ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/financemaker-repo/financemaker:${{ github.sha }} \
               --region ${{ secrets.GCP_REGION }} \
               --platform managed \
+              --service-account ${{ secrets.GCP_SA_EMAIL }} \
               --allow-unauthenticated \
               --cpu 2 \
               --memory 4Gi \
