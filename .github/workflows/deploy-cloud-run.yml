@@ -109,14 +109,16 @@ jobs:
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
       
-      - name: Clear existing secrets (if service exists)
+      - name: Delete existing service (if exists) to avoid secret conflicts
         run: |
           if gcloud run services describe ${{ env.SERVICE_NAME_DEV }} --region=${{ secrets.GCP_REGION }} --project=${{ secrets.GCP_PROJECT_ID }} &>/dev/null; then
-            echo "Clearing existing secret mounts..."
-            gcloud run services update ${{ env.SERVICE_NAME_DEV }} \
+            echo "Service exists with conflicting secrets, deleting to recreate fresh..."
+            gcloud run services delete ${{ env.SERVICE_NAME_DEV }} \
               --region=${{ secrets.GCP_REGION }} \
               --project=${{ secrets.GCP_PROJECT_ID }} \
-              --clear-secrets "/secrets/dh_param,/secrets/encryption_key,/secrets/signature_key" || echo "No secrets to clear or service doesn't exist"
+              --quiet || echo "Service deletion failed or already deleted"
+          else
+            echo "Service does not exist, will create new"
           fi
         continue-on-error: true
       
