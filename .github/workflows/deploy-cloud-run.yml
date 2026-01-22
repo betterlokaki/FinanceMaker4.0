@@ -123,7 +123,7 @@ jobs:
             --max-instances 1 \
             --concurrency 1 \
             --set-env-vars "TRADING_ENV=paper,IBKR_DH_PARAM_PATH=/secrets/dh_param,IBKR_ENCRYPTION_KEY_PATH=/secrets/encryption_key,IBKR_SIGNATURE_KEY_PATH=/secrets/signature_key,GROK_API_KEY=${{ secrets.GROK_API_KEY }},GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }},IBKR_ACCESS_TOKEN=${{ secrets.IBKR_ACCESS_TOKEN }},IBKR_ACCESS_TOKEN_SECRET=${{ secrets.IBKR_ACCESS_TOKEN_SECRET }},IBKR_CONSUMER_KEY=${{ secrets.IBKR_CONSUMER_KEY }}" \
-            --update-secrets "/secrets/dh_param=ibkr-paper-dh-param:latest,/secrets/encryption_key=ibkr-paper-encryption-key:latest,/secrets/signature_key=ibkr-paper-signature-key:latest"
+            --set-secrets "/secrets/dh_param=ibkr-paper-dh-param:latest,/secrets/encryption_key=ibkr-paper-encryption-key:latest,/secrets/signature_key=ibkr-paper-signature-key:latest"
 
   # deploy-prod:
   #   needs: build-and-test
