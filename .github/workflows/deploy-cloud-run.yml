@@ -4,11 +4,11 @@ on:
   push:
     branches:
       - dev
-      - main
+      # - main  # Disabled for now - only dev with paper trading
   pull_request:
     branches:
       - dev
-      - main
+      # - main  # Disabled for now - only dev with paper trading
 
 env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
@@ -105,39 +105,41 @@ jobs:
             --set-env-vars "TRADING_ENV=paper,IBKR_DH_PARAM_PATH=/secrets/dh_param,IBKR_ENCRYPTION_KEY_PATH=/secrets/encryption_key,IBKR_SIGNATURE_KEY_PATH=/secrets/signature_key,GROK_API_KEY=${{ secrets.GROK_API_KEY }},GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }},IBKR_ACCESS_TOKEN=${{ secrets.IBKR_ACCESS_TOKEN }},IBKR_ACCESS_TOKEN_SECRET=${{ secrets.IBKR_ACCESS_TOKEN_SECRET }},IBKR_CONSUMER_KEY=${{ secrets.IBKR_CONSUMER_KEY }}" \
             --update-secrets "/secrets/dh_param=ibkr-paper-dh-param:latest,/secrets/encryption_key=ibkr-paper-encryption-key:latest,/secrets/signature_key=ibkr-paper-signature-key:latest"
 
-  deploy-prod:
-    needs: build-and-test
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      id-token: write
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      
-      - name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v2
-        with:
-          workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
-          service_account: ${{ secrets.GCP_SA_EMAIL }}
-      
-      - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v2
-      
-      - name: Deploy to Cloud Run (Prod - Real Trading)
-        run: |
-          gcloud run deploy ${{ env.SERVICE_NAME_PROD }} \
-            --image ${{ env.PROJECT_ID }}-docker.pkg.dev/${{ env.PROJECT_ID }}/financemaker-repo/financemaker:${{ github.sha }} \
-            --region ${{ env.REGION }} \
-            --platform managed \
-            --allow-unauthenticated \
-            --cpu 2 \
-            --memory 4Gi \
-            --timeout 3600 \
-            --min-instances 1 \
-            --max-instances 1 \
-            --concurrency 1 \
-            --set-env-vars "TRADING_ENV=real,IBKR_DH_PARAM_PATH=/secrets/dh_param,IBKR_ENCRYPTION_KEY_PATH=/secrets/encryption_key,IBKR_SIGNATURE_KEY_PATH=/secrets/signature_key,GROK_API_KEY=${{ secrets.GROK_API_KEY_REAL }},GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY_REAL }},IBKR_ACCESS_TOKEN=${{ secrets.IBKR_ACCESS_TOKEN_REAL }},IBKR_ACCESS_TOKEN_SECRET=${{ secrets.IBKR_ACCESS_TOKEN_SECRET_REAL }},IBKR_CONSUMER_KEY=${{ secrets.IBKR_CONSUMER_KEY_REAL }}" \
-            --update-secrets "/secrets/dh_param=ibkr-real-dh-param:latest,/secrets/encryption_key=ibkr-real-encryption-key:latest,/secrets/signature_key=ibkr-real-signature-key:latest"
+  # deploy-prod:
+  #   needs: build-and-test
+  #   if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+  #   runs-on: ubuntu-latest
+  #   environment: prod
+  #   permissions:
+  #     contents: read
+  #     id-token: write
+  #   
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
+  #     
+  #     - name: Authenticate to Google Cloud
+  #       uses: google-github-actions/auth@v2
+  #       with:
+  #         workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
+  #         service_account: ${{ secrets.GCP_SA_EMAIL }}
+  #     
+  #     - name: Set up Cloud SDK
+  #       uses: google-github-actions/setup-gcloud@v2
+  #     
+  #     - name: Deploy to Cloud Run (Prod - Real Trading)
+  #       run: |
+  #         gcloud run deploy ${{ env.SERVICE_NAME_PROD }} \
+  #           --image ${{ env.PROJECT_ID }}-docker.pkg.dev/${{ env.PROJECT_ID }}/financemaker-repo/financemaker:${{ github.sha }} \
+  #           --region ${{ env.REGION }} \
+  #           --platform managed \
+  #           --allow-unauthenticated \
+  #           --cpu 2 \
+  #           --memory 4Gi \
+  #           --timeout 3600 \
+  #           --min-instances 1 \
+  #           --max-instances 1 \
+  #           --concurrency 1 \
+  #           --set-env-vars "TRADING_ENV=real,IBKR_DH_PARAM_PATH=/secrets/dh_param,IBKR_ENCRYPTION_KEY_PATH=/secrets/encryption_key,IBKR_SIGNATURE_KEY_PATH=/secrets/signature_key,GROK_API_KEY=${{ secrets.GROK_API_KEY }},GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }},IBKR_ACCESS_TOKEN=${{ secrets.IBKR_ACCESS_TOKEN }},IBKR_ACCESS_TOKEN_SECRET=${{ secrets.IBKR_ACCESS_TOKEN_SECRET }},IBKR_CONSUMER_KEY=${{ secrets.IBKR_CONSUMER_KEY }}" \
+  #           --update-secrets "/secrets/dh_param=ibkr-real-dh-param:latest,/secrets/encryption_key=ibkr-real-encryption-key:latest,/secrets/signature_key=ibkr-real-signature-key:latest"
+
