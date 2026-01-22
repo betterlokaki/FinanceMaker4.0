@@ -109,6 +109,17 @@ jobs:
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
       
+      - name: Clear existing secrets (if service exists)
+        run: |
+          if gcloud run services describe ${{ env.SERVICE_NAME_DEV }} --region=${{ secrets.GCP_REGION }} --project=${{ secrets.GCP_PROJECT_ID }} &>/dev/null; then
+            echo "Clearing existing secret mounts..."
+            gcloud run services update ${{ env.SERVICE_NAME_DEV }} \
+              --region=${{ secrets.GCP_REGION }} \
+              --project=${{ secrets.GCP_PROJECT_ID }} \
+              --clear-secrets "/secrets/dh_param,/secrets/encryption_key,/secrets/signature_key" || echo "No secrets to clear or service doesn't exist"
+          fi
+        continue-on-error: true
+      
       - name: Deploy to Cloud Run (Dev - Paper Trading)
         run: |
           gcloud run deploy ${{ env.SERVICE_NAME_DEV }} \
