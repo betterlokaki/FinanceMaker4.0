@@ -11,6 +11,7 @@ from common.models.order import OrderSide, OrderType, TimeInForce
 from common.models.order_request import OrderRequest
 from common.models.pricing_data import PricingData
 from common.models.scanner_params import ScannerParams
+from common.settings import OrderParamsConfig, PortfolioAllocationConfig
 from gpt.abstracts.gpt_base import GPTBase
 from publishers.abstracts.i_broker import IBroker
 from pullers.realtime.abstracts.i_realtime_provider import IRealtimeProvider
@@ -49,7 +50,8 @@ class DemandZoneStrategy(RealTimeTradingBase):
         ticker_cache: ITickerCache,
         prompt_template: str,
         finviz_url: str,
-        trade_value: float = 3000.0,
+        portfolio_allocation_config: PortfolioAllocationConfig,
+        order_params_config: OrderParamsConfig,
     ) -> None:
         """Initialize the demand zone strategy.
         
@@ -65,7 +67,8 @@ class DemandZoneStrategy(RealTimeTradingBase):
             ticker_cache: Cache for storing/loading tickers with TTL.
             prompt_template: AI prompt template with {TICKERS} placeholder.
             finviz_url: Finviz screener URL.
-            trade_value: Trade value per order (default: $3000).
+            portfolio_allocation_config: Portfolio allocation configuration.
+            order_params_config: Order parameters configuration.
         """
         super().__init__(realtime_provider)
         self._http_client: httpx.AsyncClient = http_client
@@ -78,7 +81,10 @@ class DemandZoneStrategy(RealTimeTradingBase):
         self._ticker_cache: ITickerCache = ticker_cache
         self._prompt_template: str = prompt_template
         self._finviz_url: str = finviz_url
-        self._trade_value: float = trade_value
+        self._portfolio_allocation_config: PortfolioAllocationConfig = portfolio_allocation_config
+        self._order_params_config: OrderParamsConfig = order_params_config
+        self._buying_power_per_ticker: float = 0.0  # Will be calculated in load_tickers()
+        self._total_tickers: int = 0  # Will be set in load_tickers()
         self._processed_tickers: set[str] = set()  # Track processed tickers to avoid duplicates
         self._orders_placed: set[str] = set()  # Track tickers with orders placed (including pending)
 
@@ -132,6 +138,25 @@ class DemandZoneStrategy(RealTimeTradingBase):
         # Save to cache with 2-hour TTL
         if ai_tickers and hasattr(self._ticker_cache, "save_tickers_with_timestamp"):
             self._ticker_cache.save_tickers_with_timestamp(ai_tickers, CACHE_KEY, CACHE_TTL_HOURS)
+        
+        # Calculate buying power allocation per ticker using portfolio allocation config
+        self._total_tickers = len(ai_tickers)
+        if self._total_tickers > 0:
+            total_buying_power: float = await self._broker.get_buying_power()
+            # Allocate percentage of total buying power to this strategy
+            strategy_buying_power: float = total_buying_power * self._portfolio_allocation_config.strategy_allocation_pct
+            # Each ticker gets a fixed percentage of the strategy's allocation
+            # ticker_allocation_pct is the percentage of strategy's allocation per ticker (e.g., 33% = 16.5% of total)
+            self._buying_power_per_ticker = strategy_buying_power * self._portfolio_allocation_config.ticker_allocation_pct
+            logger.info(
+                "💰 Total buying power: $%.2f, Strategy allocation (%.1f%%): $%.2f, Per ticker (%.1f%% of strategy = %.1f%% of total): $%.2f",
+                total_buying_power,
+                self._portfolio_allocation_config.strategy_allocation_pct * 100,
+                strategy_buying_power,
+                self._portfolio_allocation_config.ticker_allocation_pct * 100,
+                (self._portfolio_allocation_config.strategy_allocation_pct * self._portfolio_allocation_config.ticker_allocation_pct) * 100,
+                self._buying_power_per_ticker,
+            )
         
         return ai_tickers
 
@@ -221,9 +246,27 @@ class DemandZoneStrategy(RealTimeTradingBase):
                 await self._safe_unsubscribe(ticker)
                 return
             
+            # Ensure buying power is calculated (should be set in load_tickers())
+            if self._buying_power_per_ticker <= 0:
+                logger.warning("Buying power per ticker not calculated yet for %s, skipping", ticker)
+                await self._safe_unsubscribe(ticker)
+                return
+            
+            # Calculate order parameters using allocated buying power per ticker
             params = self._risk_calculator.calculate_order_params(
-                price, self._trade_value
+                price, self._buying_power_per_ticker
             )
+            
+            # Check minimum quantity
+            if params.quantity < 1:
+                logger.warning(
+                    "⚠️ %s: Insufficient buying power for minimum quantity (entry=%.2f, allocated=$%.2f)",
+                    ticker,
+                    params.entry_price,
+                    self._buying_power_per_ticker,
+                )
+                await self._safe_unsubscribe(ticker)
+                return
             
             order_request = OrderRequest(
                 ticker=ticker,
@@ -233,7 +276,10 @@ class DemandZoneStrategy(RealTimeTradingBase):
                 limit_price=params.entry_price,
                 stop_loss_price=params.stop_loss_price,
                 take_profit_price=params.take_profit_price,
-                time_in_force=TimeInForce.GTC,
+                time_in_force=self._order_params_config.buy_limit_tif,
+                buy_limit_rth=self._order_params_config.buy_limit_rth,
+                stop_loss_rth=self._order_params_config.stop_loss_rth,
+                take_profit_rth=self._order_params_config.take_profit_rth,
             )
             
             # Mark as order placed BEFORE placing to prevent race conditions

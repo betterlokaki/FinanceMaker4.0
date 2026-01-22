@@ -1,0 +1,142 @@
+name: Deploy to Cloud Run
+
+on:
+  push:
+    branches:
+      - dev
+      - main
+  pull_request:
+    branches:
+      - dev
+      - main
+
+env:
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  REGION: ${{ secrets.GCP_REGION }}
+  SERVICE_NAME_DEV: financemaker-dev
+  SERVICE_NAME_PROD: financemaker-prod
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      
+      - name: Run tests (if any)
+        run: |
+          # Add test commands here if you have tests
+          echo "No tests configured yet"
+        continue-on-error: true
+      
+      - name: Build Docker image
+        id: build-image
+        run: |
+          IMAGE_TAG="${{ env.PROJECT_ID }}-docker.pkg.dev/${{ env.PROJECT_ID }}/financemaker-repo/financemaker:${{ github.sha }}"
+          echo "image_tag=$IMAGE_TAG" >> $GITHUB_OUTPUT
+          docker build -t $IMAGE_TAG .
+      
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
+          service_account: ${{ secrets.GCP_SA_EMAIL }}
+      
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+      
+      - name: Configure Docker for Artifact Registry
+        run: |
+          gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
+      
+      - name: Push Docker image
+        run: |
+          docker push ${{ steps.build-image.outputs.image_tag }}
+
+  deploy-dev:
+    needs: build-and-test
+    if: github.ref == 'refs/heads/dev' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
+          service_account: ${{ secrets.GCP_SA_EMAIL }}
+      
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+      
+      - name: Deploy to Cloud Run (Dev - Paper Trading)
+        run: |
+          gcloud run deploy ${{ env.SERVICE_NAME_DEV }} \
+            --image ${{ env.PROJECT_ID }}-docker.pkg.dev/${{ env.PROJECT_ID }}/financemaker-repo/financemaker:${{ github.sha }} \
+            --region ${{ env.REGION }} \
+            --platform managed \
+            --allow-unauthenticated \
+            --cpu 2 \
+            --memory 4Gi \
+            --timeout 3600 \
+            --min-instances 1 \
+            --max-instances 1 \
+            --concurrency 1 \
+            --set-env-vars "TRADING_ENV=paper,IBKR_DH_PARAM_PATH=/secrets/dh_param,IBKR_ENCRYPTION_KEY_PATH=/secrets/encryption_key,IBKR_SIGNATURE_KEY_PATH=/secrets/signature_key,GROK_API_KEY=${{ secrets.GROK_API_KEY_PAPER }},GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY_PAPER }},IBKR_ACCESS_TOKEN=${{ secrets.IBKR_ACCESS_TOKEN_PAPER }},IBKR_ACCESS_TOKEN_SECRET=${{ secrets.IBKR_ACCESS_TOKEN_SECRET_PAPER }},IBKR_CONSUMER_KEY=${{ secrets.IBKR_CONSUMER_KEY_PAPER }}" \
+            --update-secrets "/secrets/dh_param=ibkr-paper-dh-param:latest,/secrets/encryption_key=ibkr-paper-encryption-key:latest,/secrets/signature_key=ibkr-paper-signature-key:latest"
+
+  deploy-prod:
+    needs: build-and-test
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
+          service_account: ${{ secrets.GCP_SA_EMAIL }}
+      
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+      
+      - name: Deploy to Cloud Run (Prod - Real Trading)
+        run: |
+          gcloud run deploy ${{ env.SERVICE_NAME_PROD }} \
+            --image ${{ env.PROJECT_ID }}-docker.pkg.dev/${{ env.PROJECT_ID }}/financemaker-repo/financemaker:${{ github.sha }} \
+            --region ${{ env.REGION }} \
+            --platform managed \
+            --allow-unauthenticated \
+            --cpu 2 \
+            --memory 4Gi \
+            --timeout 3600 \
+            --min-instances 1 \
+            --max-instances 1 \
+            --concurrency 1 \
+            --set-env-vars "TRADING_ENV=real,IBKR_DH_PARAM_PATH=/secrets/dh_param,IBKR_ENCRYPTION_KEY_PATH=/secrets/encryption_key,IBKR_SIGNATURE_KEY_PATH=/secrets/signature_key,GROK_API_KEY=${{ secrets.GROK_API_KEY_REAL }},GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY_REAL }},IBKR_ACCESS_TOKEN=${{ secrets.IBKR_ACCESS_TOKEN_REAL }},IBKR_ACCESS_TOKEN_SECRET=${{ secrets.IBKR_ACCESS_TOKEN_SECRET_REAL }},IBKR_CONSUMER_KEY=${{ secrets.IBKR_CONSUMER_KEY_REAL }}" \
+            --update-secrets "/secrets/dh_param=ibkr-real-dh-param:latest,/secrets/encryption_key=ibkr-real-encryption-key:latest,/secrets/signature_key=ibkr-real-signature-key:latest"

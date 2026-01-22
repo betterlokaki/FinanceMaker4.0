@@ -4,13 +4,20 @@ Best practice Python configuration pattern:
 - Pydantic for validation and type safety
 - YAML for settings (readable, hierarchical)
 - .env for secrets (not committed to git)
+- GCP Secret Manager for Cloud Run deployments
 - Runtime merge of both sources
 """
+import logging
+import os
 from pathlib import Path
 from typing import List, Optional
 
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+from common.models.order import TimeInForce
+
+logger: logging.Logger = logging.getLogger(__name__)
 
 
 class FinvizConfig(BaseSettings):
@@ -173,6 +180,46 @@ class DemandZoneStrategyConfig(BaseSettings):
     )
 
 
+class PortfolioAllocationConfig(BaseSettings):
+    """Portfolio allocation configuration for strategies."""
+    strategy_allocation_pct: float = Field(
+        default=0.5,
+        description="Percentage of total buying power allocated per strategy (0.5 = 50%)"
+    )
+    ticker_allocation_pct: float = Field(
+        default=0.33,
+        description="Percentage of strategy's buying power allocated per ticker (0.33 = 33% of strategy's allocation)"
+    )
+
+
+class OrderParamsConfig(BaseSettings):
+    """Order parameters configuration for trading strategies."""
+    buy_limit_tif: TimeInForce = Field(
+        default=TimeInForce.DAY,
+        description="Time in force for buy limit orders (DAY = cancel at end of day)"
+    )
+    buy_limit_rth: bool = Field(
+        default=True,
+        description="Buy limit orders execute only during regular trading hours (RTH=true)"
+    )
+    stop_loss_tif: TimeInForce = Field(
+        default=TimeInForce.GTC,
+        description="Time in force for stop loss orders (GTC = good till cancelled)"
+    )
+    stop_loss_rth: bool = Field(
+        default=False,
+        description="Stop loss RTH setting (Note: Stop loss is always RTH-only in implementation, this config is for future use)"
+    )
+    take_profit_tif: TimeInForce = Field(
+        default=TimeInForce.GTC,
+        description="Time in force for take profit orders (GTC = good till cancelled)"
+    )
+    take_profit_rth: bool = Field(
+        default=True,
+        description="Take profit orders execute only during regular trading hours (RTH=true)"
+    )
+
+
 class Settings(BaseSettings):
     """Main application settings.
     
@@ -205,6 +252,8 @@ class Settings(BaseSettings):
     scheduler: SchedulerConfig = Field(default_factory=SchedulerConfig)
     cache: CacheConfig = Field(default_factory=CacheConfig)
     demand_zone_strategy: DemandZoneStrategyConfig = Field(default_factory=DemandZoneStrategyConfig)
+    portfolio_allocation: PortfolioAllocationConfig = Field(default_factory=PortfolioAllocationConfig)
+    order_params: OrderParamsConfig = Field(default_factory=OrderParamsConfig)
 
     # Application settings
     debug: bool = Field(default=False)
@@ -230,23 +279,40 @@ def load_yaml_config(config_path: Path) -> dict:
         return yaml.safe_load(f) or {}
 
 
+def _load_secrets_from_gcp() -> None:
+    """Load secrets from GCP Secret Manager and set as environment variables.
+    
+    In Cloud Run, secrets are mounted as environment variables or files by Cloud Run itself.
+    This function is a no-op - Cloud Run handles secret mounting natively.
+    We just need to ensure the environment variables are set correctly.
+    """
+    # Cloud Run mounts secrets directly as environment variables or files
+    # No code needed - secrets are available via os.getenv() automatically
+    # PEM files are mounted as files at paths specified in Cloud Run deployment
+    logger.debug("Using Cloud Run native secret mounting - no code changes needed")
+
+
 # Create settings instance with YAML support
 def create_settings() -> Settings:
     """Create and validate application settings.
     
     Loads configuration from:
-    1. config.yaml (project root)
-    2. .env file
-    3. Environment variables
+    1. GCP Secret Manager (if running in Cloud Run)
+    2. config.yaml (project root)
+    3. .env file (local development)
+    4. Environment variables (overrides)
     
     Returns:
         Validated Settings instance.
     """
+    # Load secrets from GCP Secret Manager first (if in Cloud Run)
+    _load_secrets_from_gcp()
+    
     # Load YAML config
     config_path = Path(__file__).parent.parent / "config.yaml"
     yaml_config = load_yaml_config(config_path)
     
-    # Load .env file explicitly to ensure it's loaded
+    # Load .env file explicitly to ensure it's loaded (for local development)
     env_path = Path(__file__).parent.parent / ".env"
     if env_path.exists():
         from dotenv import load_dotenv

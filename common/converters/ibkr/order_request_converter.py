@@ -140,17 +140,28 @@ class OrderRequestConverter:
     ) -> list[IbkrOrderRequest]:
         """Build a bracket order set: parent + stop loss + take profit.
 
-        - Parent (entry) and take-profit allow `outside_rth` (OTH) per request.
-        - Stop-loss child is created with `outside_rth=False`.
+        - Parent (entry) RTH setting from order_request.buy_limit_rth (default: RTH-only).
+        - Stop-loss child RTH setting from order_request.stop_loss_rth (default: RTH-only).
+        - Take-profit child RTH setting from order_request.take_profit_rth (default: RTH-only).
         - Parent receives a `coid` client order id which children reference via
           `parent_id`.
         """
         # Ensure we have a client order id for the parent
         parent_coid = order_id or f"{order_request.ticker}-{int(time.time())}"
 
+        # Determine RTH settings for each order
+        # outside_rth=False means RTH-only (can only execute during regular trading hours)
+        # outside_rth=True means can execute outside regular trading hours
+        # buy_limit_rth=True means RTH-only → outside_rth=False
+        # buy_limit_rth=False means can execute outside RTH → outside_rth=True
+        buy_limit_outside_rth = not (order_request.buy_limit_rth if order_request.buy_limit_rth is not None else True)
+        # stop_loss_rth: False in config means outside_rth=False (RTH-only) per user requirement
+        # But user said stop loss can't trigger outside RTH, so it should always be RTH-only
+        stop_loss_outside_rth = False  # Always RTH-only for stop loss
+        take_profit_outside_rth = not (order_request.take_profit_rth if order_request.take_profit_rth is not None else True)
+
         # Parent order (entry). For bracket usage parent is typically a limit
         # entry; still mirror fields from the request.
-        # RTH-only for limit entry orders
         parent = IbkrOrderRequest(
             conid=conid,
             side=cls.SIDE_MAP[order_request.side],
@@ -159,13 +170,13 @@ class OrderRequestConverter:
             acct_id=account_id,
             ticker=order_request.ticker,
             listing_exchange=listing_exchange,
-            outside_rth=False,  # RTH-only for limit entry
+            outside_rth=buy_limit_outside_rth,
             tif=cls.TIF_MAP[order_request.time_in_force],
             price=order_request.limit_price,
         )
         parent.coid = parent_coid
 
-        # Stop loss child: opposite side, STP order, no OTH
+        # Stop loss child: opposite side, STP order
         stop_loss = IbkrOrderRequest(
             conid=conid,
             side="SELL" if order_request.side == OrderSide.BUY else "BUY",
@@ -174,13 +185,13 @@ class OrderRequestConverter:
             acct_id=account_id,
             ticker=order_request.ticker,
             listing_exchange=listing_exchange,
-            outside_rth=False,
+            outside_rth=stop_loss_outside_rth,
             tif="GTC",
             price=order_request.stop_loss_price,
             parent_id=parent_coid,
         )
 
-        # Take profit child: opposite side, LMT order, RTH-only
+        # Take profit child: opposite side, LMT order
         take_profit = IbkrOrderRequest(
             conid=conid,
             side="SELL" if order_request.side == OrderSide.BUY else "BUY",
@@ -189,7 +200,7 @@ class OrderRequestConverter:
             acct_id=account_id,
             ticker=order_request.ticker,
             listing_exchange=listing_exchange,
-            outside_rth=False,  # RTH-only for take profit
+            outside_rth=take_profit_outside_rth,
             tif="GTC",
             price=order_request.take_profit_price,
             parent_id=parent_coid,

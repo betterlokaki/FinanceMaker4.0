@@ -152,6 +152,8 @@ class Container(containers.DeclarativeContainer):
         broker=ibkr_broker,
         ai_scanner_config=providers.Object(settings.ai_scanner),
         ticker_cache=ticker_cache,
+        portfolio_allocation_config=providers.Object(settings.portfolio_allocation),
+        order_params_config=providers.Object(settings.order_params),
     )
 
     demand_zone_strategy: providers.Provider[ITradingStrategy] = providers.Singleton(
@@ -167,12 +169,14 @@ class Container(containers.DeclarativeContainer):
         ticker_cache=ticker_cache,
         prompt_template=providers.Object(settings.demand_zone_strategy.prompt_template),
         finviz_url=providers.Object(settings.demand_zone_strategy.finviz_url),
-        trade_value=providers.Object(settings.demand_zone_strategy.trade_value),
+        portfolio_allocation_config=providers.Object(settings.portfolio_allocation),
+        order_params_config=providers.Object(settings.order_params),
     )
 
     # Strategy list for scheduler
     strategies: providers.Provider[list[ITradingStrategy]] = providers.List(
         earning_strategy,
+        demand_zone_strategy,
     )
 
     # Market Calendar

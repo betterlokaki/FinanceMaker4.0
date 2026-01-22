@@ -19,6 +19,9 @@ class OrderRequest:
         stop_loss_price: Stop loss price for bracket orders.
         take_profit_price: Take profit price for bracket orders.
         time_in_force: How long the order remains active.
+        buy_limit_rth: Whether buy limit order executes only during RTH (None = use default).
+        stop_loss_rth: Whether stop loss order executes only during RTH (None = use default).
+        take_profit_rth: Whether take profit order executes only during RTH (None = use default).
     """
     ticker: str
     quantity: int
@@ -29,6 +32,9 @@ class OrderRequest:
     stop_loss_price: Optional[float] = None
     take_profit_price: Optional[float] = None
     time_in_force: TimeInForce = TimeInForce.DAY
+    buy_limit_rth: Optional[bool] = None
+    stop_loss_rth: Optional[bool] = None
+    take_profit_rth: Optional[bool] = None
     
     def __post_init__(self) -> None:
         """Validate order request parameters."""

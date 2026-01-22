@@ -9,7 +9,7 @@ from common.models.candlestick import CandleStick
 from common.models.order import OrderSide, OrderType
 from common.models.order_request import OrderRequest
 from common.models.scanner_params import ScannerParams
-from common.settings import AIScannerConfig
+from common.settings import AIScannerConfig, OrderParamsConfig, PortfolioAllocationConfig
 from publishers.abstracts.i_broker import IBroker
 from pullers.realtime.abstracts.i_realtime_provider import IRealtimeProvider
 from pullers.scanners.ai_scanners.earning_tommrow_ai import EarningTomorrowAI
@@ -49,6 +49,8 @@ class EarningStrategy(RealTimeTradingBase):
         broker: IBroker,
         ai_scanner_config: AIScannerConfig,
         ticker_cache: ITickerCache,
+        portfolio_allocation_config: PortfolioAllocationConfig,
+        order_params_config: OrderParamsConfig,
     ) -> None:
         """Initialize the earnings strategy.
         
@@ -58,12 +60,16 @@ class EarningStrategy(RealTimeTradingBase):
             broker: Broker interface for placing orders.
             ai_scanner_config: AI scanner configuration with scan_passes.
             ticker_cache: Cache for storing/loading tickers across restarts.
+            portfolio_allocation_config: Portfolio allocation configuration.
+            order_params_config: Order parameters configuration.
         """
         super().__init__(realtime_provider)
         self._earnings_scanner: EarningTomorrowAI = earnings_scanner
         self._broker: IBroker = broker
         self._ai_scanner_config: AIScannerConfig = ai_scanner_config
         self._ticker_cache: ITickerCache = ticker_cache
+        self._portfolio_allocation_config: PortfolioAllocationConfig = portfolio_allocation_config
+        self._order_params_config: OrderParamsConfig = order_params_config
         self._warmup_complete: bool = False
         self._orders_placed: set[str] = set()  # Track tickers with orders
         self._buying_power_per_ticker: float = 0.0  # Allocated buying power per ticker
@@ -93,15 +99,22 @@ class EarningStrategy(RealTimeTradingBase):
             # Save to cache for future restarts
             self._ticker_cache.save_tickers(result, today)
         
-        # Calculate buying power allocation per ticker
+        # Calculate buying power allocation per ticker using portfolio allocation config
         self._total_tickers = len(result)
         if self._total_tickers > 0:
-            buying_power: float = await self._broker.get_buying_power()
-            self._buying_power_per_ticker = buying_power / self._total_tickers
+            total_buying_power: float = await self._broker.get_buying_power()
+            # Allocate percentage of total buying power to this strategy
+            strategy_buying_power: float = total_buying_power * self._portfolio_allocation_config.strategy_allocation_pct
+            # Each ticker gets a fixed percentage of the strategy's allocation
+            # ticker_allocation_pct is the percentage of strategy's allocation per ticker (e.g., 33% = 16.5% of total)
+            self._buying_power_per_ticker = strategy_buying_power * self._portfolio_allocation_config.ticker_allocation_pct
             logger.info(
-                "💰 Buying power: $%.2f, Tickers: %d, Per ticker: $%.2f",
-                buying_power,
-                self._total_tickers,
+                "💰 Total buying power: $%.2f, Strategy allocation (%.1f%%): $%.2f, Per ticker (%.1f%% of strategy = %.1f%% of total): $%.2f",
+                total_buying_power,
+                self._portfolio_allocation_config.strategy_allocation_pct * 100,
+                strategy_buying_power,
+                self._portfolio_allocation_config.ticker_allocation_pct * 100,
+                (self._portfolio_allocation_config.strategy_allocation_pct * self._portfolio_allocation_config.ticker_allocation_pct) * 100,
                 self._buying_power_per_ticker,
             )
         
@@ -199,7 +212,7 @@ class EarningStrategy(RealTimeTradingBase):
             self._buying_power_per_ticker,
         )
         
-        # Create and place the order
+        # Create and place the order with configurable parameters
         order_request: OrderRequest = OrderRequest(
             ticker=ticker,
             quantity=quantity,
@@ -208,6 +221,10 @@ class EarningStrategy(RealTimeTradingBase):
             limit_price=entry_price,
             stop_loss_price=stop_loss_price,
             take_profit_price=take_profit_price,
+            time_in_force=self._order_params_config.buy_limit_tif,
+            buy_limit_rth=self._order_params_config.buy_limit_rth,
+            stop_loss_rth=self._order_params_config.stop_loss_rth,
+            take_profit_rth=self._order_params_config.take_profit_rth,
         )
         
         response = await self._broker.place_order(order_request)
