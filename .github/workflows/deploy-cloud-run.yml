@@ -19,6 +19,7 @@ env:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+    environment: dev
     permissions:
       contents: read
       id-token: write
@@ -43,10 +44,29 @@ jobs:
           echo "No tests configured yet"
         continue-on-error: true
       
+      - name: Validate required secrets
+        run: |
+          PROJECT_ID="${{ secrets.GCP_PROJECT_ID }}"
+          REGION="${{ secrets.GCP_REGION }}"
+          
+          if [ -z "$PROJECT_ID" ]; then
+            echo "❌ Error: GCP_PROJECT_ID secret is not set or is empty"
+            echo "Please ensure GCP_PROJECT_ID is set in the 'dev' environment secrets"
+            exit 1
+          fi
+          if [ -z "$REGION" ]; then
+            echo "❌ Error: GCP_REGION secret is not set or is empty"
+            echo "Please ensure GCP_REGION is set in the 'dev' environment secrets"
+            exit 1
+          fi
+          echo "✅ GCP_PROJECT_ID is set (length: ${#PROJECT_ID} chars)"
+          echo "✅ GCP_REGION is set (length: ${#REGION} chars)"
+      
       - name: Build Docker image
         id: build-image
         run: |
-          IMAGE_TAG="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/financemaker-repo/financemaker:${{ github.sha }}"
+          IMAGE_TAG="${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/financemaker-repo/financemaker:${{ github.sha }}"
+          echo "Building image with tag: $IMAGE_TAG"
           echo "image_tag=$IMAGE_TAG" >> $GITHUB_OUTPUT
           docker build -t $IMAGE_TAG .
       
@@ -61,7 +81,7 @@ jobs:
       
       - name: Configure Docker for Artifact Registry
         run: |
-          gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
+          gcloud auth configure-docker ${{ secrets.GCP_REGION }}-docker.pkg.dev --quiet
       
       - name: Push Docker image
         run: |
@@ -92,8 +112,8 @@ jobs:
       - name: Deploy to Cloud Run (Dev - Paper Trading)
         run: |
           gcloud run deploy ${{ env.SERVICE_NAME_DEV }} \
-            --image ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/financemaker-repo/financemaker:${{ github.sha }} \
-            --region ${{ env.REGION }} \
+            --image ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/financemaker-repo/financemaker:${{ github.sha }} \
+            --region ${{ secrets.GCP_REGION }} \
             --platform managed \
             --allow-unauthenticated \
             --cpu 2 \
