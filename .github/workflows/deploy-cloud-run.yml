@@ -139,47 +139,19 @@ jobs:
             fi
           fi
 
-      - name: Deploy Cloud Run Job (Dev - Paper Trading) - Create without secrets
+      - name: Deploy Cloud Run Job (Dev - Paper Trading) - Create with PEM secrets
         run: |
-          # Check if job exists
-          if gcloud run jobs describe ${{ env.SERVICE_NAME_DEV }} \
-            --region ${{ secrets.GCP_REGION }} \
-            --project ${{ secrets.GCP_PROJECT_ID }} &>/dev/null; then
-            echo "Job exists, updating image and env vars..."
-            gcloud run jobs update ${{ env.SERVICE_NAME_DEV }} \
-              --image ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/financemaker-repo/financemaker:${{ github.sha }} \
-              --region ${{ secrets.GCP_REGION }} \
-              --project ${{ secrets.GCP_PROJECT_ID }} \
-              --service-account ${{ secrets.GCP_SA_EMAIL }} \
-              --tasks 1 \
-              --max-retries 0 \
-              --task-timeout 3600 \
-              --set-env-vars "TRADING_ENV=paper,IBKR_DH_PARAM_PATH=/secrets/dh_param,IBKR_ENCRYPTION_KEY_PATH=/secrets/encryption_key,IBKR_SIGNATURE_KEY_PATH=/secrets/signature_key,GROK_API_KEY=${{ secrets.GROK_API_KEY }},GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }},IBKR_ACCESS_TOKEN=${{ secrets.IBKR_ACCESS_TOKEN }},IBKR_ACCESS_TOKEN_SECRET=${{ secrets.IBKR_ACCESS_TOKEN_SECRET }},IBKR_CONSUMER_KEY=${{ secrets.IBKR_CONSUMER_KEY }}"
-          else
-            echo "Job does not exist, creating new job without secrets first..."
-            gcloud run jobs create ${{ env.SERVICE_NAME_DEV }} \
-              --image ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/financemaker-repo/financemaker:${{ github.sha }} \
-              --region ${{ secrets.GCP_REGION }} \
-              --project ${{ secrets.GCP_PROJECT_ID }} \
-              --service-account ${{ secrets.GCP_SA_EMAIL }} \
-              --tasks 1 \
-              --max-retries 0 \
-              --task-timeout 3600 \
-              --set-env-vars "TRADING_ENV=paper,IBKR_DH_PARAM_PATH=/secrets/dh_param,IBKR_ENCRYPTION_KEY_PATH=/secrets/encryption_key,IBKR_SIGNATURE_KEY_PATH=/secrets/signature_key,GROK_API_KEY=${{ secrets.GROK_API_KEY }},GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }},IBKR_ACCESS_TOKEN=${{ secrets.IBKR_ACCESS_TOKEN }},IBKR_ACCESS_TOKEN_SECRET=${{ secrets.IBKR_ACCESS_TOKEN_SECRET }},IBKR_CONSUMER_KEY=${{ secrets.IBKR_CONSUMER_KEY }}"
-          fi
-      
-      - name: Add secrets to Cloud Run Job (Dev - Paper Trading)
-        run: |
-          echo "Adding secrets to job..."
-          # Clear any existing secrets first, then set new ones
-          gcloud run jobs update ${{ env.SERVICE_NAME_DEV }} \
+          echo "Creating job with PEM secrets mounted..."
+          # Since we deleted the job above, we can create it fresh with secrets in one go
+          gcloud run jobs create ${{ env.SERVICE_NAME_DEV }} \
+            --image ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/financemaker-repo/financemaker:${{ github.sha }} \
             --region ${{ secrets.GCP_REGION }} \
             --project ${{ secrets.GCP_PROJECT_ID }} \
-            --clear-secrets "/secrets/dh_param,/secrets/encryption_key,/secrets/signature_key" || echo "No secrets to clear or job doesn't exist"
-          # Now set the secrets
-          gcloud run jobs update ${{ env.SERVICE_NAME_DEV }} \
-            --region ${{ secrets.GCP_REGION }} \
-            --project ${{ secrets.GCP_PROJECT_ID }} \
+            --service-account ${{ secrets.GCP_SA_EMAIL }} \
+            --tasks 1 \
+            --max-retries 0 \
+            --task-timeout 3600 \
+            --set-env-vars "TRADING_ENV=paper,IBKR_DH_PARAM_PATH=/secrets/dh_param,IBKR_ENCRYPTION_KEY_PATH=/secrets/encryption_key,IBKR_SIGNATURE_KEY_PATH=/secrets/signature_key,GROK_API_KEY=${{ secrets.GROK_API_KEY }},GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }},IBKR_ACCESS_TOKEN=${{ secrets.IBKR_ACCESS_TOKEN }},IBKR_ACCESS_TOKEN_SECRET=${{ secrets.IBKR_ACCESS_TOKEN_SECRET }},IBKR_CONSUMER_KEY=${{ secrets.IBKR_CONSUMER_KEY }}" \
             --set-secrets "/secrets/dh_param=ibkr-paper-dh-param:latest,/secrets/encryption_key=ibkr-paper-encryption-key:latest,/secrets/signature_key=ibkr-paper-signature-key:latest"
 
       - name: Execute Cloud Run Job (Dev - Paper Trading)
