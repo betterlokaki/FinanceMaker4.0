@@ -109,63 +109,63 @@ jobs:
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
       
-      - name: Delete existing job (if exists) and wait for deletion
+      - name: Delete existing SERVICE (if exists) - Services and Jobs share namespace
         run: |
-          if gcloud run jobs describe ${{ env.SERVICE_NAME_DEV }} \
+          echo "Checking for existing SERVICE with same name (Services and Jobs share namespace)..."
+          if gcloud run services describe ${{ env.SERVICE_NAME_DEV }} \
             --region ${{ secrets.GCP_REGION }} \
             --project ${{ secrets.GCP_PROJECT_ID }} &>/dev/null; then
-            gcloud run jobs delete ${{ env.SERVICE_NAME_DEV }} \
+            echo "⚠️  SERVICE exists with same name! Deleting it (Services and Jobs share namespace)..."
+            gcloud run services delete ${{ env.SERVICE_NAME_DEV }} \
               --region ${{ secrets.GCP_REGION }} \
               --project ${{ secrets.GCP_PROJECT_ID }} \
               --quiet
-
-            echo "Waiting for job deletion to complete..."
-            for i in {1..30}; do
-              if gcloud run jobs describe ${{ env.SERVICE_NAME_DEV }} \
+            echo "Waiting for service deletion..."
+            sleep 20
+            for i in {1..10}; do
+              if ! gcloud run services describe ${{ env.SERVICE_NAME_DEV }} \
                 --region ${{ secrets.GCP_REGION }} \
                 --project ${{ secrets.GCP_PROJECT_ID }} &>/dev/null; then
-                sleep 5
-              else
-                echo "Job deleted."
-                break
-              fi
-            done
-
-            if gcloud run jobs describe ${{ env.SERVICE_NAME_DEV }} \
-              --region ${{ secrets.GCP_REGION }} \
-              --project ${{ secrets.GCP_PROJECT_ID }} &>/dev/null; then
-              echo "Job still exists after waiting; aborting deploy."
-              exit 1
-            fi
-          fi
-
-      - name: Deploy Cloud Run Job (Dev - Paper Trading)
-        run: |
-          # Delete old job completely if it exists
-          if gcloud run jobs describe ${{ env.SERVICE_NAME_DEV }} \
-            --region ${{ secrets.GCP_REGION }} \
-            --project ${{ secrets.GCP_PROJECT_ID }} &>/dev/null; then
-            echo "Deleting old job completely..."
-            gcloud run jobs delete ${{ env.SERVICE_NAME_DEV }} \
-              --region ${{ secrets.GCP_REGION }} \
-              --project ${{ secrets.GCP_PROJECT_ID }} \
-              --quiet
-            echo "Waiting for job deletion to complete..."
-            sleep 30
-            # Verify it's fully gone
-            for i in {1..15}; do
-              if ! gcloud run jobs describe ${{ env.SERVICE_NAME_DEV }} \
-                --region ${{ secrets.GCP_REGION }} \
-                --project ${{ secrets.GCP_PROJECT_ID }} &>/dev/null; then
-                echo "Job fully deleted. Waiting 10 more seconds to ensure cleanup..."
+                echo "Service deleted. Waiting 10 more seconds..."
                 sleep 10
                 break
               fi
-              echo "Still waiting for deletion... ($i/15)"
               sleep 5
             done
+          else
+            echo "No service exists with that name"
           fi
-          
+        continue-on-error: true
+      
+      - name: Delete existing JOB (if exists)
+        run: |
+          if gcloud run jobs describe ${{ env.SERVICE_NAME_DEV }} \
+            --region ${{ secrets.GCP_REGION }} \
+            --project ${{ secrets.GCP_PROJECT_ID }} &>/dev/null; then
+            echo "Deleting existing job..."
+            gcloud run jobs delete ${{ env.SERVICE_NAME_DEV }} \
+              --region ${{ secrets.GCP_REGION }} \
+              --project ${{ secrets.GCP_PROJECT_ID }} \
+              --quiet
+            echo "Waiting for job deletion..."
+            sleep 20
+            for i in {1..10}; do
+              if ! gcloud run jobs describe ${{ env.SERVICE_NAME_DEV }} \
+                --region ${{ secrets.GCP_REGION }} \
+                --project ${{ secrets.GCP_PROJECT_ID }} &>/dev/null; then
+                echo "Job deleted. Waiting 10 more seconds..."
+                sleep 10
+                break
+              fi
+              sleep 5
+            done
+          else
+            echo "No job exists with that name"
+          fi
+        continue-on-error: true
+
+      - name: Deploy Cloud Run Job (Dev - Paper Trading)
+        run: |
           # Create job fresh with ALL secrets in ONE command
           echo "Creating job with all PEM secrets mounted in one command..."
           gcloud run jobs create ${{ env.SERVICE_NAME_DEV }} \
