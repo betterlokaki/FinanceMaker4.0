@@ -166,8 +166,8 @@ jobs:
 
       - name: Deploy Cloud Run Job (Dev - Paper Trading)
         run: |
-          # Create job fresh with ALL secrets in ONE command
-          echo "Creating job with all PEM secrets mounted in one command..."
+          # Create job WITHOUT mounting secrets (secrets are already mounted)
+          echo "Creating job (secrets are already mounted, not setting them in CI/CD)..."
           gcloud run jobs create ${{ env.SERVICE_NAME_DEV }} \
             --image ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/financemaker-repo/financemaker:${{ github.sha }} \
             --region ${{ secrets.GCP_REGION }} \
@@ -176,10 +176,9 @@ jobs:
             --tasks 1 \
             --max-retries 0 \
             --task-timeout 3600 \
-            --set-env-vars "TRADING_ENV=paper,IBKR_DH_PARAM_PATH=/secrets/dh_param,IBKR_ENCRYPTION_KEY_PATH=/secrets/encryption_key,IBKR_SIGNATURE_KEY_PATH=/secrets/signature_key,GROK_API_KEY=${{ secrets.GROK_API_KEY }},GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }},IBKR_ACCESS_TOKEN=${{ secrets.IBKR_ACCESS_TOKEN }},IBKR_ACCESS_TOKEN_SECRET=${{ secrets.IBKR_ACCESS_TOKEN_SECRET }},IBKR_CONSUMER_KEY=${{ secrets.IBKR_CONSUMER_KEY }}" \
-            --set-secrets "/secrets/dh_param=ibkr-paper-dh-param:latest,/secrets/encryption_key=ibkr-paper-encryption-key:latest,/secrets/signature_key=ibkr-paper-signature-key:latest"
+            --set-env-vars "TRADING_ENV=paper,IBKR_DH_PARAM_PATH=/secrets/dh_param,IBKR_ENCRYPTION_KEY_PATH=/secrets/encryption_key,IBKR_SIGNATURE_KEY_PATH=/secrets/signature_key,GROK_API_KEY=${{ secrets.GROK_API_KEY }},GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }},IBKR_ACCESS_TOKEN=${{ secrets.IBKR_ACCESS_TOKEN }},IBKR_ACCESS_TOKEN_SECRET=${{ secrets.IBKR_ACCESS_TOKEN_SECRET }},IBKR_CONSUMER_KEY=${{ secrets.IBKR_CONSUMER_KEY }}"
           
-          echo "✅ Job created successfully with all PEM secrets mounted"
+          echo "✅ Job created successfully (secrets already mounted)"
 
       - name: Execute Cloud Run Job (Dev - Paper Trading)
         run: |
