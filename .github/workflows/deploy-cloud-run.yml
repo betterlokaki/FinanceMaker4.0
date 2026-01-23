@@ -109,7 +109,7 @@ jobs:
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
       
-      - name: Delete existing job (if exists) to reset secret mounts
+      - name: Delete existing job (if exists) and wait for deletion
         run: |
           if gcloud run jobs describe ${{ env.SERVICE_NAME_DEV }} \
             --region ${{ secrets.GCP_REGION }} \
@@ -118,6 +118,25 @@ jobs:
               --region ${{ secrets.GCP_REGION }} \
               --project ${{ secrets.GCP_PROJECT_ID }} \
               --quiet
+
+            echo "Waiting for job deletion to complete..."
+            for i in {1..30}; do
+              if gcloud run jobs describe ${{ env.SERVICE_NAME_DEV }} \
+                --region ${{ secrets.GCP_REGION }} \
+                --project ${{ secrets.GCP_PROJECT_ID }} &>/dev/null; then
+                sleep 5
+              else
+                echo "Job deleted."
+                break
+              fi
+            done
+
+            if gcloud run jobs describe ${{ env.SERVICE_NAME_DEV }} \
+              --region ${{ secrets.GCP_REGION }} \
+              --project ${{ secrets.GCP_PROJECT_ID }} &>/dev/null; then
+              echo "Job still exists after waiting; aborting deploy."
+              exit 1
+            fi
           fi
 
       - name: Deploy Cloud Run Job (Dev - Paper Trading)
