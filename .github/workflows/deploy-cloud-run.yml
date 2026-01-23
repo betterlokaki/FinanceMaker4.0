@@ -109,68 +109,32 @@ jobs:
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
       
-      - name: Delete existing service and wait for completion
+      - name: Deploy Cloud Run Job (Dev - Paper Trading)
         run: |
-          if gcloud run services describe ${{ env.SERVICE_NAME_DEV }} --region=${{ secrets.GCP_REGION }} --project=${{ secrets.GCP_PROJECT_ID }} &>/dev/null; then
-            echo "Service exists, deleting to avoid secret conflicts..."
-            gcloud run services delete ${{ env.SERVICE_NAME_DEV }} \
-              --region=${{ secrets.GCP_REGION }} \
-              --project=${{ secrets.GCP_PROJECT_ID }} \
-              --quiet
-            echo "Waiting for service deletion to complete..."
-            sleep 10
-            # Verify deletion completed
-            if gcloud run services describe ${{ env.SERVICE_NAME_DEV }} --region=${{ secrets.GCP_REGION }} --project=${{ secrets.GCP_PROJECT_ID }} &>/dev/null; then
-              echo "Service still exists, waiting longer..."
-              sleep 20
-            else
-              echo "Service successfully deleted"
-            fi
-          else
-            echo "Service does not exist, will create new"
-          fi
-        continue-on-error: true
-      
-      - name: Deploy to Cloud Run (Dev - Paper Trading)
+          gcloud run jobs deploy ${{ env.SERVICE_NAME_DEV }} \
+            --image ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/financemaker-repo/financemaker:${{ github.sha }} \
+            --region ${{ secrets.GCP_REGION }} \
+            --project ${{ secrets.GCP_PROJECT_ID }} \
+            --service-account ${{ secrets.GCP_SA_EMAIL }} \
+            --tasks 1 \
+            --max-retries 0 \
+            --task-timeout 3600 \
+            --set-env-vars "TRADING_ENV=paper,IBKR_DH_PARAM_PATH=/secrets/dh_param,IBKR_ENCRYPTION_KEY_PATH=/secrets/encryption_key,IBKR_SIGNATURE_KEY_PATH=/secrets/signature_key,GROK_API_KEY=${{ secrets.GROK_API_KEY }},GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }},IBKR_ACCESS_TOKEN=${{ secrets.IBKR_ACCESS_TOKEN }},IBKR_ACCESS_TOKEN_SECRET=${{ secrets.IBKR_ACCESS_TOKEN_SECRET }},IBKR_CONSUMER_KEY=${{ secrets.IBKR_CONSUMER_KEY }}" \
+            --set-secrets "/secrets/dh_param=ibkr-paper-dh-param:latest,/secrets/encryption_key=ibkr-paper-encryption-key:latest,/secrets/signature_key=ibkr-paper-signature-key:latest"
+
+      - name: Execute Cloud Run Job (Dev - Paper Trading)
         run: |
-          # Check if service exists
-          if gcloud run services describe ${{ env.SERVICE_NAME_DEV }} --region=${{ secrets.GCP_REGION }} --project=${{ secrets.GCP_PROJECT_ID }} &>/dev/null; then
-            echo "Service exists, deploying with secrets update..."
-            gcloud run deploy ${{ env.SERVICE_NAME_DEV }} \
-              --image ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/financemaker-repo/financemaker:${{ github.sha }} \
-              --region ${{ secrets.GCP_REGION }} \
-              --platform managed \
-              --service-account ${{ secrets.GCP_SA_EMAIL }} \
-              --allow-unauthenticated \
-              --cpu 2 \
-              --memory 4Gi \
-              --timeout 3600 \
-              --min-instances 1 \
-              --max-instances 1 \
-              --concurrency 1 \
-              --set-env-vars "TRADING_ENV=paper,IBKR_DH_PARAM_PATH=/secrets/dh_param,IBKR_ENCRYPTION_KEY_PATH=/secrets/encryption_key,IBKR_SIGNATURE_KEY_PATH=/secrets/signature_key,GROK_API_KEY=${{ secrets.GROK_API_KEY }},GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }},IBKR_ACCESS_TOKEN=${{ secrets.IBKR_ACCESS_TOKEN }},IBKR_ACCESS_TOKEN_SECRET=${{ secrets.IBKR_ACCESS_TOKEN_SECRET }},IBKR_CONSUMER_KEY=${{ secrets.IBKR_CONSUMER_KEY }}" \
-              --update-secrets "/secrets/dh_param=ibkr-paper-dh-param:latest,/secrets/encryption_key=ibkr-paper-encryption-key:latest,/secrets/signature_key=ibkr-paper-signature-key:latest"
-          else
-            echo "Service does not exist, creating new service without secrets first..."
-            gcloud run deploy ${{ env.SERVICE_NAME_DEV }} \
-              --image ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/financemaker-repo/financemaker:${{ github.sha }} \
-              --region ${{ secrets.GCP_REGION }} \
-              --platform managed \
-              --service-account ${{ secrets.GCP_SA_EMAIL }} \
-              --allow-unauthenticated \
-              --cpu 2 \
-              --memory 4Gi \
-              --timeout 3600 \
-              --min-instances 1 \
-              --max-instances 1 \
-              --concurrency 1 \
-              --set-env-vars "TRADING_ENV=paper,IBKR_DH_PARAM_PATH=/secrets/dh_param,IBKR_ENCRYPTION_KEY_PATH=/secrets/encryption_key,IBKR_SIGNATURE_KEY_PATH=/secrets/signature_key,GROK_API_KEY=${{ secrets.GROK_API_KEY }},GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }},IBKR_ACCESS_TOKEN=${{ secrets.IBKR_ACCESS_TOKEN }},IBKR_ACCESS_TOKEN_SECRET=${{ secrets.IBKR_ACCESS_TOKEN_SECRET }},IBKR_CONSUMER_KEY=${{ secrets.IBKR_CONSUMER_KEY }}"
-            echo "Adding secrets to new service..."
-            gcloud run services update ${{ env.SERVICE_NAME_DEV }} \
-              --region=${{ secrets.GCP_REGION }} \
-              --project=${{ secrets.GCP_PROJECT_ID }} \
-              --update-secrets "/secrets/dh_param=ibkr-paper-dh-param:latest,/secrets/encryption_key=ibkr-paper-encryption-key:latest,/secrets/signature_key=ibkr-paper-signature-key:latest"
-          fi
+          EXECUTION_NAME=$(gcloud run jobs execute ${{ env.SERVICE_NAME_DEV }} \
+            --region ${{ secrets.GCP_REGION }} \
+            --project ${{ secrets.GCP_PROJECT_ID }} \
+            --wait \
+            --format="value(metadata.name)")
+          echo "Job execution: $EXECUTION_NAME"
+          echo "Fetching logs..."
+          gcloud run jobs executions logs read "$EXECUTION_NAME" \
+            --region ${{ secrets.GCP_REGION }} \
+            --project ${{ secrets.GCP_PROJECT_ID }} \
+            --limit=1000
 
   # deploy-prod:
   #   needs: build-and-test
