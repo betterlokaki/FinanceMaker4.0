@@ -60,11 +60,15 @@ class InteractiveWebapiBroker(BrokerBase):
         Raises:
             ConnectionError: If connection or authentication fails.
         """
+        logger.info("🔌 Starting Interactive Brokers connection...")
         try:
             # Extract DH prime from param file
+            logger.debug("Extracting DH prime from: %s", self._config.dh_param_path)
             dh_prime = extract_dh_prime(self._config.dh_param_path)
+            logger.debug("✅ DH prime extracted successfully")
             
             # Create OAuth config
+            logger.debug("Creating OAuth configuration...")
             oauth_config = OAuth1aConfig(
                 access_token=self._config.access_token,
                 access_token_secret=self._config.access_token_secret,
@@ -73,20 +77,81 @@ class InteractiveWebapiBroker(BrokerBase):
                 encryption_key_fp=self._config.encryption_key_path,
                 signature_key_fp=self._config.signature_key_path,
             )
+            logger.debug("✅ OAuth config created")
             
             # Create IBKR client
+            logger.info("Creating IBKR client with OAuth...")
             self._client = IbkrClient(use_oauth=True, oauth_config=oauth_config)
+            logger.info("✅ IBKR client created")
             
             # Get account ID
+            logger.info("Fetching portfolio accounts...")
             accounts_response = self._client.portfolio_accounts()
+            logger.debug("Accounts response: %s", accounts_response)
+            
             if not accounts_response.data:
                 raise ConnectionError("No accounts found")
             
             self._account_id = accounts_response.data[0]["id"]
+            logger.info("✅ Connected to IBKR! Account ID: %s", self._account_id)
+            
+            # Log all accounts found
+            if isinstance(accounts_response.data, list):
+                logger.info("📊 Found %d account(s):", len(accounts_response.data))
+                for idx, account in enumerate(accounts_response.data):
+                    logger.info("  Account %d: %s", idx + 1, account)
+            
             self._connected = True
+            
+            # Immediately fetch and log portfolio after connection
+            logger.info("📈 Fetching portfolio information...")
+            try:
+                portfolio = await self.get_portfolio()
+                logger.info("=" * 80)
+                logger.info("📊 PORTFOLIO SUMMARY")
+                logger.info("=" * 80)
+                logger.info("💰 Cash Balance: $%.2f", portfolio.cash_balance)
+                logger.info("💵 Total Market Value: $%.2f", portfolio.total_market_value)
+                logger.info("📊 Total Equity: $%.2f", portfolio.total_equity)
+                logger.info("💪 Buying Power: $%.2f", portfolio.buying_power)
+                logger.info("📈 Unrealized P&L: $%.2f", portfolio.unrealized_pnl)
+                logger.info("💰 Realized P&L: $%.2f", portfolio.realized_pnl)
+                logger.info("")
+                logger.info("📦 Positions (%d):", portfolio.position_count)
+                if portfolio.positions:
+                    for position in portfolio.positions:
+                        pnl_pct = position.unrealized_pnl_percent or 0.0
+                        logger.info("  • %s: %s shares @ $%.2f | Value: $%.2f | P&L: $%.2f (%.2f%%)",
+                                  position.ticker,
+                                  position.quantity,
+                                  position.average_cost,
+                                  position.market_value or 0.0,
+                                  position.unrealized_pnl or 0.0,
+                                  pnl_pct)
+                else:
+                    logger.info("  (No positions)")
+                logger.info("")
+                logger.info("📋 Open Orders (%d):", len(portfolio.open_orders))
+                if portfolio.open_orders:
+                    for order in portfolio.open_orders:
+                        price = order.limit_price or order.stop_price or order.average_fill_price or 0.0
+                        logger.info("  • %s: %s %s %s @ $%.2f | Status: %s | Order ID: %s",
+                                  order.ticker,
+                                  order.side.value,
+                                  order.quantity,
+                                  order.order_type.value,
+                                  price,
+                                  order.status.value,
+                                  order.order_id)
+                else:
+                    logger.info("  (No open orders)")
+                logger.info("=" * 80)
+            except Exception as portfolio_error:
+                logger.error("❌ Failed to fetch portfolio after connection: %s", portfolio_error, exc_info=True)
             
         except Exception as e:
             self._connected = False
+            logger.error("❌ Failed to connect to IBKR: %s", e, exc_info=True)
             raise ConnectionError(f"Failed to connect to IBKR: {e}") from e
     
     async def disconnect(self) -> None:
@@ -226,29 +291,42 @@ class InteractiveWebapiBroker(BrokerBase):
         Returns:
             Portfolio containing positions, open orders, and account summary.
         """
+        logger.debug("Getting portfolio for account: %s", self._account_id)
         await self._ensure_connected()
         assert self._client is not None and self._account_id is not None
         
         # Get positions using positions() method
+        logger.debug("Fetching positions...")
         positions_result = self._client.positions(self._account_id)
+        logger.debug("Positions API response: %s", positions_result)
         positions_data: list[dict[str, Any]] = (
             positions_result.data 
             if isinstance(positions_result.data, list) 
             else []
         )
+        logger.info("📦 Retrieved %d position(s) from IBKR", len(positions_data))
         
         # Get ledger data for cash balances
+        logger.debug("Fetching ledger data...")
         ledger_result = self._client.get_ledger(self._account_id)
+        logger.debug("Ledger API response: %s", ledger_result)
         ledger_data: dict[str, Any] | None = (
             ledger_result.data 
             if isinstance(ledger_result.data, dict) 
             else None
         )
+        if ledger_data:
+            logger.debug("Ledger data keys: %s", list(ledger_data.keys()))
         
         # Get open orders
+        logger.debug("Fetching open orders...")
         open_orders = await self.get_open_orders()
+        logger.info("📋 Retrieved %d open order(s) from IBKR", len(open_orders))
         
-        return PortfolioConverter.from_ibkr_positions(positions_data, ledger_data, open_orders)
+        portfolio = PortfolioConverter.from_ibkr_positions(positions_data, ledger_data, open_orders)
+        logger.debug("✅ Portfolio converted successfully")
+        
+        return portfolio
     
     async def get_buying_power(self) -> float:
         """Get the current buying power available for trading.
@@ -283,13 +361,16 @@ class InteractiveWebapiBroker(BrokerBase):
         Returns:
             List of OrderResponse objects for all active orders (pending, submitted, partially filled).
         """
+        logger.debug("Getting open orders...")
         await self._ensure_connected()
         assert self._client is not None
         
         # Get live orders from ibind
         orders_result = self._client.live_orders()
+        logger.debug("Live orders API response: %s", orders_result)
         
         if orders_result.data is None:
+            logger.debug("No orders data in response")
             return []
         
         # live_orders returns dict with 'orders' key
@@ -299,6 +380,8 @@ class InteractiveWebapiBroker(BrokerBase):
         else:
             orders = []
         
+        logger.debug("Found %d raw order(s) from API", len(orders))
+        
         # Convert to OrderResponse and filter for active orders only
         open_orders: list[OrderResponse] = []
         for order_data in orders:
@@ -307,11 +390,20 @@ class InteractiveWebapiBroker(BrokerBase):
                 # Only include active orders (pending, submitted, partially filled)
                 if order_response.is_active:
                     open_orders.append(order_response)
+                    price = order_response.limit_price or order_response.stop_price or order_response.average_fill_price or 0.0
+                    logger.debug("Active order: %s %s %s %s @ $%.2f | Status: %s",
+                               order_response.ticker,
+                               order_response.side.value,
+                               order_response.quantity,
+                               order_response.order_type.value,
+                               price,
+                               order_response.status.value)
             except Exception as e:
                 # Skip orders that can't be converted
-                logger.warning("Failed to convert order data: %s", e)
+                logger.warning("Failed to convert order data: %s", e, exc_info=True)
                 continue
         
+        logger.debug("Returning %d active order(s)", len(open_orders))
         return open_orders
     
     async def _get_conid(self, ticker: str) -> int:

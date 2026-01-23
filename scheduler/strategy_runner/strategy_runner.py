@@ -66,18 +66,21 @@ class StrategyRunner:
         
         for attempt in range(self._max_retries):
             try:
-                logger.info("Starting %s (attempt %d/%d)...", name, attempt + 1, self._max_retries)
+                logger.info("🚀 Starting %s (attempt %d/%d)...", name, attempt + 1, self._max_retries)
+                logger.debug("Strategy type: %s", type(strategy))
                 await strategy.initialize()
                 self._active.append(strategy)
                 self._failures[idx] = 0
-                logger.info("✅ %s started", name)
+                logger.info("✅ %s started successfully", name)
+                logger.debug("Strategy initialized: %s", strategy.is_initialized)
                 return
             except Exception as e:
-                logger.error("❌ %s failed: %s", name, e)
+                logger.error("❌ %s failed on attempt %d/%d: %s", name, attempt + 1, self._max_retries, e, exc_info=True)
                 if attempt < self._max_retries - 1:
+                    logger.info("⏳ Retrying in %.1f seconds...", self._retry_delay)
                     await asyncio.sleep(self._retry_delay)
         
-        logger.error("🚫 %s disabled after %d failures", name, self._max_retries)
+        logger.error("🚫 %s disabled after %d failed attempts", name, self._max_retries)
 
     async def _handle_crash(self, idx: int, strategy: ITradingStrategy) -> None:
         """Handle a crashed strategy."""
