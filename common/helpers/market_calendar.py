@@ -28,6 +28,11 @@ class MarketCalendar:
         """
         self._calendar = xcals.get_calendar(exchange)
         self._timezone: ZoneInfo = ZoneInfo(timezone)
+        # Cache valid date range to avoid repeated lookups
+        self._first_session = self._calendar.first_session
+        self._last_session = self._calendar.last_session
+        logger.info("Calendar initialized: first_session=%s, last_session=%s", 
+                   self._first_session.date(), self._last_session.date())
 
     @property
     def timezone(self) -> ZoneInfo:
@@ -37,6 +42,25 @@ class MarketCalendar:
     def now(self) -> datetime:
         """Get current time in market timezone."""
         return datetime.now(self._timezone)
+
+    def _clamp_timestamp_to_valid_range(self, ts: pd.Timestamp) -> pd.Timestamp:
+        """Clamp timestamp to calendar's valid range.
+        
+        Args:
+            ts: Timestamp to clamp.
+            
+        Returns:
+            Timestamp clamped to valid range.
+        """
+        if ts < self._first_session:
+            logger.warning("Date %s is before calendar start (%s), clamping to first session",
+                          ts.date(), self._first_session.date())
+            return self._first_session
+        elif ts > self._last_session:
+            logger.warning("Date %s is after calendar end (%s), clamping to last session",
+                          ts.date(), self._last_session.date())
+            return self._last_session
+        return ts
 
     def get_next_trading_day(self, after: datetime) -> datetime:
         """Get next trading day's market open.
@@ -51,13 +75,15 @@ class MarketCalendar:
         logger.debug("get_next_trading_day called with: after=%s (tz=%s)", after, after.tzinfo)
         
         # Convert to date-only timestamp (no time component) to avoid timezone issues
-        # Use normalize to ensure timezone-naive timestamp
         date_only = after.date()
         ts = pd.Timestamp(date_only)
         
         # Ensure timezone-naive (exchange_calendars requires this)
         if ts.tz is not None:
             ts = ts.tz_localize(None)
+        
+        # Clamp to valid range BEFORE using with calendar
+        ts = self._clamp_timestamp_to_valid_range(ts)
         
         logger.debug("Converted to timestamp: ts=%s (tz=%s), type=%s", ts, ts.tz, type(ts))
         
@@ -72,7 +98,7 @@ class MarketCalendar:
         except Exception as e:
             logger.error(
                 "Error in get_next_trading_day: after=%s, ts=%s, ts_type=%s, error=%s",
-                after, ts, type(ts), e, exc_info=True
+                after, ts, type(ts), str(e), exc_info=True
             )
             raise
 
@@ -100,12 +126,15 @@ class MarketCalendar:
         if ts.tz is not None:
             ts = ts.tz_localize(None)
         
+        # Clamp to valid range BEFORE using with calendar
+        ts = self._clamp_timestamp_to_valid_range(ts)
+        
         try:
             return self._calendar.is_session(ts)
         except Exception as e:
             logger.error(
                 "Error in is_trading_day: date=%s, ts=%s, ts_type=%s, error=%s",
-                date, ts, type(ts), e, exc_info=True
+                date, ts, type(ts), str(e), exc_info=True
             )
             raise
 

@@ -48,7 +48,12 @@ async def main() -> None:
         scheduler = container.trading_scheduler()
         await scheduler.stop()
     except Exception as e:
-        logger.error(f"❌ Fatal error: {e}", exc_info=True)
+        # Handle DateOutOfBounds exceptions safely (they can't be stringified)
+        import exchange_calendars.errors as xcals_errors
+        if isinstance(e, xcals_errors.DateOutOfBounds):
+            logger.error("❌ Fatal error: DateOutOfBounds - date is outside calendar range", exc_info=True)
+        else:
+            logger.error(f"❌ Fatal error: {e}", exc_info=True)
         raise
     finally:
         # Cleanup
