@@ -185,14 +185,11 @@ jobs:
           EXECUTION_NAME=$(gcloud run jobs execute ${{ env.SERVICE_NAME_DEV }} \
             --region ${{ secrets.GCP_REGION }} \
             --project ${{ secrets.GCP_PROJECT_ID }} \
-            --wait \
             --format="value(metadata.name)")
           echo "Job execution: $EXECUTION_NAME"
-          echo "Fetching logs..."
-          gcloud run jobs executions logs read "$EXECUTION_NAME" \
-            --region ${{ secrets.GCP_REGION }} \
-            --project ${{ secrets.GCP_PROJECT_ID }} \
-            --limit=1000
+          echo "Not waiting for job completion (CI will finish fast)."
+          echo "To view logs:"
+          echo "  Cloud Run -> Jobs -> ${{ env.SERVICE_NAME_DEV }} -> Executions -> $EXECUTION_NAME"
 
   # deploy-prod:
   #   needs: build-and-test
