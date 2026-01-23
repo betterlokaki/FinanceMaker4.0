@@ -139,75 +139,47 @@ jobs:
             fi
           fi
 
-      - name: Check existing job and secrets
-        id: check-job
+      - name: Deploy Cloud Run Job (Dev - Paper Trading)
         run: |
+          # Delete old job completely if it exists
           if gcloud run jobs describe ${{ env.SERVICE_NAME_DEV }} \
             --region ${{ secrets.GCP_REGION }} \
             --project ${{ secrets.GCP_PROJECT_ID }} &>/dev/null; then
-            echo "Job exists, checking mounted secrets..."
-            # Get the current secrets
-            CURRENT_SECRETS=$(gcloud run jobs describe ${{ env.SERVICE_NAME_DEV }} \
+            echo "Deleting old job completely..."
+            gcloud run jobs delete ${{ env.SERVICE_NAME_DEV }} \
               --region ${{ secrets.GCP_REGION }} \
               --project ${{ secrets.GCP_PROJECT_ID }} \
-              --format="value(spec.template.spec.containers[0].volumeMounts[].name)" 2>/dev/null || echo "")
-            echo "Current secrets: $CURRENT_SECRETS"
-            echo "job_exists=true" >> $GITHUB_OUTPUT
-          else
-            echo "Job does not exist"
-            echo "job_exists=false" >> $GITHUB_OUTPUT
+              --quiet
+            echo "Waiting for job deletion to complete..."
+            sleep 30
+            # Verify it's fully gone
+            for i in {1..15}; do
+              if ! gcloud run jobs describe ${{ env.SERVICE_NAME_DEV }} \
+                --region ${{ secrets.GCP_REGION }} \
+                --project ${{ secrets.GCP_PROJECT_ID }} &>/dev/null; then
+                echo "Job fully deleted. Waiting 10 more seconds to ensure cleanup..."
+                sleep 10
+                break
+              fi
+              echo "Still waiting for deletion... ($i/15)"
+              sleep 5
+            done
           fi
-        continue-on-error: true
-      
-      - name: Deploy Cloud Run Job (Dev - Paper Trading)
-        run: |
-          if [ "${{ steps.check-job.outputs.job_exists }}" == "true" ]; then
-            echo "Job exists, updating image and configuration..."
-            # Update existing job - use update-secrets to preserve existing mounts if they match
-            gcloud run jobs update ${{ env.SERVICE_NAME_DEV }} \
-              --image ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/financemaker-repo/financemaker:${{ github.sha }} \
-              --region ${{ secrets.GCP_REGION }} \
-              --project ${{ secrets.GCP_PROJECT_ID }} \
-              --service-account ${{ secrets.GCP_SA_EMAIL }} \
-              --tasks 1 \
-              --max-retries 0 \
-              --task-timeout 3600 \
-              --set-env-vars "TRADING_ENV=paper,IBKR_DH_PARAM_PATH=/secrets/dh_param,IBKR_ENCRYPTION_KEY_PATH=/secrets/encryption_key,IBKR_SIGNATURE_KEY_PATH=/secrets/signature_key,GROK_API_KEY=${{ secrets.GROK_API_KEY }},GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }},IBKR_ACCESS_TOKEN=${{ secrets.IBKR_ACCESS_TOKEN }},IBKR_ACCESS_TOKEN_SECRET=${{ secrets.IBKR_ACCESS_TOKEN_SECRET }},IBKR_CONSUMER_KEY=${{ secrets.IBKR_CONSUMER_KEY }}" \
-              --update-secrets "/secrets/dh_param=ibkr-paper-dh-param:latest,/secrets/encryption_key=ibkr-paper-encryption-key:latest,/secrets/signature_key=ibkr-paper-signature-key:latest" || {
-                echo "Update failed, trying to clear and set secrets..."
-                # If update fails, clear all secrets first
-                gcloud run jobs update ${{ env.SERVICE_NAME_DEV }} \
-                  --region ${{ secrets.GCP_REGION }} \
-                  --project ${{ secrets.GCP_PROJECT_ID }} \
-                  --clear-secrets "/secrets/dh_param" || true
-                gcloud run jobs update ${{ env.SERVICE_NAME_DEV }} \
-                  --region ${{ secrets.GCP_REGION }} \
-                  --project ${{ secrets.GCP_PROJECT_ID }} \
-                  --clear-secrets "/secrets/encryption_key" || true
-                gcloud run jobs update ${{ env.SERVICE_NAME_DEV }} \
-                  --region ${{ secrets.GCP_REGION }} \
-                  --project ${{ secrets.GCP_PROJECT_ID }} \
-                  --clear-secrets "/secrets/signature_key" || true
-                sleep 5
-                # Now set the secrets
-                gcloud run jobs update ${{ env.SERVICE_NAME_DEV }} \
-                  --region ${{ secrets.GCP_REGION }} \
-                  --project ${{ secrets.GCP_PROJECT_ID }} \
-                  --set-secrets "/secrets/dh_param=ibkr-paper-dh-param:latest,/secrets/encryption_key=ibkr-paper-encryption-key:latest,/secrets/signature_key=ibkr-paper-signature-key:latest"
-              }
-          else
-            echo "Job does not exist, creating new job with PEM secrets..."
-            gcloud run jobs create ${{ env.SERVICE_NAME_DEV }} \
-              --image ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/financemaker-repo/financemaker:${{ github.sha }} \
-              --region ${{ secrets.GCP_REGION }} \
-              --project ${{ secrets.GCP_PROJECT_ID }} \
-              --service-account ${{ secrets.GCP_SA_EMAIL }} \
-              --tasks 1 \
-              --max-retries 0 \
-              --task-timeout 3600 \
-              --set-env-vars "TRADING_ENV=paper,IBKR_DH_PARAM_PATH=/secrets/dh_param,IBKR_ENCRYPTION_KEY_PATH=/secrets/encryption_key,IBKR_SIGNATURE_KEY_PATH=/secrets/signature_key,GROK_API_KEY=${{ secrets.GROK_API_KEY }},GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }},IBKR_ACCESS_TOKEN=${{ secrets.IBKR_ACCESS_TOKEN }},IBKR_ACCESS_TOKEN_SECRET=${{ secrets.IBKR_ACCESS_TOKEN_SECRET }},IBKR_CONSUMER_KEY=${{ secrets.IBKR_CONSUMER_KEY }}" \
-              --set-secrets "/secrets/dh_param=ibkr-paper-dh-param:latest,/secrets/encryption_key=ibkr-paper-encryption-key:latest,/secrets/signature_key=ibkr-paper-signature-key:latest"
-          fi
+          
+          # Create job fresh with ALL secrets in ONE command
+          echo "Creating job with all PEM secrets mounted in one command..."
+          gcloud run jobs create ${{ env.SERVICE_NAME_DEV }} \
+            --image ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/financemaker-repo/financemaker:${{ github.sha }} \
+            --region ${{ secrets.GCP_REGION }} \
+            --project ${{ secrets.GCP_PROJECT_ID }} \
+            --service-account ${{ secrets.GCP_SA_EMAIL }} \
+            --tasks 1 \
+            --max-retries 0 \
+            --task-timeout 3600 \
+            --set-env-vars "TRADING_ENV=paper,IBKR_DH_PARAM_PATH=/secrets/dh_param,IBKR_ENCRYPTION_KEY_PATH=/secrets/encryption_key,IBKR_SIGNATURE_KEY_PATH=/secrets/signature_key,GROK_API_KEY=${{ secrets.GROK_API_KEY }},GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }},IBKR_ACCESS_TOKEN=${{ secrets.IBKR_ACCESS_TOKEN }},IBKR_ACCESS_TOKEN_SECRET=${{ secrets.IBKR_ACCESS_TOKEN_SECRET }},IBKR_CONSUMER_KEY=${{ secrets.IBKR_CONSUMER_KEY }}" \
+            --set-secrets "/secrets/dh_param=ibkr-paper-dh-param:latest,/secrets/encryption_key=ibkr-paper-encryption-key:latest,/secrets/signature_key=ibkr-paper-signature-key:latest"
+          
+          echo "✅ Job created successfully with all PEM secrets mounted"
 
       - name: Execute Cloud Run Job (Dev - Paper Trading)
         run: |
