@@ -1,9 +1,12 @@
 """Market calendar helper for NYSE trading hours."""
+import logging
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import exchange_calendars as xcals
 import pandas as pd
+
+logger: logging.Logger = logging.getLogger(__name__)
 
 
 class MarketCalendar:
@@ -44,15 +47,34 @@ class MarketCalendar:
         Returns:
             Market open datetime for next trading day.
         """
-        ts = pd.Timestamp(after.date())
+        # Log input for debugging
+        logger.debug("get_next_trading_day called with: after=%s (tz=%s)", after, after.tzinfo)
         
-        if self._calendar.is_session(ts):
-            market_close = self._calendar.session_close(ts).tz_convert(self._timezone)
-            if after < market_close.to_pydatetime():
-                return self._calendar.session_open(ts).tz_convert(self._timezone).to_pydatetime()
+        # Convert to date-only timestamp (no time component) to avoid timezone issues
+        # Use normalize to ensure timezone-naive timestamp
+        date_only = after.date()
+        ts = pd.Timestamp(date_only)
         
-        next_session = self._calendar.next_open(ts)
-        return next_session.tz_convert(self._timezone).to_pydatetime()
+        # Ensure timezone-naive (exchange_calendars requires this)
+        if ts.tz is not None:
+            ts = ts.tz_localize(None)
+        
+        logger.debug("Converted to timestamp: ts=%s (tz=%s), type=%s", ts, ts.tz, type(ts))
+        
+        try:
+            if self._calendar.is_session(ts):
+                market_close = self._calendar.session_close(ts).tz_convert(self._timezone)
+                if after < market_close.to_pydatetime():
+                    return self._calendar.session_open(ts).tz_convert(self._timezone).to_pydatetime()
+            
+            next_session = self._calendar.next_open(ts)
+            return next_session.tz_convert(self._timezone).to_pydatetime()
+        except Exception as e:
+            logger.error(
+                "Error in get_next_trading_day: after=%s, ts=%s, ts_type=%s, error=%s",
+                after, ts, type(ts), e, exc_info=True
+            )
+            raise
 
     def get_pre_market_open(self, trading_day: datetime) -> datetime:
         """Get pre-market open time (4:00 AM EST)."""
@@ -71,8 +93,21 @@ class MarketCalendar:
         Returns:
             True if the date is a trading day, False otherwise.
         """
-        ts = pd.Timestamp(date.date())
-        return self._calendar.is_session(ts)
+        date_only = date.date()
+        ts = pd.Timestamp(date_only)
+        
+        # Ensure timezone-naive (exchange_calendars requires this)
+        if ts.tz is not None:
+            ts = ts.tz_localize(None)
+        
+        try:
+            return self._calendar.is_session(ts)
+        except Exception as e:
+            logger.error(
+                "Error in is_trading_day: date=%s, ts=%s, ts_type=%s, error=%s",
+                date, ts, type(ts), e, exc_info=True
+            )
+            raise
 
     def is_market_hours_open(self) -> bool:
         """Check if currently within market hours (4 AM - 8 PM EST).
