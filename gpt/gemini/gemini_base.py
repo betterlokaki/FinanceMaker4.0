@@ -1,12 +1,12 @@
 """Google Gemini API client with Deep Research capabilities.
 
 Uses the native google-genai SDK for:
-- Deep Thinking (ThinkingConfig with HIGH reasoning)
-- Google Search grounding for real-time market data
+- Deep Research Agent (autonomous multi-step research with web search)
+- Code execution tool for data analysis
 """
 import asyncio
 import logging
-from typing import Any, Final
+from typing import Final
 
 import httpx
 from google import genai
@@ -27,11 +27,17 @@ SYSTEM_PROMPT: Final[str] = ( "You are a financial stock analyst. When you analy
 
 )
 
-MODEL_ID: Final[str] = "gemini-3-pro-preview"
+DEEP_RESEARCH_AGENT: Final[str] = "deep-research-pro-preview-12-2025"
+POLL_INTERVAL_SECONDS: Final[int] = 10
+MAX_RESEARCH_TIME_MINUTES: Final[int] = 60
 
 
 class GeminiClient(GPTBase):
-    """Google Gemini client with Deep Research (Thinking + Google Search)."""
+    """Google Gemini client with Deep Research Agent and Code Execution.
+    
+    Uses the Deep Research Agent which autonomously plans, executes, and synthesizes
+    multi-step research tasks using web search and code execution tools.
+    """
 
     def __init__(self, http_client: httpx.AsyncClient):
         """Initialize the Gemini client.
@@ -54,54 +60,89 @@ class GeminiClient(GPTBase):
         self._client = genai.Client(api_key=self._config.api_key)
 
     async def generate_text(self, prompt: str) -> str:
-        """Generate text using Gemini with Deep Research.
+        """Generate text using Gemini Deep Research Agent.
+        
+        Uses the Deep Research Agent which autonomously plans, executes, and synthesizes
+        multi-step research tasks. This can take several minutes to complete.
         
         Args:
             prompt: The text prompt to send to Gemini.
             
         Returns:
-            Generated text response from Gemini.
-        """
-        config = types.GenerateContentConfig(
-            temperature=1.0,
-            thinking_config=types.ThinkingConfig(
-                thinking_level=types.ThinkingLevel.HIGH,
-                include_thoughts=True,
-            ),
+            Generated text response from Gemini Deep Research Agent.
             
-            tools=[types.Tool(google_search=types.GoogleSearch())], 
-        )
+        Raises:
+            Exception: If the research task fails or times out.
+        """
+        # Combine system prompt with user prompt
+        full_input = f"{SYSTEM_PROMPT}\n\n{prompt}"
         
-        contents: list[dict[str, Any]] = [
-            {"role": "user", "parts": [{"text": SYSTEM_PROMPT}]},
-            {"role": "model", "parts": [{"text": "Deep Research Acknowledged. at list 13000 sources"}]},
-            {"role": "user", "parts": [{"text": prompt}]}
-        ]
+        logger.info("Starting Deep Research Agent task...")
+        logger.debug(f"Input prompt: {prompt[:200]}...")
         
         loop = asyncio.get_event_loop()
-        response = await loop.run_in_executor(
-            None,
-            lambda: self._client.models.generate_content(
-                model=MODEL_ID,
-                contents=contents,  # type: ignore[arg-type]
-                config=config
-            )
+        
+        # Create interaction with Deep Research Agent
+        try:
+            interaction =self._client.interactions.create(  # type: ignore[attr-defined]
+                    input=full_input,
+                    agent=DEEP_RESEARCH_AGENT,
+                    background=True,
+                    tools=[
+                        {"type": "code_execution"}
+                    ]
+                )
+            
+            
+            interaction_id = interaction.id  # type: ignore[attr-defined]
+            logger.info(f"Deep Research task started: {interaction_id}")
+            logger.info("Research in progress (this may take several minutes)...")
+            
+        except Exception as e:
+            logger.error(f"Failed to create Deep Research interaction: {e}")
+            raise Exception(f"Failed to start Deep Research task: {e}") from e
+        
+        # Poll for completion
+        max_polls = (MAX_RESEARCH_TIME_MINUTES * 60) // POLL_INTERVAL_SECONDS
+        poll_count = 0
+        
+        while poll_count < max_polls:
+            try:
+                interaction = await loop.run_in_executor(  # type: ignore[assignment]
+                    None,
+                    lambda: self._client.interactions.get(interaction_id)  # type: ignore[attr-defined]
+                )
+                
+                status = interaction.status  # type: ignore[attr-defined]
+                logger.debug(f"Interaction status: {status} (poll {poll_count + 1}/{max_polls})")
+                
+                if status == "completed":
+                    outputs = interaction.outputs  # type: ignore[attr-defined]
+                    if outputs and len(outputs) > 0:  # type: ignore[arg-type]
+                        result_text: str = str(outputs[-1].text)  # type: ignore[attr-defined]
+                        logger.info(f"Deep Research completed: {len(result_text)} chars")
+                        return result_text
+                    else:
+                        logger.warning("Interaction completed but no outputs found")
+                        return ""
+                        
+                elif status == "failed":
+                    error_msg = getattr(interaction, 'error', 'Unknown error')  # type: ignore[attr-defined]
+                    logger.error(f"Deep Research failed: {error_msg}")
+                    raise Exception(f"Deep Research task failed: {error_msg}")
+                
+                # Status is "in_progress" or similar - continue polling
+                await asyncio.sleep(POLL_INTERVAL_SECONDS)
+                poll_count += 1
+                
+            except Exception as e:
+                logger.error(f"Error while polling interaction status: {e}")
+                raise Exception(f"Error during Deep Research polling: {e}") from e
+        
+        # Timeout reached
+        logger.error(f"Deep Research task timed out after {MAX_RESEARCH_TIME_MINUTES} minutes")
+        raise Exception(
+            f"Deep Research task timed out after {MAX_RESEARCH_TIME_MINUTES} minutes. "
+            f"Interaction ID: {interaction_id}"
         )
-        
-        result_text: str = ""
-        if response.candidates:
-            candidate = response.candidates[0]
-            if candidate.content and candidate.content.parts:
-                for part in candidate.content.parts:
-                    if hasattr(part, 'thought') and part.thought:
-                        logger.info("=" * 60)
-                        logger.info("[Deep Think Process]:")
-                        logger.info("=" * 60)
-                        logger.debug(part.text)
-                        logger.info("=" * 60)
-                    elif part.text:
-                        result_text += part.text
-        
-        logger.info(f"Gemini response completed: {len(result_text)} chars")
-        return result_text
 
