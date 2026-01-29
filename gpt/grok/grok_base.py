@@ -78,6 +78,8 @@ class GrokClient(GPTBase):
                     x_search(),
                     code_execution(),
                 ],
+                reasoning_effort="high", # This is the "Deep Research" toggle
+                # In 2026, this flag forces the agent into an iterative loop
             )
             
             chat.append(user(prompt))
