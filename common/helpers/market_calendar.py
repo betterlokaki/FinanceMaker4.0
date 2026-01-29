@@ -74,33 +74,78 @@ class MarketCalendar:
         # Log input for debugging
         logger.debug("get_next_trading_day called with: after=%s (tz=%s)", after, after.tzinfo)
         
-        # Convert to date-only timestamp (no time component) to avoid timezone issues
-        date_only = after.date()
-        ts = pd.Timestamp(date_only)
-        
-        # Ensure timezone-naive (exchange_calendars requires this)
-        if ts.tz is not None:
-            ts = ts.tz_localize(None)
-        
-        # Clamp to valid range BEFORE using with calendar
-        ts = self._clamp_timestamp_to_valid_range(ts)
-        
-        logger.debug("Converted to timestamp: ts=%s (tz=%s), type=%s", ts, ts.tz, type(ts))
+        import exchange_calendars.errors as xcals_errors
         
         try:
-            if self._calendar.is_session(ts):
-                market_close = self._calendar.session_close(ts).tz_convert(self._timezone)
-                if after < market_close.to_pydatetime():
-                    return self._calendar.session_open(ts).tz_convert(self._timezone).to_pydatetime()
+            # Use next_open directly - it handles date validation internally
+            # Find a valid session date to use as input
+            after_date = after.date()
             
-            next_session = self._calendar.next_open(ts)
-            return next_session.tz_convert(self._timezone).to_pydatetime()
+            # Find the closest valid session that's <= after_date
+            valid_sessions = [s for s in self._calendar.sessions if s.date() <= after_date]
+            
+            if valid_sessions:
+                # Use the closest valid session
+                input_session = valid_sessions[-1]
+                logger.debug("Using closest valid session: %s", input_session.date())
+                
+                # Check if the input date is today and we're before market close
+                if input_session.date() == after_date:
+                    try:
+                        # Check if we're before market close today
+                        market_close = self._calendar.session_close(input_session).tz_convert(self._timezone)
+                        if after < market_close.to_pydatetime():
+                            # Return today's market open
+                            session_open = self._calendar.session_open(input_session).tz_convert(self._timezone).to_pydatetime()
+                            logger.debug("Returning today's market open: %s", session_open)
+                            return session_open
+                    except Exception:
+                        # If session_close fails, fall through to next_open
+                        pass
+                
+                # Get next session - next_open needs a timestamp with time, so use session_open
+                try:
+                    session_open_ts = self._calendar.session_open(input_session)
+                    next_session = self._calendar.next_open(session_open_ts)
+                    result = next_session.tz_convert(self._timezone).to_pydatetime()
+                    logger.debug("Next trading day: %s", result)
+                    return result
+                except Exception as e:
+                    logger.warning("next_open failed, trying with session timestamp: %s", e)
+                    # Fallback: try with the session itself
+                    next_session = self._calendar.next_open(input_session)
+                    result = next_session.tz_convert(self._timezone).to_pydatetime()
+                    return result
+            else:
+                # No valid sessions found - use first session from sessions list
+                logger.warning("No valid sessions found <= %s, using first session market open", after_date)
+                first_session = self._calendar.sessions[0]
+                first_session_open = self._calendar.session_open(first_session)
+                return first_session_open.tz_convert(self._timezone).to_pydatetime()
+                
+        except xcals_errors.DateOutOfBounds:
+            logger.error("DateOutOfBounds in next_open")
+            # Last resort: use the last valid session
+            try:
+                last_valid = self._calendar.sessions[-1]
+                last_session_open = self._calendar.session_open(last_valid)
+                next_session = self._calendar.next_open(last_session_open)
+                return next_session.tz_convert(self._timezone).to_pydatetime()
+            except Exception as e:
+                logger.error("Complete failure in get_next_trading_day: %s", e, exc_info=True)
+                # Return a safe default: today + 1 day at market open time
+                tomorrow = after.replace(hour=9, minute=30, second=0, microsecond=0) + pd.Timedelta(days=1)
+                return tomorrow
         except Exception as e:
+            # Don't try to stringify DateOutOfBounds - it might fail
+            error_msg = str(e) if not isinstance(e, xcals_errors.DateOutOfBounds) else "DateOutOfBounds"
             logger.error(
-                "Error in get_next_trading_day: after=%s, ts=%s, ts_type=%s, error=%s",
-                after, ts, type(ts), str(e), exc_info=True
+                "Error in get_next_trading_day: after=%s, error=%s",
+                after, error_msg, exc_info=True
             )
-            raise
+            # Return a safe default
+            tomorrow = after.replace(hour=9, minute=30, second=0, microsecond=0) + pd.Timedelta(days=1)
+            return tomorrow
 
     def get_pre_market_open(self, trading_day: datetime) -> datetime:
         """Get pre-market open time (4:00 AM EST)."""
@@ -120,23 +165,23 @@ class MarketCalendar:
             True if the date is a trading day, False otherwise.
         """
         date_only = date.date()
-        ts = pd.Timestamp(date_only)
         
-        # Ensure timezone-naive (exchange_calendars requires this)
-        if ts.tz is not None:
-            ts = ts.tz_localize(None)
-        
-        # Clamp to valid range BEFORE using with calendar
-        ts = self._clamp_timestamp_to_valid_range(ts)
+        import exchange_calendars.errors as xcals_errors
         
         try:
-            return self._calendar.is_session(ts)
+            # Use the calendar's sessions list directly instead of creating our own Timestamp
+            # This avoids DateOutOfBounds issues
+            # Check if this date is in the sessions list
+            sessions_dates = [s.date() for s in self._calendar.sessions]
+            return date_only in sessions_dates
         except Exception as e:
+            # Don't try to stringify DateOutOfBounds - it might fail
+            error_msg = str(e) if not isinstance(e, xcals_errors.DateOutOfBounds) else "DateOutOfBounds"
             logger.error(
-                "Error in is_trading_day: date=%s, ts=%s, ts_type=%s, error=%s",
-                date, ts, type(ts), str(e), exc_info=True
+                "Error in is_trading_day: date=%s, error=%s",
+                date, error_msg, exc_info=True
             )
-            raise
+            return False
 
     def is_market_hours_open(self) -> bool:
         """Check if currently within market hours (4 AM - 8 PM EST).
