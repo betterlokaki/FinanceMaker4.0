@@ -175,21 +175,57 @@ jobs:
             --service-account ${{ secrets.GCP_SA_EMAIL }} \
             --tasks 1 \
             --max-retries 0 \
-            --task-timeout 3600 \
+            --task-timeout 36000 \
             --set-env-vars "TRADING_ENV=paper,IBKR_DH_PARAM_PATH=/secrets/dh_param,IBKR_ENCRYPTION_KEY_PATH=/secrets/encryption_key,IBKR_SIGNATURE_KEY_PATH=/secrets/signature_key,GROK_API_KEY=${{ secrets.GROK_API_KEY }},GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }},IBKR_ACCESS_TOKEN=${{ secrets.IBKR_ACCESS_TOKEN }},IBKR_ACCESS_TOKEN_SECRET=${{ secrets.IBKR_ACCESS_TOKEN_SECRET }},IBKR_CONSUMER_KEY=${{ secrets.IBKR_CONSUMER_KEY }}"
           
           echo "✅ Job created successfully (secrets already mounted)"
 
-      - name: Execute Cloud Run Job (Dev - Paper Trading)
+      - name: Delete existing Cloud Scheduler Job (if exists)
         run: |
-          EXECUTION_NAME=$(gcloud run jobs execute ${{ env.SERVICE_NAME_DEV }} \
-            --region ${{ secrets.GCP_REGION }} \
+          SCHEDULER_NAME="${SERVICE_NAME_DEV}-scheduler"
+          echo "Checking for existing Cloud Scheduler job: $SCHEDULER_NAME"
+          if gcloud scheduler jobs describe $SCHEDULER_NAME \
+            --location ${{ secrets.GCP_REGION }} \
+            --project ${{ secrets.GCP_PROJECT_ID }} &>/dev/null; then
+            echo "Deleting existing scheduler job..."
+            gcloud scheduler jobs delete $SCHEDULER_NAME \
+              --location ${{ secrets.GCP_REGION }} \
+              --project ${{ secrets.GCP_PROJECT_ID }} \
+              --quiet
+            echo "Waiting for scheduler deletion..."
+            sleep 5
+          else
+            echo "No scheduler job exists with that name"
+          fi
+        continue-on-error: true
+
+      - name: Create Cloud Scheduler Job (Dev - Market Hours)
+        run: |
+          SCHEDULER_NAME="${SERVICE_NAME_DEV}-scheduler"
+          
+          # Build the Cloud Run Jobs API endpoint URL
+          JOBS_API_URL="https://${{ secrets.GCP_REGION }}-run.googleapis.com/apis/run.googleapis.com/v1/namespaces/${{ secrets.GCP_PROJECT_ID }}/jobs/${{ env.SERVICE_NAME_DEV }}:run"
+          
+          echo "Creating Cloud Scheduler job: $SCHEDULER_NAME"
+          echo "Schedule: 14:00 Israel time, Monday-Friday"
+          echo "Target: $JOBS_API_URL"
+          
+          # Create scheduler job: 14:00 Israel time, Monday-Friday
+          # Cron: 0 14 * * 1-5 (14:00, Mon-Fri) with Asia/Jerusalem timezone
+          gcloud scheduler jobs create http $SCHEDULER_NAME \
+            --location ${{ secrets.GCP_REGION }} \
             --project ${{ secrets.GCP_PROJECT_ID }} \
-            --format="value(metadata.name)")
-          echo "Job execution: $EXECUTION_NAME"
-          echo "Not waiting for job completion (CI will finish fast)."
-          echo "To view logs:"
-          echo "  Cloud Run -> Jobs -> ${{ env.SERVICE_NAME_DEV }} -> Executions -> $EXECUTION_NAME"
+            --schedule "0 14 * * 1-5" \
+            --time-zone "Asia/Jerusalem" \
+            --uri "$JOBS_API_URL" \
+            --http-method POST \
+            --oauth-service-account-email ${{ secrets.GCP_SA_EMAIL }} \
+            --description "Trigger financemaker-dev job at 14:00 Israel time on weekdays (market hours only)" \
+            --headers "Content-Type=application/json"
+          
+          echo "✅ Cloud Scheduler job created: $SCHEDULER_NAME"
+          echo "   Schedule: 14:00 Israel time, Monday-Friday only"
+          echo "   Timezone: Asia/Jerusalem (handles DST automatically)"
 
   # deploy-prod:
   #   needs: build-and-test
