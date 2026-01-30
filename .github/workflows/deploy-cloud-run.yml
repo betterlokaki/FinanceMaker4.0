@@ -227,6 +227,32 @@ jobs:
           echo "   Schedule: 14:00 Israel time, Monday-Friday only"
           echo "   Timezone: Asia/Jerusalem (handles DST automatically)"
 
+      - name: Execute Job Immediately if Within Market Hours (14:00-23:59 Israel Time)
+        run: |
+          # Get current time in Israel timezone
+          ISRAEL_TIME=$(TZ='Asia/Jerusalem' date '+%H:%M')
+          CURRENT_HOUR=$(echo $ISRAEL_TIME | cut -d: -f1)
+          CURRENT_MINUTE=$(echo $ISRAEL_TIME | cut -d: -f2)
+          
+          echo "Current Israel time: $ISRAEL_TIME"
+          
+          # Check if time is between 14:00 and 23:59
+          if [ "$CURRENT_HOUR" -ge 14 ] && [ "$CURRENT_HOUR" -le 23 ]; then
+            if [ "$CURRENT_HOUR" -eq 23 ] && [ "$CURRENT_MINUTE" -gt 59 ]; then
+              echo "⏰ Current time ($ISRAEL_TIME) is after 23:59 - not starting job"
+            else
+              echo "✅ Current time ($ISRAEL_TIME) is within market hours (14:00-23:59) - starting job immediately"
+              EXECUTION_NAME=$(gcloud run jobs execute ${{ env.SERVICE_NAME_DEV }} \
+                --region ${{ secrets.GCP_REGION }} \
+                --project ${{ secrets.GCP_PROJECT_ID }} \
+                --format="value(metadata.name)")
+              echo "🚀 Job execution started: $EXECUTION_NAME"
+              echo "   View logs: Cloud Run -> Jobs -> ${{ env.SERVICE_NAME_DEV }} -> Executions -> $EXECUTION_NAME"
+            fi
+          else
+            echo "⏰ Current time ($ISRAEL_TIME) is outside market hours (14:00-23:59) - job will start at 14:00 via Cloud Scheduler"
+          fi
+
   # deploy-prod:
   #   needs: build-and-test
   #   if: github.ref == 'refs/heads/main' && github.event_name == 'push'
