@@ -91,7 +91,6 @@ class GeminiClient(GPTBase):
                     tools=[
                         {"type": "code_execution"}
                     ],
-                    deep_research=True
                 )
             
             
