@@ -1,6 +1,7 @@
 """Trading scheduler for managing strategy lifecycle based on market hours."""
 import asyncio
 import logging
+import time
 from datetime import datetime
 
 from common.cache.abstracts import ITickerCache
@@ -90,14 +91,35 @@ class TradingScheduler:
         self._ticker_cache.clear_old_cache()
 
     async def _wait_until(self, target: datetime) -> None:
-        """Wait until target time."""
+        """Wait until target time.
+        
+        Logs keepalive messages every 10 minutes to prevent GCP Cloud Run
+        from timing out the service during long waits for market open.
+        """
+        last_keepalive_log: float = 0.0
+        KEEPALIVE_INTERVAL_SECONDS: float = 600.0  # 10 minutes
+        
         while not self._should_stop:
             remaining: float = (target - self._calendar.now()).total_seconds()
             if remaining <= 0:
                 return
             
+            # Log keepalive every 10 minutes to prevent GCP timeout
+            current_time = time.time()
+            if current_time - last_keepalive_log >= KEEPALIVE_INTERVAL_SECONDS:
+                hours_remaining = remaining / 3600
+                logger.info(
+                    "💓 Keepalive: Service is alive. Waiting for market open. "
+                    "%.1f hours remaining until pre-market (%.1f minutes)",
+                    hours_remaining,
+                    remaining / 60
+                )
+                last_keepalive_log = current_time
+            
             if remaining > 60:
-                logger.info("⏳ Waiting %.1f hours...", remaining / 3600)
+                # Only log the initial wait message once, keepalive handles the rest
+                if last_keepalive_log == 0.0:
+                    logger.info("⏳ Waiting %.1f hours...", remaining / 3600)
                 await asyncio.sleep(60)
             else:
                 await asyncio.sleep(min(remaining, 1))
