@@ -200,6 +200,7 @@ class Container(containers.DeclarativeContainer):
         strategy_runner=strategy_runner,
         market_calendar=market_calendar,
         ticker_cache=ticker_cache,
+        broker=ibkr_broker,
     )
 
     demand_zone_scheduler: providers.Provider[IScheduler] = providers.Singleton(

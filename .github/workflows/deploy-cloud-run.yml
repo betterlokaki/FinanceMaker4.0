@@ -207,24 +207,24 @@ jobs:
           JOBS_API_URL="https://${{ secrets.GCP_REGION }}-run.googleapis.com/apis/run.googleapis.com/v1/namespaces/${{ secrets.GCP_PROJECT_ID }}/jobs/${{ env.SERVICE_NAME_DEV }}:run"
           
           echo "Creating Cloud Scheduler job: $SCHEDULER_NAME"
-          echo "Schedule: 14:00 Israel time, Monday-Friday"
+          echo "Schedule: Every minute from 14:00-23:59 Israel time, Monday-Friday"
           echo "Target: $JOBS_API_URL"
           
-          # Create scheduler job: 14:00 Israel time, Monday-Friday
-          # Cron: 0 14 * * 1-5 (14:00, Mon-Fri) with Asia/Jerusalem timezone
+          # Create scheduler job: Every minute from 14:00-23:59 Israel time, Monday-Friday
+          # Cron: * 14-23 * * 1-5 (every minute, hours 14-23, Mon-Fri) with Asia/Jerusalem timezone
           gcloud scheduler jobs create http $SCHEDULER_NAME \
             --location ${{ secrets.GCP_REGION }} \
             --project ${{ secrets.GCP_PROJECT_ID }} \
-            --schedule "0 14 * * 1-5" \
+            --schedule "* 14-23 * * 1-5" \
             --time-zone "Asia/Jerusalem" \
             --uri "$JOBS_API_URL" \
             --http-method POST \
             --oauth-service-account-email ${{ secrets.GCP_SA_EMAIL }} \
-            --description "Trigger financemaker-dev job at 14:00 Israel time on weekdays (market hours only)" \
+            --description "Trigger financemaker-dev job every minute from 14:00-23:59 Israel time on weekdays (market hours only)" \
             --headers "Content-Type=application/json"
           
           echo "✅ Cloud Scheduler job created: $SCHEDULER_NAME"
-          echo "   Schedule: 14:00 Israel time, Monday-Friday only"
+          echo "   Schedule: Every minute from 14:00-23:59 Israel time, Monday-Friday only"
           echo "   Timezone: Asia/Jerusalem (handles DST automatically)"
 
       - name: Execute Job Immediately if Within Market Hours (14:00-23:59 Israel Time)

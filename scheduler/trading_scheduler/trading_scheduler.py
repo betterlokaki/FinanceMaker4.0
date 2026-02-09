@@ -6,6 +6,7 @@ from datetime import datetime
 
 from common.cache.abstracts import ITickerCache
 from common.helpers.market_calendar import MarketCalendar
+from publishers.abstracts import IBroker
 from scheduler.strategy_runner import StrategyRunner
 
 logger: logging.Logger = logging.getLogger(__name__)
@@ -27,6 +28,7 @@ class TradingScheduler:
         strategy_runner: StrategyRunner,
         market_calendar: MarketCalendar,
         ticker_cache: ITickerCache,
+        broker: IBroker,
     ) -> None:
         """Initialize the trading scheduler.
         
@@ -34,10 +36,12 @@ class TradingScheduler:
             strategy_runner: Manages strategy lifecycle.
             market_calendar: Provides market hours info.
             ticker_cache: Cache for clearing stale ticker data.
+            broker: Broker instance for connection and buying power checks.
         """
         self._runner: StrategyRunner = strategy_runner
         self._calendar: MarketCalendar = market_calendar
         self._ticker_cache: ITickerCache = ticker_cache
+        self._broker: IBroker = broker
         self._is_running: bool = False
         self._should_stop: bool = False
 
@@ -49,6 +53,17 @@ class TradingScheduler:
     async def start(self) -> None:
         """Start the scheduler main loop."""
         logger.info("🚀 Trading scheduler starting...")
+        
+        # Connect to broker first - if this fails, don't proceed
+        try:
+            await self._broker.connect()
+            buying_power = await self._broker.get_buying_power()
+            logger.info("💰 Buying Power: $%.2f", buying_power)
+        except ConnectionError as e:
+            logger.error("❌ Failed to connect to Interactive Brokers: %s", e)
+            logger.error("Scheduler will not start without broker connection.")
+            return
+        
         self._is_running = True
         self._should_stop = False
         

@@ -100,11 +100,11 @@ class EarningTomorrowAI(ScannerBase):
                 earnings_tickers, self._config.prompt_template
             )
             
-            grok_suggestions: set[str] = await get_ai_suggestions(
-                self._grok_client, prompt, earnings_tickers, "Grok"
-            )
             gemini_suggestions: set[str] = await get_ai_suggestions(
                 self._gemini_client, prompt, earnings_tickers, "Gemini"
+            )
+            grok_suggestions: set[str] = await get_ai_suggestions(
+                self._grok_client, prompt, earnings_tickers, "Grok"
             )
             
             logger.info(f"Grok suggested: {len(grok_suggestions)} tickers")

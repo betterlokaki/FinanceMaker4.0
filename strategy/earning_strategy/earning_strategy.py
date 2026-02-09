@@ -132,7 +132,7 @@ class EarningStrategy(RealTimeTradingBase):
         )
         
         combined: set[str] = set()
-        scan_passes: int = self._ai_scanner_config.scan_passes
+        scan_passes: int = 1
         
         for pass_num in range(1, scan_passes + 1):
             logger.info("Running earnings scanner - pass %d/%d...", pass_num, scan_passes)
