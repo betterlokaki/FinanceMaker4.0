@@ -176,7 +176,7 @@ class Container(containers.DeclarativeContainer):
     # Strategy list for scheduler
     strategies: providers.Provider[list[ITradingStrategy]] = providers.List(
         earning_strategy,
-        demand_zone_strategy,
+        # demand_zone_strategy,
     )
 
     # Market Calendar

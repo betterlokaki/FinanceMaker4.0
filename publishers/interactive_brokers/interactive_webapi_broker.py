@@ -86,6 +86,7 @@ class InteractiveWebapiBroker(BrokerBase):
             
             # Get account ID
             logger.info("Fetching portfolio accounts...")
+
             accounts_response = self._client.portfolio_accounts()
             logger.debug("Accounts response: %s", accounts_response)
             

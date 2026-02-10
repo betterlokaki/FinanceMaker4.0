@@ -1,0 +1,89 @@
+  EARNING TOMORROW TICKERS - SCORED (67/68 scored)
+======================================================================
+  Ticker     Score   Reason
+----------------------------------------------------------------------
+  EW            75   Oversold RSI, Neg CCI, Low Stoch, Neg MACD, Near Lower BB
+  JMIA          75   Neg CCI, Neg MACD, High Vol, Near EMA20, Neg OBV
+  OGI           75   Neg CCI, Neg MACD, High Vol, Near EMA20, Neg OBV
+  OSCR          75   Oversold RSI, Neg CCI, Low Stoch, Neg MACD, High Vol
+  FRSH          70   Oversold RSI, Neg CCI, Low Stoch, Neg MACD, Near Lower BB
+  Z             70   Oversold RSI, Neg CCI, Low Stoch, Neg MACD, Near Lower BB
+  CVS           60   Neg CCI, Neg MACD, High Vol, Neg OBV, Mixed SMAs
+  F             60   Neg CCI, Neg MACD, Near Lower BB, High Vol, Near EMA20
+  NSP           60   Oversold RSI, Neg CCI, Low Stoch, Neg MACD, Near Lower BB
+  SPGI          60   Oversold RSI, Neg CCI, Low Stoch, Neg MACD, Near Lower BB
+  SPOT          60   Oversold RSI, Neg CCI, Low Stoch, Neg MACD, Near Lower BB
+  CAN           55   Oversold RSI, Neg CCI, Neg MACD, High Vol, Neg OBV
+  KVYO          55   Oversold RSI, Neg CCI, Low Stoch, Neg MACD, High Vol
+  SVM           55   Neg CCI, Neg MACD, High Vol, Near EMA20, Neg OBV
+  HIW           50   Oversold RSI, Neg CCI, Neg MACD, High Vol, Near EMA20
+  HOG           50   Neg CCI, High Vol, Near EMA20, Neg OBV, Sector Consumer Cyclical
+  JHX           50   Neg CCI, Neg MACD, High Vol, Near EMA20, Neg OBV
+  MIR           50   Oversold RSI, Neg CCI, Neg MACD, High Vol, Neg OBV
+  NET           50   Neg CCI, Neg MACD, High Vol, Neg OBV, Neg EPS
+  UPXI          50   Oversold RSI, Neg CCI, Low Stoch, Neg MACD, High Vol
+  HOOD          45   Oversold RSI, Neg CCI, Neg MACD, High Vol, Neg OBV
+  LYFT          45   Oversold RSI, Neg CCI, Neg MACD, High Vol, Neg OBV
+  RPD           45   Oversold RSI, Neg CCI, Low Stoch, Neg MACD, High Vol
+  UPST          45   Oversold RSI, Neg CCI, Neg MACD, High Vol, Neg OBV
+  DEI           40   Neg CCI, High Vol, Near EMA20, Neg OBV, High Debt
+  EXEL          40   Neg MACD, High Vol, Near EMA20, Sector Healthcare, High Debt
+  HAS           40   High Vol, Sector Consumer Cyclical, Neg EPS, High Debt
+  OI            40   High Vol, Sector Consumer Cyclical, Neg EPS, High Debt
+  PEGA          40   Oversold RSI, Neg CCI, Neg MACD, High Vol, High Debt
+  TDC           40   Neg CCI, Neg MACD, High Vol, Mixed SMAs, High Debt
+  ARMK          35   Neg CCI, Neg MACD, Near EMA20, Mixed SMAs, High Debt
+  AXTA          35   Neg MACD, High Vol, Sector Basic Materials, High Debt
+  DDOG          35   Neg CCI, Neg MACD, High Vol, High Debt
+  LEU           35   Neg CCI, Neg MACD, High Vol, Neg OBV, High Debt
+  SUZ           35   Neg MACD, High Vol, Sector Basic Materials, High Debt
+  TRMB          35   Neg CCI, Neg MACD, High Vol, High Debt
+  ZBH           35   High Vol, Sector Healthcare, High Debt
+  BCS           30   Neg MACD, High Vol, Near EMA20, Neg OBV, High Debt
+  DD            30   High Vol, Sector Basic Materials, High Debt
+  ECL           30   Neg OBV, Sector Basic Materials, High Debt
+  FISV          30   Oversold RSI, Neg CCI, Neg MACD, High Vol
+  GILD          30   High Vol, Sector Healthcare, High Debt
+  HMC           30   High Vol, Sector Consumer Cyclical, High Debt
+  INCY          30   High Vol, Sector Healthcare, High Debt
+  MAR           30   High Vol, Sector Consumer Cyclical, High Debt
+  MAT           30   High Vol, Sector Consumer Cyclical, High Debt
+  MBC           30   High Vol, Sector Consumer Cyclical, High Debt
+  AIG           25   High Vol, Near EMA20, High Debt
+  DGX           25   Sector Healthcare, High Debt
+  ENTG          25   Neg MACD, High Vol, Neg OBV, High Debt
+  VSTS          25   High Vol, Neg EPS, High Debt
+  XIFR          25   High Vol, Neg EPS, High Debt
+  ARI           20   High Vol, Neg OBV, High Debt
+  GXO           20   Neg MACD, High Vol, High Debt
+  LSCC          20   Neg MACD, High Vol, High Debt
+  MAS           20   High Vol, Neg OBV, High Debt
+  WMB           20   High Vol, Neg OBV, High Debt
+  XYL           20   High Vol, Near EMA20, High Debt
+  ADC           15   High Vol, High Debt
+  AKR           15   High Vol, High Debt
+  ALAB          15   High Vol, High Debt
+  BP            15   High Vol, High Debt
+  DUK           15   Near EMA20, High Debt
+  NTST          15   High Vol, High Debt
+  WELL          15   High Vol, High Debt
+  KO            10   High Debt
+  WPC           10   High Debt
+
+    - Grok only: {'XIFR', 'UPXI', 'GXO'}
+  - Gemini only: {'KVYO', 'Z', 'OSCR', 'LYFT'}
+  - Both (consensus): set(
+
+    ================================================================================
+  EARNING TICKERS IN DEMAND ZONE - SCORED (8/68 in zone, 8 scored)
+================================================================================
+  Ticker     Score   Reason
+--------------------------------------------------------------------------------
+  OSCR          75   Oversold RSI, Neg CCI, Low Stoch, Neg MACD, High Vol
+  NSP           60   Oversold RSI, Neg CCI, Low Stoch, Neg MACD, Near Lower BB
+  CAN           55   Oversold RSI, Neg CCI, Neg MACD, High Vol, Neg OBV
+  UPXI          50   Oversold RSI, Neg CCI, Low Stoch, Neg MACD, High Vol
+  DEI           40   Neg CCI, High Vol, Near EMA20, Neg OBV, High Debt
+  ZBH           35   High Vol, Sector Healthcare, High Debt
+  FISV          30   Oversold RSI, Neg CCI, Neg MACD, High Vol
+  XIFR          25   High Vol, Neg EPS, High Debt
