@@ -148,7 +148,8 @@ async def main() -> None:
         print(f"\nFound {len(tickers)} earning tickers. Filtering by demand zone...\n")
 
         # --- Step 2: Filter by demand zone ---
-        zone_tickers: list[str] = await filter_tickers_by_demand_zone(tickers)
+        # zone_tickers: list[str] = await filter_tickers_by_demand_zone(tickers)
+        zone_tickers = tickers
 
         if not zone_tickers:
             logger.warning("No earning tickers are currently in a demand zone")
