@@ -1,0 +1,3 @@
+[submodule "Gemini"]
+	path = Gemini
+	url = https://github.com/betterlokaki/Gemini.git
