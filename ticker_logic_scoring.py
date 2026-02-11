@@ -62,17 +62,21 @@ def calculate_technicals(df):
 
     return df.iloc[-1]  # Return only the latest row
 
-def analyze_ticker_strategy(ticker_symbol):
+def analyze_ticker_strategy(ticker_symbol, hist=None):
     ticker = yf.Ticker(ticker_symbol)
     
     # --- 1. Fetch History ---
     # We need at least 200 days for SMA200
-    try:
-        hist = ticker.history(period="1y")
-        if hist.empty:
-            return None
-    except Exception as e:
-        return {"error": str(e)}
+    # If hist is provided externally (e.g. for backtesting), skip the fetch.
+    if hist is None:
+        try:
+            hist = ticker.history(period="1y")
+            if hist.empty:
+                return None
+        except Exception as e:
+            return {"error": str(e)}
+    elif hist.empty:
+        return None
 
     # --- 2. Fetch Fundamentals & Info ---
     try:

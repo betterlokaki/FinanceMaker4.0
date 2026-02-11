@@ -87,3 +87,47 @@
   ZBH           35   High Vol, Sector Healthcare, High Debt
   FISV          30   Oversold RSI, Neg CCI, Neg MACD, High Vol
   XIFR          25   High Vol, Neg EPS, High Debt
+
+  Big movers (>8% change): 42/563
+  ADI (earnings: 2025-11-25): earning_day=5.27%, post_earning=7.74%
+  ADNT (earnings: 2026-02-04): earning_day=15.19%, post_earning=19.71%
+  ALGN (earnings: 2026-02-04): earning_day=2.71%, post_earning=11.82%
+  ALL (earnings: 2026-02-04): earning_day=2.65%, post_earning=6.65%
+  AMCR (earnings: 2026-02-03): earning_day=2.67%, post_earning=10.99%
+  AS (earnings: 2025-11-18): earning_day=8.45%, post_earning=13.00%
+  ASX (earnings: 2026-02-05): earning_day=6.69%, post_earning=10.01%
+  BALL (earnings: 2026-02-03): earning_day=8.96%, post_earning=14.32%
+  BIIB (earnings: 2026-02-06): earning_day=8.53%, post_earning=0.00%
+  BILL (earnings: 2026-02-05): earning_day=-4.16%, post_earning=31.45%
+  BMY (earnings: 2026-02-05): earning_day=3.30%, post_earning=7.58%
+  CAH (earnings: 2026-02-05): earning_day=9.83%, post_earning=9.41%
+  CDW (earnings: 2026-02-04): earning_day=9.45%, post_earning=11.58%
+  CI (earnings: 2026-02-05): earning_day=4.72%, post_earning=7.49%
+  DDOG (earnings: 2026-02-10): earning_day=13.74%, post_earning=0.00%
+  ENPH (earnings: 2026-02-03): earning_day=2.22%, post_earning=41.68%
+  ENTG (earnings: 2026-02-10): earning_day=9.03%, post_earning=0.00%
+  EPD (earnings: 2026-02-03): earning_day=4.62%, post_earning=6.34%
+  FORM (earnings: 2026-02-04): earning_day=-4.18%, post_earning=12.29%
+  FTV (earnings: 2026-02-04): earning_day=10.63%, post_earning=10.76%
+  GEHC (earnings: 2026-02-04): earning_day=4.89%, post_earning=4.48%
+  GPRE (earnings: 2026-02-05): earning_day=0.48%, post_earning=9.92%
+  GSK (earnings: 2026-02-04): earning_day=7.29%, post_earning=10.93%
+  HRL (earnings: 2025-12-04): earning_day=3.82%, post_earning=4.60%
+  HSY (earnings: 2026-02-05): earning_day=9.03%, post_earning=12.51%
+  IMVT (earnings: 2026-02-06): earning_day=12.43%, post_earning=0.00%
+  ITW (earnings: 2026-02-03): earning_day=5.56%, post_earning=9.31%
+  JCI (earnings: 2026-02-04): earning_day=4.42%, post_earning=6.86%
+  KMT (earnings: 2026-02-04): earning_day=7.24%, post_earning=7.05%
+  LOW (earnings: 2025-11-19): earning_day=4.03%, post_earning=4.04%
+  MAR (earnings: 2026-02-10): earning_day=8.50%, post_earning=0.00%
+  MAS (earnings: 2026-02-10): earning_day=8.67%, post_earning=0.00%
+  MDT (earnings: 2025-11-18): earning_day=4.69%, post_earning=4.22%
+  MPC (earnings: 2026-02-03): earning_day=6.03%, post_earning=10.75%
+  MT (earnings: 2026-02-05): earning_day=2.25%, post_earning=9.50%
+  MTSI (earnings: 2026-02-05): earning_day=5.94%, post_earning=9.69%
+  NNE (earnings: 2025-12-18): earning_day=0.80%, post_earning=10.14%
+  NVST (earnings: 2026-02-05): earning_day=4.44%, post_earning=22.99%
+  OCUL (earnings: 2026-02-05): earning_day=4.21%, post_earning=7.13%
+  ODFL (earnings: 2026-02-04): earning_day=9.89%, post_earning=6.52%
+  PEP (earnings: 2026-02-03): earning_day=4.93%, post_earning=7.07%
+  PLAB (earnings: 2025-12-10): earning_day=45.39%, post_earning=54.42%

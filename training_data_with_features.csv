@@ -1,0 +1,144 @@
+ticker,earnings_date,dist_sma50,dist_sma200,rsi_14,drift_5d,vol_ratio,volatility_score,rev_growth_qoq_pre,gross_margin_pre,market_cap,target_exploded
+ADNT,2026-02-04,"Ticker
+ADNT    0.051948
+Name: 2026-02-03 00:00:00, dtype: float64","Ticker
+ADNT    0.030431
+Name: 2026-02-03 00:00:00, dtype: float64","Ticker
+ADNT    47.864177
+Name: 2026-02-03 00:00:00, dtype: float64","Ticker
+ADNT   -0.024548
+dtype: float64","Ticker
+ADNT    0.687179
+Name: 2026-02-03 00:00:00, dtype: float64","Ticker
+ADNT    0.050769
+Name: 2026-02-03 00:00:00, dtype: float64",-0.01193058568329718,0.059549945115257956,2052398336,1
+AS,2025-11-18,"Ticker
+AS   -0.070616
+Name: 2025-11-17 00:00:00, dtype: float64","Ticker
+AS   -0.062751
+Name: 2025-11-17 00:00:00, dtype: float64","Ticker
+AS    35.285706
+Name: 2025-11-17 00:00:00, dtype: float64","Ticker
+AS    0.019218
+dtype: float64","Ticker
+AS    2.187004
+Name: 2025-11-17 00:00:00, dtype: float64","Ticker
+AS    0.029214
+Name: 2025-11-17 00:00:00, dtype: float64",0.4206098843322818,0.5683539258668793,22293772288,1
+BALL,2026-02-03,"Ticker
+BALL    0.079108
+Name: 2026-02-02 00:00:00, dtype: float64","Ticker
+BALL    0.087419
+Name: 2026-02-02 00:00:00, dtype: float64","Ticker
+BALL    61.131349
+Name: 2026-02-02 00:00:00, dtype: float64","Ticker
+BALL   -0.005613
+dtype: float64","Ticker
+BALL    1.70029
+Name: 2026-02-02 00:00:00, dtype: float64","Ticker
+BALL    0.018689
+Name: 2026-02-02 00:00:00, dtype: float64",,,18440810496,1
+BIIB,2026-02-06,"Ticker
+BIIB    0.047061
+Name: 2026-02-05 00:00:00, dtype: float64","Ticker
+BIIB    0.261112
+Name: 2026-02-05 00:00:00, dtype: float64","Ticker
+BIIB    73.35185
+Name: 2026-02-05 00:00:00, dtype: float64","Ticker
+BIIB    0.030407
+dtype: float64","Ticker
+BIIB    1.601966
+Name: 2026-02-05 00:00:00, dtype: float64","Ticker
+BIIB    0.037699
+Name: 2026-02-05 00:00:00, dtype: float64",-0.10072197893241804,0.7826182328682987,27735894016,1
+CAH,2026-02-05,"Ticker
+CAH    0.002628
+Name: 2026-02-04 00:00:00, dtype: float64","Ticker
+CAH    0.213999
+Name: 2026-02-04 00:00:00, dtype: float64","Ticker
+CAH    41.191917
+Name: 2026-02-04 00:00:00, dtype: float64","Ticker
+CAH   -0.020736
+dtype: float64","Ticker
+CAH    1.416636
+Name: 2026-02-04 00:00:00, dtype: float64","Ticker
+CAH    0.023376
+Name: 2026-02-04 00:00:00, dtype: float64",0.02527769532409505,0.036524601155012416,51833061376,1
+CDW,2026-02-04,"Ticker
+CDW   -0.078473
+Name: 2026-02-03 00:00:00, dtype: float64","Ticker
+CDW   -0.203727
+Name: 2026-02-03 00:00:00, dtype: float64","Ticker
+CDW    32.997562
+Name: 2026-02-03 00:00:00, dtype: float64","Ticker
+CDW    0.011546
+dtype: float64","Ticker
+CDW    1.759699
+Name: 2026-02-03 00:00:00, dtype: float64","Ticker
+CDW    0.028022
+Name: 2026-02-03 00:00:00, dtype: float64",,,18722027520,1
+FTV,2026-02-04,"Ticker
+FTV    0.000403
+Name: 2026-02-03 00:00:00, dtype: float64","Ticker
+FTV    0.055457
+Name: 2026-02-03 00:00:00, dtype: float64","Ticker
+FTV    48.427064
+Name: 2026-02-03 00:00:00, dtype: float64","Ticker
+FTV    0.029356
+dtype: float64","Ticker
+FTV    1.652689
+Name: 2026-02-03 00:00:00, dtype: float64","Ticker
+FTV    0.018354
+Name: 2026-02-03 00:00:00, dtype: float64",,,19666511872,1
+HSY,2026-02-05,"Ticker
+HSY    0.09468
+Name: 2026-02-04 00:00:00, dtype: float64","Ticker
+HSY    0.159431
+Name: 2026-02-04 00:00:00, dtype: float64","Ticker
+HSY    59.498707
+Name: 2026-02-04 00:00:00, dtype: float64","Ticker
+HSY    0.080036
+dtype: float64","Ticker
+HSY    1.707628
+Name: 2026-02-04 00:00:00, dtype: float64","Ticker
+HSY    0.029346
+Name: 2026-02-04 00:00:00, dtype: float64",,,46437793792,1
+IMVT,2026-02-06,"Ticker
+IMVT   -0.052816
+Name: 2026-02-05 00:00:00, dtype: float64","Ticker
+IMVT    0.260932
+Name: 2026-02-05 00:00:00, dtype: float64","Ticker
+IMVT    31.970265
+Name: 2026-02-05 00:00:00, dtype: float64","Ticker
+IMVT   -0.074615
+dtype: float64","Ticker
+IMVT    1.471858
+Name: 2026-02-05 00:00:00, dtype: float64","Ticker
+IMVT    0.026651
+Name: 2026-02-05 00:00:00, dtype: float64",,0.0,5430238720,1
+ODFL,2026-02-04,"Ticker
+ODFL    0.181785
+Name: 2026-02-03 00:00:00, dtype: float64","Ticker
+ODFL    0.235299
+Name: 2026-02-03 00:00:00, dtype: float64","Ticker
+ODFL    69.252024
+Name: 2026-02-03 00:00:00, dtype: float64","Ticker
+ODFL    0.098715
+dtype: float64","Ticker
+ODFL    1.523936
+Name: 2026-02-03 00:00:00, dtype: float64","Ticker
+ODFL    0.028932
+Name: 2026-02-03 00:00:00, dtype: float64",,,40875601920,1
+PLAB,2025-12-10,"Ticker
+PLAB    0.111236
+Name: 2025-12-09 00:00:00, dtype: float64","Ticker
+PLAB    0.226777
+Name: 2025-12-09 00:00:00, dtype: float64","Ticker
+PLAB    85.200557
+Name: 2025-12-09 00:00:00, dtype: float64","Ticker
+PLAB    0.059819
+dtype: float64","Ticker
+PLAB    2.13491
+Name: 2025-12-09 00:00:00, dtype: float64","Ticker
+PLAB    0.061979
+Name: 2025-12-09 00:00:00, dtype: float64",0.0255520594693765,0.3500672011864485,2218467840,1
