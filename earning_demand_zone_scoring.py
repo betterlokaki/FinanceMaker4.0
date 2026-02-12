@@ -125,7 +125,7 @@ async def filter_tickers_by_demand_zone(tickers: list[str]) -> list[str]:
 async def main() -> None:
     """Fetch earning tickers, filter by demand zone, score and print."""
     http_client = container.http_client()
-    finviz_scanner = container.finviz_scanner()
+    finviz_scanner = container.zone_filtered_scanner(url="https://finviz.com/screener.ashx?v=111&f=earningsdate_today%2Csh_avgvol_o1000%2Csh_price_o5&ft=4")
 
     try:
         # --- Step 1: Fetch earning tickers ---
@@ -133,7 +133,7 @@ async def main() -> None:
 
         scan_params: ScannerParams = ScannerParams(
             name="earning_demand_zone_scoring",
-            filters={},
+            filters={"zone_filter": "demand"},
             config={},
         )
 
@@ -148,8 +148,8 @@ async def main() -> None:
         print(f"\nFound {len(tickers)} earning tickers. Filtering by demand zone...\n")
 
         # --- Step 2: Filter by demand zone ---
-        # zone_tickers: list[str] = await filter_tickers_by_demand_zone(tickers)
-        zone_tickers = tickers
+        zone_tickers: list[str] = await filter_tickers_by_demand_zone(tickers)
+        # zone_tickers = tickers
 
         if not zone_tickers:
             logger.warning("No earning tickers are currently in a demand zone")

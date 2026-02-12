@@ -177,7 +177,7 @@ class DemandZoneStrategy(RealTimeTradingBase):
             return
         
         # Check portfolio positions and open orders BEFORE marking as processed to avoid race conditions
-        portfolio = await self._broker.get_portfolio()
+        portfolio = self._broker.portfolio
         if portfolio.has_position(ticker):
             logger.info("Skipping %s: already has position in portfolio", ticker)
             self._processed_tickers.add(ticker)
@@ -225,7 +225,7 @@ class DemandZoneStrategy(RealTimeTradingBase):
         """
         try:
             # Double-check portfolio (defensive check, already checked in on_tick)
-            portfolio = await self._broker.get_portfolio()
+            portfolio = self._broker.portfolio
             if portfolio.has_position(ticker):
                 logger.info("Skipping %s: already has position, unsubscribing", ticker)
                 await self._safe_unsubscribe(ticker)

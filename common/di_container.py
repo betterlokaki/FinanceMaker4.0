@@ -13,7 +13,7 @@ from common.helpers.risk_reward_calculator import RiskRewardCalculator
 from common.settings import settings
 from common.user_agent import UserAgentManager
 from gpt.abstracts import IGPTClient
-from gpt.gemini import GeminiClient
+from gpt.gemini import GeminiClient, GeminiSearchClient
 from gpt.grok import GrokClient
 from publishers.abstracts import IBroker
 from publishers.interactive_brokers import InteractiveWebapiBroker
@@ -33,6 +33,12 @@ from scheduler.strategy_runner import StrategyRunner
 from scheduler.trading_scheduler import TradingScheduler
 from strategy.abstracts import ITradingStrategy
 from strategy.demand_zone_strategy import DemandZoneStrategy
+from dynamic_stop_loss import (
+    DynamicStopLossManager,
+    IDynamicStopLossManager,
+    IDynamicStopLossPolicy,
+    TrailingStopLossPolicy,
+)
 from strategy.earning_strategy import EarningStrategy
 
 
@@ -80,6 +86,14 @@ class Container(containers.DeclarativeContainer):
         http_client=http_client,
     )
 
+    # Gemini Search client (regular generate_content + Google Search grounding)
+    # Use this for faster queries that don't need full Deep Research.
+    # thinking_budget can be overridden at instantiation (0-24576 tokens).
+    gemini_search_client: providers.Provider[IGPTClient] = providers.Singleton(
+        GeminiSearchClient,
+        http_client=http_client,
+    )
+
     # Scanners (all as singletons - created once, reused)
     finviz_scanner: providers.Provider[IScanner] = providers.Singleton(
         EarningTommrow,
@@ -91,6 +105,7 @@ class Container(containers.DeclarativeContainer):
     zone_filtered_scanner: providers.Provider[IScanner] = providers.Factory(
         ZoneFilteredScanner,
         http_client=http_client,
+        
     )
 
     # AI-powered scanner (uses EarningTomorrow + AI consensus)
@@ -144,6 +159,18 @@ class Container(containers.DeclarativeContainer):
         url=providers.Object(settings.demand_zone_strategy.finviz_url),
     )
 
+    # Dynamic Stop Loss (receives ticks from strategy, fires LIMIT SELL ORH)
+    trailing_stop_loss_policy: providers.Provider[IDynamicStopLossPolicy] = providers.Singleton(
+        TrailingStopLossPolicy,
+    )
+
+    dynamic_stop_loss_manager: providers.Provider[IDynamicStopLossManager] = providers.Singleton(
+        DynamicStopLossManager,
+        broker=ibkr_broker,
+        policy=trailing_stop_loss_policy,
+        limit_sell_offset_pct=settings.dynamic_stop_loss.limit_sell_offset_pct,
+    )
+
     # Trading Strategies
     earning_strategy: providers.Provider[ITradingStrategy] = providers.Singleton(
         EarningStrategy,
@@ -154,6 +181,7 @@ class Container(containers.DeclarativeContainer):
         ticker_cache=ticker_cache,
         portfolio_allocation_config=providers.Object(settings.portfolio_allocation),
         order_params_config=providers.Object(settings.order_params),
+        dynamic_stop_loss_manager=dynamic_stop_loss_manager,
     )
 
     demand_zone_strategy: providers.Provider[ITradingStrategy] = providers.Singleton(

@@ -17,6 +17,7 @@ class OrderType(Enum):
     LIMIT = "LIMIT"
     STOP = "STOP"
     STOP_LIMIT = "STOP_LIMIT"
+    TRAILING_STOP = "TRAILING_STOP"
 
 
 class OrderStatus(Enum):

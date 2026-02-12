@@ -1,4 +1,5 @@
 """Interactive Brokers Web API broker implementation."""
+import asyncio
 import logging
 from typing import Any
 
@@ -11,6 +12,7 @@ from common.converters.ibkr import (
     PortfolioConverter,
 )
 from common.helpers.dh_prime_helper import extract_dh_prime
+from common.models import portfolio
 from common.models.order_request import OrderRequest
 from common.models.order_response import OrderResponse
 from common.models.portfolio import Portfolio
@@ -28,6 +30,11 @@ class InteractiveWebapiBroker(BrokerBase):
     Uses the ibind library to communicate with IBKR's OAuth-based Web API.
     Supports order placement, cancellation, and portfolio retrieval.
     """
+    
+    # Default answers for IBKR order confirmation questions
+    # Uses AlwaysYesDict to automatically answer "yes" (True) to all questions,
+    # even if the specific QuestionType isn't explicitly listed
+    PORTFOLIO_REFRESH_INTERVAL_SECONDS: int = 300  # 5 minutes
     
     # Default answers for IBKR order confirmation questions
     # Uses AlwaysYesDict to automatically answer "yes" (True) to all questions,
@@ -51,6 +58,7 @@ class InteractiveWebapiBroker(BrokerBase):
         self._client: IbkrClient | None = None
         self._account_id: str | None = None
         self._conid_cache: dict[str, int] = {}
+        self._portfolio_refresh_task: asyncio.Task[None] | None = None
     
     async def connect(self) -> None:
         """Establish connection to Interactive Brokers.
@@ -150,6 +158,10 @@ class InteractiveWebapiBroker(BrokerBase):
             except Exception as portfolio_error:
                 logger.error("❌ Failed to fetch portfolio after connection: %s", portfolio_error, exc_info=True)
             
+            # Start background portfolio refresh task
+            self._portfolio_refresh_task = asyncio.create_task(self._refresh_portfolio_loop())
+            logger.info("🔄 Portfolio refresh task started (every %d seconds)", self.PORTFOLIO_REFRESH_INTERVAL_SECONDS)
+            
         except Exception as e:
             self._connected = False
             logger.error("❌ Failed to connect to IBKR: %s", e, exc_info=True)
@@ -157,6 +169,16 @@ class InteractiveWebapiBroker(BrokerBase):
     
     async def disconnect(self) -> None:
         """Disconnect from Interactive Brokers."""
+        # Stop portfolio refresh task
+        if self._portfolio_refresh_task is not None:
+            self._portfolio_refresh_task.cancel()
+            try:
+                await self._portfolio_refresh_task
+            except asyncio.CancelledError:
+                pass
+            self._portfolio_refresh_task = None
+            logger.info("🔄 Portfolio refresh task stopped")
+        
         if self._client is not None:
             self._client.close()
         self._client = None
@@ -215,6 +237,7 @@ class InteractiveWebapiBroker(BrokerBase):
             result.data,
             order_request,
         )
+        self.portfolio = await self.get_portfolio()
         return order_responses
     async def cancel_order(self, order_id: str) -> OrderResponse:
         """Cancel an existing order.
@@ -326,7 +349,7 @@ class InteractiveWebapiBroker(BrokerBase):
         
         portfolio = PortfolioConverter.from_ibkr_positions(positions_data, ledger_data, open_orders)
         logger.debug("✅ Portfolio converted successfully")
-        
+        self.portfolio = portfolio
         return portfolio
     
     async def get_buying_power(self) -> float:
@@ -406,6 +429,20 @@ class InteractiveWebapiBroker(BrokerBase):
         
         logger.debug("Returning %d active order(s)", len(open_orders))
         return open_orders
+    
+    async def _refresh_portfolio_loop(self) -> None:
+        """Background loop that refreshes the portfolio every 5 minutes."""
+        while True:
+            try:
+                await asyncio.sleep(self.PORTFOLIO_REFRESH_INTERVAL_SECONDS)
+                logger.info("🔄 Refreshing portfolio...")
+                self.portfolio = await self.get_portfolio()
+                logger.info("✅ Portfolio refreshed successfully")
+            except asyncio.CancelledError:
+                logger.debug("Portfolio refresh loop cancelled")
+                raise
+            except Exception as e:
+                logger.error("❌ Failed to refresh portfolio: %s", e, exc_info=True)
     
     async def _get_conid(self, ticker: str) -> int:
         """Get IBKR contract ID for a ticker symbol.

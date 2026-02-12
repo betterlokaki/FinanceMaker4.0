@@ -35,6 +35,7 @@ class OrderRequestConverter:
         OrderType.LIMIT: "LMT",
         OrderType.STOP: "STP",
         OrderType.STOP_LIMIT: "STP_LIMIT",
+        OrderType.TRAILING_STOP: "TRAIL",
     }
 
     # Mapping from our TimeInForce to IBKR tif strings
@@ -62,8 +63,13 @@ class OrderRequestConverter:
         Returns a single `IbkrOrderRequest` for simple orders, or a list of
         requests [parent, stop_loss, take_profit] for bracket orders.
         """
-        # If bracket fields are present, build bracket orders
-        if order_request.stop_loss_price is not None and order_request.take_profit_price is not None:
+        # If bracket fields are present, build bracket orders.
+        # A bracket is triggered by (fixed SL OR trailing SL) AND take profit.
+        has_stop_loss: bool = (
+            order_request.stop_loss_price is not None
+            or order_request.trailing_stop_amt is not None
+        )
+        if has_stop_loss and order_request.take_profit_price is not None:
             return cls.to_bracket_ibkr(
                 order_request=order_request,
                 conid=conid,
@@ -176,20 +182,44 @@ class OrderRequestConverter:
         )
         parent.coid = parent_coid
 
-        # Stop loss child: opposite side, STP order
-        stop_loss = IbkrOrderRequest(
-            conid=conid,
-            side="SELL" if order_request.side == OrderSide.BUY else "BUY",
-            quantity=order_request.quantity,
-            order_type="STP",
-            acct_id=account_id,
-            ticker=order_request.ticker,
-            listing_exchange=listing_exchange,
-            outside_rth=stop_loss_outside_rth,
-            tif="GTC",
-            price=order_request.stop_loss_price,
-            parent_id=parent_coid,
-        )
+        # Stop loss child: opposite side.
+        # Use TRAIL (dynamic/trailing stop) when trailing_stop_amt is set,
+        # otherwise fall back to fixed STP order.
+        stop_loss_side: str = "SELL" if order_request.side == OrderSide.BUY else "BUY"
+
+        if order_request.trailing_stop_amt is not None:
+            # Dynamic trailing stop — IBKR moves the stop automatically as
+            # price moves in our favour.  trailing_type defaults to "%".
+            trailing_type: str = order_request.trailing_stop_type or "%"
+            stop_loss = IbkrOrderRequest(
+                conid=conid,
+                side=stop_loss_side,
+                quantity=order_request.quantity,
+                order_type="TRAIL",
+                acct_id=account_id,
+                ticker=order_request.ticker,
+                listing_exchange=listing_exchange,
+                outside_rth=stop_loss_outside_rth,
+                tif="GTC",
+                trailing_amt=order_request.trailing_stop_amt,
+                trailing_type=trailing_type,
+                parent_id=parent_coid,
+            )
+        else:
+            # Fixed stop loss (STP) — classic behaviour.
+            stop_loss = IbkrOrderRequest(
+                conid=conid,
+                side=stop_loss_side,
+                quantity=order_request.quantity,
+                order_type="STP",
+                acct_id=account_id,
+                ticker=order_request.ticker,
+                listing_exchange=listing_exchange,
+                outside_rth=stop_loss_outside_rth,
+                tif="GTC",
+                price=order_request.stop_loss_price,
+                parent_id=parent_coid,
+            )
 
         # Take profit child: opposite side, LMT order
         take_profit = IbkrOrderRequest(

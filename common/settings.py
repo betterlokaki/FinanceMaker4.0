@@ -192,6 +192,14 @@ class PortfolioAllocationConfig(BaseSettings):
     )
 
 
+class DynamicStopLossConfig(BaseSettings):
+    """Dynamic stop loss manager configuration."""
+    limit_sell_offset_pct: float = Field(
+        default=0.5,
+        description="Percentage below current price for LIMIT SELL to ensure fill ORH"
+    )
+
+
 class OrderParamsConfig(BaseSettings):
     """Order parameters configuration for trading strategies."""
     buy_limit_tif: TimeInForce = Field(
@@ -254,6 +262,7 @@ class Settings(BaseSettings):
     demand_zone_strategy: DemandZoneStrategyConfig = Field(default_factory=DemandZoneStrategyConfig)
     portfolio_allocation: PortfolioAllocationConfig = Field(default_factory=PortfolioAllocationConfig)
     order_params: OrderParamsConfig = Field(default_factory=OrderParamsConfig)
+    dynamic_stop_loss: DynamicStopLossConfig = Field(default_factory=DynamicStopLossConfig)
 
     # Application settings
     debug: bool = Field(default=False)

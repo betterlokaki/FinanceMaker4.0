@@ -36,6 +36,9 @@ class OrderResponseConverter:
         "STP_LIMIT": OrderType.STOP_LIMIT,
         "STPLMT": OrderType.STOP_LIMIT,
         "STP LMT": OrderType.STOP_LIMIT,
+        "TRAIL": OrderType.TRAILING_STOP,
+        "Trailing": OrderType.TRAILING_STOP,
+        "Trailing Stop": OrderType.TRAILING_STOP,
     }
     
     # Mapping from IBKR status strings to our OrderStatus

@@ -12,7 +12,8 @@ class IBroker(Protocol):
     This protocol defines the interface that all broker implementations
     must follow. Use this for type hints instead of concrete classes.
     """
-
+    portfolio: Portfolio
+    
     async def connect(self) -> None:
         """Establish connection to the broker.
         

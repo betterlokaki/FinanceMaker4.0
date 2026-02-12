@@ -16,8 +16,15 @@ class OrderRequest:
         order_type: Market, limit, stop, etc.
         limit_price: Price for limit orders.
         stop_price: Trigger price for stop orders.
-        stop_loss_price: Stop loss price for bracket orders.
+        stop_loss_price: Stop loss price for bracket orders (fixed STP).
+            Also used as initial stop level reference for trailing stops.
         take_profit_price: Take profit price for bracket orders.
+        trailing_stop_amt: Trailing amount for dynamic stop loss.
+            When set, the bracket stop-loss child uses a TRAIL order instead of
+            a fixed STP. The broker adjusts the stop automatically as price
+            moves in your favour.
+        trailing_stop_type: Trailing type — "%" for percentage or "amt" for
+            dollar amount. Defaults to "%" when trailing_stop_amt is set.
         time_in_force: How long the order remains active.
         buy_limit_rth: Whether buy limit order executes only during RTH (None = use default).
         stop_loss_rth: Whether stop loss order executes only during RTH (None = use default).
@@ -31,6 +38,8 @@ class OrderRequest:
     stop_price: Optional[float] = None
     stop_loss_price: Optional[float] = None
     take_profit_price: Optional[float] = None
+    trailing_stop_amt: Optional[float] = None
+    trailing_stop_type: Optional[str] = None
     time_in_force: TimeInForce = TimeInForce.DAY
     buy_limit_rth: Optional[bool] = None
     stop_loss_rth: Optional[bool] = None
@@ -51,4 +60,12 @@ class OrderRequest:
             if self.limit_price is None or self.stop_price is None:
                 raise ValueError(
                     "Both limit and stop prices required for stop-limit orders"
+                )
+        
+        if self.trailing_stop_amt is not None:
+            if self.trailing_stop_amt <= 0:
+                raise ValueError("Trailing stop amount must be positive")
+            if self.trailing_stop_type is not None and self.trailing_stop_type not in ("%", "amt"):
+                raise ValueError(
+                    "Trailing stop type must be '%' (percentage) or 'amt' (dollar amount)"
                 )

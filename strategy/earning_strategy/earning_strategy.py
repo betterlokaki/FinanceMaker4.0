@@ -8,8 +8,13 @@ from common.cache.abstracts import ITickerCache
 from common.models.candlestick import CandleStick
 from common.models.order import OrderSide, OrderType
 from common.models.order_request import OrderRequest
+from common.models.period import Period
+from common.models.pricing_data import PricingData
 from common.models.scanner_params import ScannerParams
 from common.settings import AIScannerConfig, OrderParamsConfig, PortfolioAllocationConfig
+from dynamic_stop_loss.interfaces.i_dynamic_stop_loss_manager import (
+    IDynamicStopLossManager,
+)
 from publishers.abstracts.i_broker import IBroker
 from pullers.realtime.abstracts.i_realtime_provider import IRealtimeProvider
 from pullers.scanners.ai_scanners.earning_tommrow_ai import EarningTomorrowAI
@@ -22,8 +27,8 @@ MARKET_WARMUP_TIME: time = time(9, 35)  # 9:35 AM NY (market open + 5 min)
 
 # Strategy constants
 ENTRY_OFFSET_PCT: float = 0.01  # 1% below candle low
-STOP_LOSS_PCT: float = 0.04  # 4% below entry
-TAKE_PROFIT_PCT: float = 0.08  # 8% above entry
+TAKE_PROFIT_PCT: float = 0.1  # 8% above entry
+TRAILING_STOP_PCT: float = 3.0  # 3% trailing stop (dynamic — follows price up)
 MIN_QUANTITY: int = 1  # Minimum shares per order
 
 
@@ -36,10 +41,13 @@ class EarningStrategy(RealTimeTradingBase):
     3. Waits until 9:35 AM NY time (5 min after market open)
     4. On FIRST 5-min candle per ticker:
        - Entry = candle LOW - 1%
-       - Stop Loss = entry - 4%
        - Take Profit = entry + 8%
-       - Places LIMIT BUY order via IBroker
-    5. No duplicate orders per ticker
+       - Places LIMIT BUY bracket order via IBroker (entry + TP only, NO SL child)
+       - Registers position with DynamicStopLossManager for trailing stop
+    5. DynamicStopLossManager monitors via Yahoo real-time streaming:
+       - Detects fill, tracks high watermark, trails stop 4% below
+       - When stop breached → fires LIMIT SELL (works ORH!)
+    6. No duplicate orders per ticker
     """
 
     def __init__(
@@ -51,6 +59,7 @@ class EarningStrategy(RealTimeTradingBase):
         ticker_cache: ITickerCache,
         portfolio_allocation_config: PortfolioAllocationConfig,
         order_params_config: OrderParamsConfig,
+        dynamic_stop_loss_manager: IDynamicStopLossManager,
     ) -> None:
         """Initialize the earnings strategy.
         
@@ -62,6 +71,7 @@ class EarningStrategy(RealTimeTradingBase):
             ticker_cache: Cache for storing/loading tickers across restarts.
             portfolio_allocation_config: Portfolio allocation configuration.
             order_params_config: Order parameters configuration.
+            dynamic_stop_loss_manager: Manages trailing stop via Yahoo streaming + LIMIT SELL.
         """
         super().__init__(realtime_provider)
         self._earnings_scanner: EarningTomorrowAI = earnings_scanner
@@ -70,6 +80,7 @@ class EarningStrategy(RealTimeTradingBase):
         self._ticker_cache: ITickerCache = ticker_cache
         self._portfolio_allocation_config: PortfolioAllocationConfig = portfolio_allocation_config
         self._order_params_config: OrderParamsConfig = order_params_config
+        self._dynamic_stop_loss_manager: IDynamicStopLossManager = dynamic_stop_loss_manager
         self._warmup_complete: bool = False
         self._orders_placed: set[str] = set()  # Track tickers with orders
         self._buying_power_per_ticker: float = 0.0  # Allocated buying power per ticker
@@ -117,7 +128,8 @@ class EarningStrategy(RealTimeTradingBase):
                 (self._portfolio_allocation_config.strategy_allocation_pct * self._portfolio_allocation_config.ticker_allocation_pct) * 100,
                 self._buying_power_per_ticker,
             )
-        
+        p = self._broker.portfolio.open_orders
+        self._orders_placed = {order.ticker.upper() for order in p}
         return result
 
     async def _run_ai_scanner(self) -> list[str]:
@@ -164,18 +176,16 @@ class EarningStrategy(RealTimeTradingBase):
     async def on_candle(self, ticker: str, candle: CandleStick) -> None:
         """Handle confirmed 5-minute candle.
         
-        Places limit buy order on first candle only (no duplicates).
-        Entry = LOW - 1%, SL = entry - 4%, TP = entry + 8%.
+        Places limit buy bracket order on first candle only (no duplicates).
+        Entry = LOW - 1%, TP = entry + 8%.
+        Stop loss is NOT sent to IBKR — it's managed by DynamicStopLossManager
+        using Yahoo real-time streaming + LIMIT SELL (works ORH!).
         """
-        if not self._is_warmup_complete():
-            logger.debug("Ignoring candle for %s - warmup not complete", ticker)
-            return
+        # if not self._is_warmup_complete():
+        #     logger.debug("Ignoring candle for %s - warmup not complete", ticker)
+        #     return
         
         # Check for duplicate - only trade first candle per ticker
-        if ticker in self._orders_placed:
-            logger.debug("Ignoring candle for %s - order already placed", ticker)
-            return
-        
         logger.info(
             "🕯️ %s 5-min candle: O=%.2f H=%.2f L=%.2f C=%.2f V=%d",
             ticker,
@@ -185,10 +195,16 @@ class EarningStrategy(RealTimeTradingBase):
             candle.close,
             candle.volume,
         )
+        if any([order.ticker.upper() == ticker.upper() for order in self._broker.portfolio.open_orders]) \
+        or any([position.ticker.upper() == ticker.upper() for position in self._broker.portfolio.positions]):
+            logger.debug("Ignoring candle for %s - order already placed", ticker)
+            return
         
-        # Calculate entry, stop loss, and take profit prices
+        
+        # Calculate entry and take profit prices.
+        # Stop loss is handled separately by DynamicStopLossManager — NOT sent
+        # to IBKR because STP/TRAIL orders do NOT trigger ORH.
         entry_price: float = round(candle.low * (1 - ENTRY_OFFSET_PCT), 2)
-        stop_loss_price: float = round(entry_price * (1 - STOP_LOSS_PCT), 2)
         take_profit_price: float = round(entry_price * (1 + TAKE_PROFIT_PCT), 2)
         
         # Calculate quantity based on allocated buying power per ticker
@@ -203,28 +219,31 @@ class EarningStrategy(RealTimeTradingBase):
             return
         
         logger.info(
-            "📊 %s order: Entry=%.2f (LOW-1%%), SL=%.2f (-4%%), TP=%.2f (+8%%), Qty=%d ($%.2f)",
+            "📊 %s order: Entry=%.2f (LOW-1%%), DynamicSL=%.1f%% (Yahoo streaming), TP=%.2f (+8%%), Qty=%d ($%.2f)",
             ticker,
             entry_price,
-            stop_loss_price,
+            TRAILING_STOP_PCT,
             take_profit_price,
             quantity,
             self._buying_power_per_ticker,
         )
         
-        # Create and place the order with configurable parameters
+        # Bracket order: parent LMT BUY + TP LMT SELL only.
+        # NO stop_loss_price, NO trailing_stop_amt — the stop loss is managed
+        # by DynamicStopLossManager via Yahoo real-time streaming.
+        # When the trailing stop is breached, DSL manager fires a LIMIT SELL
+        # which works ORH (unlike IBKR STP/TRAIL orders).
         order_request: OrderRequest = OrderRequest(
             ticker=ticker,
             quantity=quantity,
             side=OrderSide.BUY,
             order_type=OrderType.LIMIT,
             limit_price=entry_price,
-            stop_loss_price=stop_loss_price,
             take_profit_price=take_profit_price,
             time_in_force=self._order_params_config.buy_limit_tif,
             buy_limit_rth=self._order_params_config.buy_limit_rth,
-            stop_loss_rth=self._order_params_config.stop_loss_rth,
             take_profit_rth=self._order_params_config.take_profit_rth,
+            
         )
         
         response = await self._broker.place_order(order_request)
@@ -233,11 +252,29 @@ class EarningStrategy(RealTimeTradingBase):
         self._orders_placed.add(ticker)
         
         logger.info(
-            "✅ %s order placed: ID=%s, Status=%s",
+            "✅ %s bracket order placed (entry+TP): ID=%s, Status=%s",
             ticker,
             response.order_id,
             response.status,
         )
+        
+        # Register with DynamicStopLossManager — pulls position from broker on each tick,
+        # trails stop, fires LIMIT SELL when breached.
+        await self._dynamic_stop_loss_manager.watch(
+            ticker=ticker,
+            trailing_pct=TRAILING_STOP_PCT,
+        )
+
+    async def on_tick(self, data: PricingData) -> None:
+        """Handle tick — build candles AND forward to DSL manager."""
+        await super().on_tick(data)
+        await self.on_candle(data.id, CandleStick(open=data.price, high=data.price, low=data.price, close=data.price, volume=data.last_size, time=data.time, period=Period.MINUTE))
+        await self._dynamic_stop_loss_manager.on_tick(data)
+
+    async def shutdown(self) -> None:
+        """Shutdown strategy and DSL manager."""
+        await self._dynamic_stop_loss_manager.shutdown()
+        await super().shutdown()
 
     def _calculate_quantity(self, entry_price: float) -> int:
         """Calculate order quantity based on allocated buying power.
