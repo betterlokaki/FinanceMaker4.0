@@ -243,6 +243,7 @@ class EarningStrategy(RealTimeTradingBase):
             time_in_force=self._order_params_config.buy_limit_tif,
             buy_limit_rth=self._order_params_config.buy_limit_rth,
             take_profit_rth=self._order_params_config.take_profit_rth,
+            stop_price=entry_price - (entry_price * 0.04),
             
         )
         
@@ -258,18 +259,18 @@ class EarningStrategy(RealTimeTradingBase):
             response.status,
         )
         
-        # Register with DynamicStopLossManager — pulls position from broker on each tick,
-        # trails stop, fires LIMIT SELL when breached.
-        await self._dynamic_stop_loss_manager.watch(
-            ticker=ticker,
-            trailing_pct=TRAILING_STOP_PCT,
-        )
+        # # Register with DynamicStopLossManager — pulls position from broker on each tick,
+        # # trails stop, fires LIMIT SELL when breached.
+        # await self._dynamic_stop_loss_manager.watch(
+        #     ticker=ticker,
+        #     trailing_pct=TRAILING_STOP_PCT,
+        # )
 
     async def on_tick(self, data: PricingData) -> None:
         """Handle tick — build candles AND forward to DSL manager."""
         await super().on_tick(data)
         await self.on_candle(data.id, CandleStick(open=data.price, high=data.price, low=data.price, close=data.price, volume=data.last_size, time=data.time, period=Period.MINUTE))
-        await self._dynamic_stop_loss_manager.on_tick(data)
+        # await self._dynamic_stop_loss_manager.on_tick(data)
 
     async def shutdown(self) -> None:
         """Shutdown strategy and DSL manager."""

@@ -106,15 +106,22 @@ class OrderRequestConverter:
                 conid=conid,
                 side="SELL" if order_request.side == OrderSide.BUY else "BUY",
                 quantity=order_request.quantity,
-                order_type="STP",
+                order_type="LMT",
                 acct_id=account_id,
                 ticker=order_request.ticker,
                 listing_exchange=listing_exchange,
-                outside_rth=False,
+                outside_rth=True,
                 tif="GTC",
                 price=order_request.stop_price,
                 aux_price=order_request.stop_price,
-                parent_id=coid
+                parent_id=coid,
+                 custom_fields={
+                "type": "price",
+                "conid": conid,    # The asset being watched
+                "operator": "<=",      # Trigger when SPY is >= value
+                "value": order_request.stop_price,     # The price trigger level
+                "logicBind": "AND"
+            }
             )
         if order_request.take_profit_price is not None:
             take_profit_order = IbkrOrderRequest(
@@ -128,7 +135,8 @@ class OrderRequestConverter:
                 outside_rth=True,
                 tif="GTC",
                 price=order_request.take_profit_price,
-                parent_id=coid
+                parent_id=coid,
+                
             )
         
         return [order for order in [ibkr_order, stopp_loss_order, take_profit_order] if order is not None]
@@ -191,7 +199,7 @@ class OrderRequestConverter:
             # Dynamic trailing stop — IBKR moves the stop automatically as
             # price moves in our favour.  trailing_type defaults to "%".
             trailing_type: str = order_request.trailing_stop_type or "%"
-            stop_loss = IbkrOrderRequest(
+            stopp_loss_order = IbkrOrderRequest(
                 conid=conid,
                 side=stop_loss_side,
                 quantity=order_request.quantity,
@@ -206,19 +214,26 @@ class OrderRequestConverter:
                 parent_id=parent_coid,
             )
         else:
-            # Fixed stop loss (STP) — classic behaviour.
-            stop_loss = IbkrOrderRequest(
+            stopp_loss_order = IbkrOrderRequest(
                 conid=conid,
-                side=stop_loss_side,
+                side="SELL" if order_request.side == OrderSide.BUY else "BUY",
                 quantity=order_request.quantity,
-                order_type="STP",
+                order_type="LMT",
                 acct_id=account_id,
                 ticker=order_request.ticker,
                 listing_exchange=listing_exchange,
-                outside_rth=stop_loss_outside_rth,
+                outside_rth=True,
                 tif="GTC",
-                price=order_request.stop_loss_price,
+                price=order_request.stop_price,
+                aux_price=order_request.stop_price,
                 parent_id=parent_coid,
+                 custom_fields={
+                "type": "price",
+                "conid": conid,    # The asset being watched
+                "operator": "<=",      # Trigger when SPY is >= value
+                "value": order_request.stop_price,     # The price trigger level
+                "logicBind": "AND"
+            }
             )
 
         # Take profit child: opposite side, LMT order
@@ -236,5 +251,5 @@ class OrderRequestConverter:
             parent_id=parent_coid,
         )
 
-        return [parent, stop_loss, take_profit]
+        return [parent, stopp_loss_order, take_profit]
     
