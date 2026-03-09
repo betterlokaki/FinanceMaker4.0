@@ -5,7 +5,7 @@ with proper type hints and SOLID compliance.
 """
 import pandas as pd
 
-from backtesting.models.zone import Zone, ZoneState, ZoneType
+from common.models.zone import Zone, ZoneState, ZoneType
 
 
 def calculate_atr(df: pd.DataFrame, period: int = 200) -> pd.Series:

@@ -4,7 +4,7 @@ Main entry point functions for zone detection.
 """
 import pandas as pd
 
-from backtesting.models.zone import Zone, ZoneState, ZoneType
+from common.models.zone import Zone, ZoneState, ZoneType
 from common.helpers.zone_helpers import (
     _create_demand_zone,
     _create_supply_zone,

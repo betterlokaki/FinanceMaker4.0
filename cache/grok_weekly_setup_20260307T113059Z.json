@@ -1,0 +1,155 @@
+{
+  "run_metadata": {
+    "started_at_utc": "2026-03-07T11:30:59.169497+00:00",
+    "finished_at_utc": "2026-03-07T11:37:18.798781+00:00",
+    "top_n": 3,
+    "lookback_days": 200,
+    "max_concurrency": 2,
+    "first_prompt_file": null,
+    "output_json": "cache/grok_weekly_setup_20260307T113059Z.json"
+  },
+  "stage1": {
+    "prompt": "You are a professional market intelligence analyst.\n\nYour task is to find U.S. stocks that could be strong LONG opportunities in the coming week.\n\nDATA SOURCES (use real-time data):\n- X (Twitter) posts and sentiment\n- StockTwits discussions\n- Latest financial news\n- Unusual social media attention\n- Recent catalysts (earnings, contracts, partnerships, product launches, regulation changes, analyst upgrades)\n\nFILTERS (STRICT):\n- Market Cap > $1B\n- Listed ONLY on US exchanges (NASDAQ, NYSE, AMEX)\n- Long opportunities ONLY (no short ideas)\n- Exclude penny stocks\n- Exclude stocks already extremely overextended or clearly pump-and-dump\n\nANALYSIS STEPS:\n1. Scan the last 24-72 hours of discussions on X and StockTwits for tickers gaining unusual attention.\n2. Cross-reference with recent news and catalysts.\n3. Evaluate sentiment (bullish / neutral / bearish).\n4. Identify early-stage narratives that could lead to price momentum this week.\n5. Filter out spam, bot-driven hype, and low-credibility accounts.\n\nOUTPUT FORMAT:\n\nFor each stock provide:\n\nTicker:\nCompany:\nExchange:\nMarket Cap:\n\nBullish Catalysts:\n- (news, earnings, contracts, sector momentum, etc.)\n\nSocial Sentiment:\n- X sentiment summary\n- StockTwits sentiment summary\n- Key influencers/accounts discussing it\n\nNarrative:\nExplain why this stock could attract buyers this week.\n\nRisk Factors:\nWhat could invalidate the thesis.\n\nMomentum Score (1-10):\nLikelihood of near-term upside.\n\nFINAL RESULT:\nReturn the TOP 10 strongest LONG candidates for this week ranked by momentum score.\n\nSTRICT OUTPUT REQUIREMENTS (MANDATORY):\n- Return ONLY a valid JSON object.\n- Do NOT include markdown, code fences, comments, or extra text.\n- Return exactly 3 unique tickers, ranked by momentum_score descending.\n\nUse this exact schema:\n{\n  \"candidates\": [\n    {\n      \"ticker\": \"NVDA\",\n      \"company\": \"NVIDIA Corp\",\n      \"exchange\": \"NASDAQ\",\n      \"market_cap_usd\": 2900000000000,\n      \"momentum_score\": 9,\n      \"bullish_catalysts\": [\"...\"],\n      \"social_sentiment\": {\n        \"x_summary\": \"...\",\n        \"stocktwits_summary\": \"...\",\n        \"key_influencers\": [\"...\"]\n      },\n      \"narrative\": \"...\",\n      \"risk_factors\": [\"...\"]\n    }\n  ]\n}\n",
+    "raw_response": "{\n  \"candidates\": [\n    {\n      \"ticker\": \"MRVL\",\n      \"company\": \"Marvell Technology Inc\",\n      \"exchange\": \"NASDAQ\",\n      \"market_cap_usd\": 66000000000,\n      \"momentum_score\": 9,\n      \"bullish_catalysts\": [\"Q4 FY2026 record revenue $2.219B up 7% QoQ, 42% YoY growth driven by AI data center demand\", \"Strong AI interconnect demand outlook\", \"Recent analyst attention and options momentum\"],\n      \"social_sentiment\": {\n        \"x_summary\": \"High buzz with posts on earnings beat, short squeeze potential, strong performance vs semis peers, successful call options trades (+100-650%)\",\n        \"stocktwits_summary\": \"Active discussions post-earnings with bullish tilt on AI growth\",\n        \"key_influencers\": [\"@PhotonCap\", \"@ripster47\", \"@visionstonks\", \"@jfsrev\"]\n      },\n      \"narrative\": \"MRVL reported record earnings fueled by AI infrastructure demand just days ago, standing out amid semis selloff with +18% move. Social momentum from traders highlighting breakout and options flow positions it for continued upside this week as AI narrative strengthens.\",\n      \"risk_factors\": [\"Broader semis sector weakness\", \"Macro economic concerns\", \"Profit-taking post-earnings run\"]\n    },\n    {\n      \"ticker\": \"CIEN\",\n      \"company\": \"Ciena Corporation\",\n      \"exchange\": \"NYSE\",\n      \"market_cap_usd\": 42000000000,\n      \"momentum_score\": 8,\n      \"bullish_catalysts\": [\"Q1 2026 record revenue $1.43B, strong gross margins\", \"Bank of America upgrade to Buy post-earnings selloff\", \"Barclays PT raise to $372, Needham Buy rating\"],\n      \"social_sentiment\": {\n        \"x_summary\": \"Mentions tied to upgrades and earnings, positive analyst actions offsetting initial selloff\",\n        \"stocktwits_summary\": \"Mixed but improving sentiment with focus on cloud/data center buildout\",\n        \"key_influencers\": [\"Seeking Alpha contributors\", \"Analyst accounts\"]\n      },\n      \"narrative\": \"Recent analyst upgrades after strong Q1 earnings position CIEN for rebound from post-earnings dip. Optics/networking demand from AI/cloud aligns with sector momentum, attracting buyers seeking value in high-growth telecom equipment.\",\n      \"risk_factors\": [\"Continued insider selling pressure\", \"Earnings digestion volatility\", \"Competition in networking space\"]\n    },\n    {\n      \"ticker\": \"AMPX\",\n      \"company\": \"Amprius Technologies Inc\",\n      \"exchange\": \"NYSE\",\n      \"market_cap_usd\": 1500000000,\n      \"momentum_score\": 7,\n      \"bullish_catalysts\": [\"Recent analyst upgrades\", \"Lithium battery sector momentum with peers like QS\", \"High-momentum screener inclusion\"],\n      \"social_sentiment\": {\n        \"x_summary\": \"Featured in momentum/breakout lists, positive trader scans\",\n        \"stocktwits_summary\": \"Bullish chatter in battery/tech innovation space\",\n        \"key_influencers\": [\"@jfsrev\", \"Momentum traders\"]\n      },\n      \"narrative\": \"AMPX gaining traction in high-momentum scans amid lithium battery hype and upgrades. Early-stage narrative around silicon-anode tech for EVs/energy storage could spark buying interest this week.\",\n      \"risk_factors\": [\"Volatility in small/mid-cap battery stocks\", \"Commodity price swings\", \"Dilution risks\"]\n    }\n  ]\n}",
+    "parsed_candidates": [
+      {
+        "ticker": "MRVL",
+        "company": "Marvell Technology Inc",
+        "exchange": "NASDAQ",
+        "market_cap_usd": 66000000000.0,
+        "momentum_score": 9.0,
+        "bullish_catalysts": [
+          "Q4 FY2026 record revenue $2.219B up 7% QoQ, 42% YoY growth driven by AI data center demand",
+          "Strong AI interconnect demand outlook",
+          "Recent analyst attention and options momentum"
+        ],
+        "social_sentiment": {
+          "x_summary": "High buzz with posts on earnings beat, short squeeze potential, strong performance vs semis peers, successful call options trades (+100-650%)",
+          "stocktwits_summary": "Active discussions post-earnings with bullish tilt on AI growth",
+          "key_influencers": [
+            "@PhotonCap",
+            "@ripster47",
+            "@visionstonks",
+            "@jfsrev"
+          ]
+        },
+        "narrative": "MRVL reported record earnings fueled by AI infrastructure demand just days ago, standing out amid semis selloff with +18% move. Social momentum from traders highlighting breakout and options flow positions it for continued upside this week as AI narrative strengthens.",
+        "risk_factors": [
+          "Broader semis sector weakness",
+          "Macro economic concerns",
+          "Profit-taking post-earnings run"
+        ]
+      },
+      {
+        "ticker": "CIEN",
+        "company": "Ciena Corporation",
+        "exchange": "NYSE",
+        "market_cap_usd": 42000000000.0,
+        "momentum_score": 8.0,
+        "bullish_catalysts": [
+          "Q1 2026 record revenue $1.43B, strong gross margins",
+          "Bank of America upgrade to Buy post-earnings selloff",
+          "Barclays PT raise to $372, Needham Buy rating"
+        ],
+        "social_sentiment": {
+          "x_summary": "Mentions tied to upgrades and earnings, positive analyst actions offsetting initial selloff",
+          "stocktwits_summary": "Mixed but improving sentiment with focus on cloud/data center buildout",
+          "key_influencers": [
+            "Seeking Alpha contributors",
+            "Analyst accounts"
+          ]
+        },
+        "narrative": "Recent analyst upgrades after strong Q1 earnings position CIEN for rebound from post-earnings dip. Optics/networking demand from AI/cloud aligns with sector momentum, attracting buyers seeking value in high-growth telecom equipment.",
+        "risk_factors": [
+          "Continued insider selling pressure",
+          "Earnings digestion volatility",
+          "Competition in networking space"
+        ]
+      },
+      {
+        "ticker": "AMPX",
+        "company": "Amprius Technologies Inc",
+        "exchange": "NYSE",
+        "market_cap_usd": 1500000000.0,
+        "momentum_score": 7.0,
+        "bullish_catalysts": [
+          "Recent analyst upgrades",
+          "Lithium battery sector momentum with peers like QS",
+          "High-momentum screener inclusion"
+        ],
+        "social_sentiment": {
+          "x_summary": "Featured in momentum/breakout lists, positive trader scans",
+          "stocktwits_summary": "Bullish chatter in battery/tech innovation space",
+          "key_influencers": [
+            "@jfsrev",
+            "Momentum traders"
+          ]
+        },
+        "narrative": "AMPX gaining traction in high-momentum scans amid lithium battery hype and upgrades. Early-stage narrative around silicon-anode tech for EVs/energy storage could spark buying interest this week.",
+        "risk_factors": [
+          "Volatility in small/mid-cap battery stocks",
+          "Commodity price swings",
+          "Dilution risks"
+        ]
+      }
+    ],
+    "errors": []
+  },
+  "stage2": {
+    "results": [
+      {
+        "ticker": "MRVL",
+        "candle_count": 138,
+        "raw_response": "{\n  \"ticker\": \"MRVL\",\n  \"decision\": \"SETUP\",\n  \"setup_type\": \"volume_breakout\",\n  \"confidence\": 85,\n  \"entry\": {\"type\": \"limit\", \"price\": 88.0},\n  \"stop_loss\": 83.0,\n  \"take_profit\": 98.0,\n  \"risk_reward\": 2.0,\n  \"reasons\": [\"89.8M volume (5x 20-day avg ~15-18M) on breakout above 84-85 multi-month resistance\", \"Strong bullish candle: gap up from 75.68, held low 83.4 above prior highs, close 89.57 near high 93.4\", \"Above estimated 20-day SMA ~80 and 50-day SMA ~83\", \"Follows basing pattern after prior higher high at 102\"],\n  \"invalidations\": [\"Close below breakout low 83.4\", \"Loss of 85 support on volume\"],\n  \"next_step\": \"Enter limit 88 on pullback retest, confirm with volume\"\n}",
+        "parsed_analysis": {
+          "ticker": "MRVL",
+          "decision": "SETUP",
+          "setup_type": "volume_breakout",
+          "confidence": 85.0,
+          "entry": {
+            "type": "limit",
+            "price": 88.0
+          },
+          "stop_loss": 83.0,
+          "take_profit": 98.0,
+          "risk_reward": 2.0,
+          "reasons": [
+            "89.8M volume (5x 20-day avg ~15-18M) on breakout above 84-85 multi-month resistance",
+            "Strong bullish candle: gap up from 75.68, held low 83.4 above prior highs, close 89.57 near high 93.4",
+            "Above estimated 20-day SMA ~80 and 50-day SMA ~83",
+            "Follows basing pattern after prior higher high at 102"
+          ],
+          "invalidations": [
+            "Close below breakout low 83.4",
+            "Loss of 85 support on volume"
+          ],
+          "next_step": "Enter limit 88 on pullback retest, confirm with volume"
+        },
+        "errors": []
+      },
+      {
+        "ticker": "CIEN",
+        "candle_count": 138,
+        "raw_response": "The code_execution failed because the JSON string was too long and got truncated in the function call.\n\nI can't use the tool effectively here without shortening, but from manual inspection.\n\nRecent data:\n\nLast 5 closes: 353.73 (03-02), 333.07, 343.55, 299.30, 294.17\n\nSMA20 approx: average last 20 closes.\n\nFrom tail, recent closes around 340s average, say SMA20 ~340\n\nSMA50 lower, say 310 or so.\n\nPrice at 294 below SMA20, below EMA20 likely.\n\nRSI after sharp drop likely oversold <30.\n\nBut last candle bearish shooting star, high vol selloff.\n\nNo quality long setup right now.\n\nDecision: WAIT\n\nChart may become attractive on oversold bounce or hold of support near 290 (recent low 278, but held 293).\n\nRisk unfavorable currently with closes near lows, bearish candle.\n\nReasons: recent parabolic advance followed by 17% high-volume pullback breaking short-term MAs; shooting star on Mar 6 signals weakness; RSI likely oversold but no reversal confirmation.\n\nInvalidations: break below 290 (recent lows), would invalidate bull continuation.\n\nNext step: wait for bullish engulfing or close above 310 (Mar 5 open/prior support).\n\nFor JSON, set nulls.\n\nConfidence null, etc.\n\nsetup_type null.\n\nEntry null etc.\n\nYes.{\n  \"ticker\": \"CIEN\",\n  \"decision\": \"WAIT\",\n  \"setup_type\": null,\n  \"confidence\": null,\n  \"entry\": null,\n  \"stop_loss\": null,\n  \"take_profit\": null,\n  \"risk_reward\": null,\n  \"reasons\": [\"Parabolic uptrend from 90 to 364 culminates in high-volume 17% pullback to 294, breaking short-term MAs (est. SMA20 ~340).\", \"Mar 6 shooting star (high 316, close 294 near low) bearish reversal signal post-crash.\", \"Oversold conditions possible but lacks bullish confirmation candle or higher low.\"],\n  \"invalidations\": [\"Close below 290 (Mar 6 low area).\", \"Failure to reclaim 310 (Mar 5 open/Mar 4 close).\"],\n  \"next_step\": \"Monitor for bullish reversal above 310 with volume; re-assess on hold of 290 support.\"\n}",
+        "parsed_analysis": null,
+        "errors": [
+          "Missing or invalid confidence."
+        ]
+      },
+      {
+        "ticker": "AMPX",
+        "candle_count": 138,
+        "raw_response": "{\n  \"ticker\": \"AMPX\",\n  \"decision\": \"WAIT\",\n  \"setup_type\": null,\n  \"confidence\": null,\n  \"entry\": null,\n  \"stop_loss\": null,\n  \"take_profit\": null,\n  \"risk_reward\": null,\n  \"reasons\": [\"Strong volume-backed breakout above prior ATH (16.03 on 2025-10-15) with 23.9M and 28.5M shares on 2026-03-06/05 vs avg ~6M.\", \"Parabolic 26% gain in 2 days extends price ~35% above estimated 20DMA (~11.8-12.0).\", \"Inferred RSI(14) >85 from serial higher closes and momentum surge indicates overbought conditions.\", \"No immediate pullback; chasing highs offers poor risk/reward for swing trade.\"],\n  \"invalidations\": [\"Daily close below 14.53 (2026-03-06 low) fails breakout hold.\", \"Break and close under 12.00 consolidation negates uptrend.\"],\n  \"next_step\": \"Monitor for pullback to 14.50-15.50 support zone (Mar-06 open/low area) for confirmed long entry.\"\n}",
+        "parsed_analysis": null,
+        "errors": [
+          "Missing or invalid confidence."
+        ]
+      }
+    ],
+    "successful_count": 1
+  },
+  "errors": [
+    "stage2:CIEN: Missing or invalid confidence.",
+    "stage2:AMPX: Missing or invalid confidence."
+  ]
+}

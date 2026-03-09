@@ -2,12 +2,12 @@
 import httpx
 from dependency_injector import containers, providers
 
-from backtesting.abstracts import IBacktestEngine, IBacktestStrategy
-from backtesting.engines import VectorBTEngine
-from backtesting.strategies import SupplyDemandStrategy
 from common.cache.abstracts import ITickerCache
 from common.cache.file_ticker_cache import FileTickerCache
 from common.helpers.ai_ticker_analyzer import AITickerAnalyzer
+from common.helpers.earnings_breakout_technical_scorer import (
+    EarningsBreakoutTechnicalScorer,
+)
 from common.helpers.market_calendar import MarketCalendar
 from common.helpers.risk_reward_calculator import RiskRewardCalculator
 from common.settings import settings
@@ -33,6 +33,7 @@ from scheduler.strategy_runner import StrategyRunner
 from scheduler.trading_scheduler import TradingScheduler
 from strategy.abstracts import ITradingStrategy
 from strategy.demand_zone_strategy import DemandZoneStrategy
+from strategy.weekly_consensus_strategy import WeeklyDoubleConsensusLiveStrategy
 from dynamic_stop_loss import (
     DynamicStopLossManager,
     IDynamicStopLossManager,
@@ -152,6 +153,11 @@ class Container(containers.DeclarativeContainer):
         RiskRewardCalculator,
     )
 
+    earnings_breakout_technical_scorer: providers.Provider[EarningsBreakoutTechnicalScorer] = providers.Factory(
+        EarningsBreakoutTechnicalScorer,
+        market_provider=yahoo_market_provider,
+    )
+
     # Demand zone scanner (factory with URL)
     demand_zone_scanner: providers.Provider[IScanner] = providers.Factory(
         ZoneFilteredScanner,
@@ -201,6 +207,20 @@ class Container(containers.DeclarativeContainer):
         order_params_config=providers.Object(settings.order_params),
     )
 
+    weekly_double_consensus_strategy: providers.Provider[ITradingStrategy] = providers.Singleton(
+        WeeklyDoubleConsensusLiveStrategy,
+        realtime_provider=yahoo_realtime_provider,
+        market_provider=yahoo_market_provider,
+        broker=ibkr_broker,
+        grok_client=grok_client,
+        ticker_cache=ticker_cache,
+        portfolio_allocation_config=providers.Object(settings.portfolio_allocation),
+        order_params_config=providers.Object(settings.order_params),
+        min_ai_score=providers.Object(settings.weekly_consensus_strategy.min_ai_score),
+        rr_ratio=providers.Object(settings.weekly_consensus_strategy.rr_ratio),
+        direction_preference=providers.Object(settings.weekly_consensus_strategy.direction_preference),
+    )
+
     # Strategy list for scheduler
     strategies: providers.Provider[list[ITradingStrategy]] = providers.List(
         earning_strategy,
@@ -237,17 +257,5 @@ class Container(containers.DeclarativeContainer):
         market_calendar=market_calendar,
     )
 
-    # Backtesting
-    supply_demand_strategy: providers.Provider[IBacktestStrategy] = providers.Singleton(
-        SupplyDemandStrategy,
-    )
-
-    backtest_engine: providers.Provider[IBacktestEngine] = providers.Singleton(
-        VectorBTEngine,
-        strategy=supply_demand_strategy,
-    )
-
-
 # Create global container instance
 container: Container = Container()
-

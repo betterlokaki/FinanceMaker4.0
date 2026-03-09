@@ -1,6 +1,12 @@
 """Common helper utilities."""
 from .ai_consensus_helpers import find_consensus, get_ai_suggestions
 from .earnings_helpers import get_earnings_date, get_historical_earnings_dates
+from .earnings_breakout_technical_scorer import (
+    EarningsBreakoutScore,
+    EarningsBreakoutTechnicalScorer,
+    score_tickers_for_earnings_breakout,
+    score_tickers_for_earnings_breakout_details,
+)
 from .html_helpers import parse_finviz_tickers
 from .prompt_helpers import build_ticker_analysis_prompt
 from .ticker_helpers import extract_tickers_from_response
@@ -33,4 +39,9 @@ __all__ = [
     # Earnings helpers
     "get_earnings_date",
     "get_historical_earnings_dates",
+    # Earnings breakout scoring
+    "EarningsBreakoutScore",
+    "EarningsBreakoutTechnicalScorer",
+    "score_tickers_for_earnings_breakout",
+    "score_tickers_for_earnings_breakout_details",
 ]

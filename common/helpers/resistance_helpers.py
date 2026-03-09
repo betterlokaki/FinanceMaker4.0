@@ -6,7 +6,7 @@ from typing import Final
 
 import pandas as pd
 
-from backtesting.models.zone import Zone, ZoneState, ZoneType
+from common.models.zone import Zone, ZoneState, ZoneType
 
 
 # Resistance detection constants

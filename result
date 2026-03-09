@@ -151,3 +151,51 @@
 {'ticker': 'PSA', 'score': 14, 'why': 'Public Storage (PSA) exhibits a low probability of a 10%+ price explosion within 48 hours of its earnings report. The stock is technically neutral-to-weak (trading below its 200-day moving average with low momentum), and its fundamental backdrop is mixed with a negative Earnings ESP and valuation premium relative to its industry peers. While the company has a recent history of raising guidance, the lack of a cohesive "beat and raise" streak over three quarters and the absence of a potent narrative (AI/Infrastructure) significantly dampens the likelihood of a violent upward move.'}
 {'ticker': 'FLO', 'score': 8, 'why': 'Flowers Foods (FLO) exhibits negligible potential for a 10%+ price explosion within the next 48 hours. The stock profile is that of a low-volatility defensive holding rather than a high-growth momentum play. It fails nearly every technical and narrative criterion for a sudden upside move. The only constructive factor is a valuation discount relative to its industry, but without a catalyst (positive Earnings ESP or insider accumulation), this is insufficient to drive a double-digit percentage move. Do not trade for volatility.'}
 {'ticker': 'RARE', 'score': 8, 'why': 'Ultragenyx Pharmaceutical (RARE) shows minimal likelihood of a bullish 10%+ price explosion. The profile is dominated by negative technical trends ("Death Cross," low momentum), weak fundamental revisions, and a bearish narrative fueled by recent clinical trial failures and class-action lawsuits. The only outlier is extremely high institutional ownership, which technically meets the scarcity criterion but, in this context, may represent trapped capital rather than accumulation.'}
+
+
+lost
+[{'Ticker': 'ACB', 'EarningDate': '2026-02-04', 'Percent': '-14.29'}, {'Ticker': 'ACVA', 'EarningDate': '2026-02-23', 'Percent': '-32.28'}, {'Ticker': 'ADPT', 'EarningDate': '2026-02-05', 'Percent': '-8.32'}, {'Ticker': 'AESI', 'EarningDate': '2026-02-23', 'Percent': '-18.27'}, {'Ticker': 'AHH', 'EarningDate': '2026-02-16', 'Percent': '-10.60'}, {'Ticker': 'AIOT', 'EarningDate': '2026-02-09', 'Percent': '-16.74'}, {'Ticker': 'AKAM', 'EarningDate': '2026-02-19', 'Percent': '-9.65'}, {'Ticker': 'ALAB', 'EarningDate': '2026-02-10', 'Percent': '-32.55'}, {'Ticker': 'ALIT', 'EarningDate': '2026-02-19', 'Percent': '-45.11'}, {'Ticker': 'AMD', 'EarningDate': '2026-02-03', 'Percent': '-21.83'}, {'Ticker': 'AMTM', 'EarningDate': '2026-02-09', 'Percent': '-19.02'}, {'Ticker': 'AMZN', 'EarningDate': '2026-02-05', 'Percent': '-10.42'}, {'Ticker': 'ANGI', 'EarningDate': '2026-02-10', 'Percent': '-26.35'}, {'Ticker': 'APP', 'EarningDate': '2026-02-11', 'Percent': '-17.42'}, {'Ticker': 'APPS', 'EarningDate': '2026-02-03', 'Percent': '-15.87'}, {'Ticker': 'ARAY', 'EarningDate': '2026-02-04', 'Percent': '-17.33'}, {'Ticker': 'ARDX', 'EarningDate': '2026-02-19', 'Percent': '-14.43'}, {'Ticker': 'AVTR', 'EarningDate': '2026-02-11', 'Percent': '-17.56'}, {'Ticker': 'BKD', 'EarningDate': '2026-02-18', 'Percent': '-10.46'}, {'Ticker': 'SNAP', 'EarningDate': '2026-02-04', 'Percent': '-14.43'}, {'Ticker': 'SPGI', 'EarningDate': '2026-02-10', 'Percent': '-10.58'}, {'Ticker': 'SRXH', 'EarningDate': '2026-02-13', 'Percent': '-12.34'}, {'Ticker': 'SUUN', 'EarningDate': '2026-02-13', 'Percent': '-11.48'}, {'Ticker': 'SXC', 'EarningDate': '2026-02-17', 'Percent': '-18.30'}, {'Ticker': 'TEAM', 'EarningDate': '2026-02-05', 'Percent': '-13.15'}, {'Ticker': 'TMQ', 'EarningDate': '2026-02-17', 'Percent': '-13.27'}, {'Ticker': 'TRIP', 'EarningDate': '2026-02-12', 'Percent': '-13.32'}, {'Ticker': 'TROX', 'EarningDate': '2026-02-18', 'Percent': '-9.87'}, {'Ticker': 'TTMI', 'EarningDate': '2026-02-04', 'Percent': '-8.36'}, {'Ticker': 'TTWO', 'EarningDate': '2026-02-03', 'Percent': '-12.88'}, {'Ticker': 'U', 'EarningDate': '2026-02-11', 'Percent': '-35.72'}, {'Ticker': 'ULCC', 'EarningDate': '2026-02-11', 'Percent': '-10.23'}, {'Ticker': 'UP', 'EarningDate': '2026-02-19', 'Percent': '-11.81'}, {'Ticker': 'UPST', 'EarningDate': '2026-02-10', 'Percent': '-22.29'}, {'Ticker': 'UPWK', 'EarningDate': '2026-02-09', 'Percent': '-23.40'}, {'Ticker': 'UPXI', 'EarningDate': '2026-02-10', 'Percent': '-29.14'}, {'Ticker': 'UTZ', 'EarningDate': '2026-02-12', 'Percent': '-19.14'}, {'Ticker': 'VERX', 'EarningDate': '2026-02-11', 'Percent': '-14.31'}, {'Ticker': 'VLTO', 'EarningDate': '2026-02-03', 'Percent': '-10.53'}, {'Ticker': 'VNDA', 'EarningDate': '2026-02-11', 'Percent': '-17.92'}, {'Ticker': 'VRNS', 'EarningDate': '2026-02-03', 'Percent': '-24.07'}, {'Ticker': 'W', 'EarningDate': '2026-02-19', 'Percent': '-19.69'}, {'Ticker': 'WEAV', 'EarningDate': '2026-02-19', 'Percent': '-13.81'}, {'Ticker': 'XYL', 'EarningDate': '2026-02-10', 'Percent': '-10.05'}, {'Ticker': 'YELP', 'EarningDate': '2026-02-12', 'Percent': '-10.90'}, {'Ticker': 'YETI', 'EarningDate': '2026-02-19', 'Percent': '-8.54'}, {'Ticker': 'Z', 'EarningDate': '2026-02-10', 'Percent': '-19.27'}, {'Ticker': 'ZG', 'EarningDate': '2026-02-10', 'Percent': '-18.98'}]
+winers
+[
+  {"Ticker":"ADI","EarningDate":"2025-11-25","Precent":"13.01%"},
+  {"Ticker":"ADNT","EarningDate":"2026-02-04","Precent":"34.90%"},
+  {"Ticker":"ALGN","EarningDate":"2026-02-04","Precent":"14.53%"},
+  {"Ticker":"ALL","EarningDate":"2026-02-04","Precent":"9.30%"},
+  {"Ticker":"AMCR","EarningDate":"2026-02-03","Precent":"13.66%"},
+  {"Ticker":"AS","EarningDate":"2025-11-18","Precent":"21.45%"},
+  {"Ticker":"ASX","EarningDate":"2026-02-05","Precent":"16.70%"},
+  {"Ticker":"BALL","EarningDate":"2026-02-03","Precent":"23.28%"},
+  {"Ticker":"BIIB","EarningDate":"2026-02-06","Precent":"8.53%"},
+  {"Ticker":"BILL","EarningDate":"2026-02-05","Precent":"27.29%"},
+  {"Ticker":"BMY","EarningDate":"2026-02-05","Precent":"10.88%"},
+  {"Ticker":"CAH","EarningDate":"2026-02-05","Precent":"19.24%"},
+  {"Ticker":"CDW","EarningDate":"2026-02-04","Precent":"21.03%"},
+  {"Ticker":"CI","EarningDate":"2026-02-05","Precent":"12.21%"},
+  {"Ticker":"DDOG","EarningDate":"2026-02-10","Precent":"13.74%"},
+  {"Ticker":"ENPH","EarningDate":"2026-02-03","Precent":"43.90%"},
+  {"Ticker":"ENTG","EarningDate":"2026-02-10","Precent":"9.03%"},
+  {"Ticker":"EPD","EarningDate":"2026-02-03","Precent":"10.96%"},
+  {"Ticker":"FORM","EarningDate":"2026-02-04","Precent":"8.11%"},
+  {"Ticker":"FTV","EarningDate":"2026-02-04","Precent":"21.39%"},
+  {"Ticker":"GEHC","EarningDate":"2026-02-04","Precent":"9.37%"},
+  {"Ticker":"GPRE","EarningDate":"2026-02-05","Precent":"10.40%"},
+  {"Ticker":"GSK","EarningDate":"2026-02-04","Precent":"18.22%"},
+  {"Ticker":"HRL","EarningDate":"2025-12-04","Precent":"8.42%"},
+  {"Ticker":"HSY","EarningDate":"2026-02-05","Precent":"21.54%"},
+  {"Ticker":"IMVT","EarningDate":"2026-02-06","Precent":"12.43%"},
+  {"Ticker":"ITW","EarningDate":"2026-02-03","Precent":"14.87%"},
+  {"Ticker":"JCI","EarningDate":"2026-02-04","Precent":"11.28%"},
+  {"Ticker":"KMT","EarningDate":"2026-02-04","Precent":"14.29%"},
+  {"Ticker":"LOW","EarningDate":"2025-11-19","Precent":"8.07%"},
+  {"Ticker":"MAR","EarningDate":"2026-02-10","Precent":"8.50%"},
+  {"Ticker":"MAS","EarningDate":"2026-02-10","Precent":"8.67%"},
+  {"Ticker":"MDT","EarningDate":"2025-11-18","Precent":"8.91%"},
+  {"Ticker":"MPC","EarningDate":"2026-02-03","Precent":"16.78%"},
+  {"Ticker":"MT","EarningDate":"2026-02-05","Precent":"11.75%"},
+  {"Ticker":"MTSI","EarningDate":"2026-02-05","Precent":"15.63%"},
+  {"Ticker":"NNE","EarningDate":"2025-12-18","Precent":"10.94%"},
+  {"Ticker":"NVST","EarningDate":"2026-02-05","Precent":"27.43%"},
+  {"Ticker":"OCUL","EarningDate":"2026-02-05","Precent":"11.34%"},
+  {"Ticker":"ODFL","EarningDate":"2026-02-04","Precent":"16.41%"},
+  {"Ticker":"PEP","EarningDate":"2026-02-03","Precent":"12.00%"}
+]

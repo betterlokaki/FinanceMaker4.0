@@ -25,6 +25,8 @@ numpy>=1.24.0
 
 # Financial data
 yfinance-cache>=0.1.0
+yfinance>=0.2.40
+pandas_ta>=0.3.14b0
 
 # Market calendar
 exchange-calendars>=4.0.0
@@ -35,3 +37,6 @@ pyyaml>=6.0
 # Plotting (for backtesting visualization)
 matplotlib>=3.7.0
 mplcursors>=0.5.0
+
+# Real backtesting engine
+backtesting==0.6.5

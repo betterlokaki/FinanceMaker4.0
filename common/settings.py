@@ -180,6 +180,22 @@ class DemandZoneStrategyConfig(BaseSettings):
     )
 
 
+class WeeklyConsensusStrategyConfig(BaseSettings):
+    """Configuration for weekly Grok double-consensus live strategy."""
+    min_ai_score: float = Field(
+        default=80.0,
+        description="Minimum AI score required to keep a recommendation",
+    )
+    rr_ratio: float = Field(
+        default=2.5,
+        description="Risk/reward ratio for technical swing setup calculation",
+    )
+    direction_preference: str = Field(
+        default="long",
+        description="Direction preference for setup calculation (long, short, both)",
+    )
+
+
 class PortfolioAllocationConfig(BaseSettings):
     """Portfolio allocation configuration for strategies."""
     strategy_allocation_pct: float = Field(
@@ -260,6 +276,7 @@ class Settings(BaseSettings):
     scheduler: SchedulerConfig = Field(default_factory=SchedulerConfig)
     cache: CacheConfig = Field(default_factory=CacheConfig)
     demand_zone_strategy: DemandZoneStrategyConfig = Field(default_factory=DemandZoneStrategyConfig)
+    weekly_consensus_strategy: WeeklyConsensusStrategyConfig = Field(default_factory=WeeklyConsensusStrategyConfig)
     portfolio_allocation: PortfolioAllocationConfig = Field(default_factory=PortfolioAllocationConfig)
     order_params: OrderParamsConfig = Field(default_factory=OrderParamsConfig)
     dynamic_stop_loss: DynamicStopLossConfig = Field(default_factory=DynamicStopLossConfig)

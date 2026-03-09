@@ -88,6 +88,13 @@ demand_zone_strategy:
     your answer should look like this (6 most possible stocks only not more you can do less if
     nothing seems to be suited for the task than give me an empty list [])
 
+# Weekly Grok Double Consensus Strategy
+# Requires GROK_API_KEY in .env.
+weekly_consensus_strategy:
+  min_ai_score: 80
+  rr_ratio: 2.5
+  direction_preference: "long"
+
 # Application Settings
 debug: false
 log_level: "INFO"

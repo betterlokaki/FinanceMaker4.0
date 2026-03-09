@@ -118,7 +118,7 @@ class ZoneFilteredScanner(FinvizScanner):
         Raises:
             RuntimeError: If all tickers in batch fail to fetch from yfinance.
         """
-        # Import here to avoid circular dependency with backtesting.models.zone
+        # Import here to avoid circular dependency with common.models.zone
         from common.helpers.zone_detection import (
             find_demand_zones_at_price,
             get_supply_demand_zones,

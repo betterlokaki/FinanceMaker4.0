@@ -1,0 +1,418 @@
+{
+  "run_metadata": {
+    "started_at_utc": "2026-03-07T11:49:03.510689+00:00",
+    "finished_at_utc": "2026-03-07T12:40:08.446675+00:00",
+    "top_n": 10,
+    "lookback_days": 200,
+    "max_concurrency": 2,
+    "first_prompt_file": null,
+    "output_json": "cache/grok_weekly_setup_20260307T114903Z.json"
+  },
+  "stage1": {
+    "prompt": "You are a professional market intelligence analyst.\n\nYour task is to find U.S. stocks that could be strong LONG opportunities in the coming week.\n\nDATA SOURCES (use real-time data):\n- X (Twitter) posts and sentiment\n- StockTwits discussions\n- Latest financial news\n- Unusual social media attention\n- Recent catalysts (earnings, contracts, partnerships, product launches, regulation changes, analyst upgrades)\n\nFILTERS (STRICT):\n- Market Cap > $1B\n- Listed ONLY on US exchanges (NASDAQ, NYSE, AMEX)\n- Long opportunities ONLY (no short ideas)\n- Exclude penny stocks\n- Exclude stocks already extremely overextended or clearly pump-and-dump\n\nANALYSIS STEPS:\n1. Scan the last 24-72 hours of discussions on X and StockTwits for tickers gaining unusual attention.\n2. Cross-reference with recent news and catalysts.\n3. Evaluate sentiment (bullish / neutral / bearish).\n4. Identify early-stage narratives that could lead to price momentum this week.\n5. Filter out spam, bot-driven hype, and low-credibility accounts.\n\nOUTPUT FORMAT:\n\nFor each stock provide:\n\nTicker:\nCompany:\nExchange:\nMarket Cap:\n\nBullish Catalysts:\n- (news, earnings, contracts, sector momentum, etc.)\n\nSocial Sentiment:\n- X sentiment summary\n- StockTwits sentiment summary\n- Key influencers/accounts discussing it\n\nNarrative:\nExplain why this stock could attract buyers this week.\n\nRisk Factors:\nWhat could invalidate the thesis.\n\nMomentum Score (1-10):\nLikelihood of near-term upside.\n\nFINAL RESULT:\nReturn the TOP 10 strongest LONG candidates for this week ranked by momentum score.\n\nSTRICT OUTPUT REQUIREMENTS (MANDATORY):\n- Return ONLY a valid JSON object.\n- Do NOT include markdown, code fences, comments, or extra text.\n- Return exactly 10 unique tickers, ranked by momentum_score descending.\n\nUse this exact schema:\n{\n  \"candidates\": [\n    {\n      \"ticker\": \"NVDA\",\n      \"company\": \"NVIDIA Corp\",\n      \"exchange\": \"NASDAQ\",\n      \"market_cap_usd\": 2900000000000,\n      \"momentum_score\": 9,\n      \"bullish_catalysts\": [\"...\"],\n      \"social_sentiment\": {\n        \"x_summary\": \"...\",\n        \"stocktwits_summary\": \"...\",\n        \"key_influencers\": [\"...\"]\n      },\n      \"narrative\": \"...\",\n      \"risk_factors\": [\"...\"]\n    }\n  ]\n}\n",
+    "raw_response": "{\n  \"candidates\": [\n    {\n      \"ticker\": \"MRVL\",\n      \"company\": \"Marvell Technology Inc\",\n      \"exchange\": \"NASDAQ\",\n      \"market_cap_usd\": 80000000000,\n      \"momentum_score\": 10,\n      \"bullish_catalysts\": [\"Q4 earnings beat with EPS $0.80 vs $0.79 est, revenue $2.22B vs $2.21B\", \"Strong Q1 FY27 guidance $2.4B revenue\", \"AI data center revenue growth 40% FY27, 50% FY28\", \"Wall Street upgrades on AI/cloud demand\"],\n      \"social_sentiment\": {\n        \"x_summary\": \"Positive posts on earnings beat and AI growth, high engagement\",\n        \"stocktwits_summary\": \"Extremely bullish sentiment, top trending with high message volume\",\n        \"key_influencers\": [\"@Stocktwits\", \"@StockMKTNewz\"]\n      },\n      \"narrative\": \"Fresh earnings beat and robust AI guidance sparking momentum into next week amid semi rally.\",\n      \"risk_factors\": [\"Broader market rotation away from semis\", \"High valuation post-surge\"]\n    },\n    {\n      \"ticker\": \"AVGO\",\n      \"company\": \"Broadcom Inc\",\n      \"exchange\": \"NASDAQ\",\n      \"market_cap_usd\": 700000000000,\n      \"momentum_score\": 9,\n      \"bullish_catalysts\": [\"Recent Q1 earnings beat\", \"Continued AI chip demand\"],\n      \"social_sentiment\": {\n        \"x_summary\": \"Bullish on earnings and AI exposure\",\n        \"stocktwits_summary\": \"Bullish sentiment with steady discussions\",\n        \"key_influencers\": [\"Stocktwits community\"]\n      },\n      \"narrative\": \"AI leader with recent positive earnings, positioned for continued strength.\",\n      \"risk_factors\": [\"ROI concerns in AI capex\", \"Market volatility\"]\n    },\n    {\n      \"ticker\": \"NVDA\",\n      \"company\": \"NVIDIA Corp\",\n      \"exchange\": \"NASDAQ\",\n      \"market_cap_usd\": 2900000000000,\n      \"momentum_score\": 9,\n      \"bullish_catalysts\": [\"Top viewed on Stocktwits\", \"Ongoing AI dominance\"],\n      \"social_sentiment\": {\n        \"x_summary\": \"Consistent bullish chatter in AI narrative\",\n        \"stocktwits_summary\": \"High bullish sentiment, top trending\",\n        \"key_influencers\": [\"@Stocktwits\"]\n      },\n      \"narrative\": \"Perennial AI leader with persistent social buzz and sector momentum.\",\n      \"risk_factors\": [\"Overextended valuation\", \"Competition rising\"]\n    },\n    {\n      \"ticker\": \"PLTR\",\n      \"company\": \"Palantir Technologies Inc\",\n      \"exchange\": \"NYSE\",\n      \"market_cap_usd\": 100000000000,\n      \"momentum_score\": 8,\n      \"bullish_catalysts\": [\"Trending on Stocktwits highlights\", \"AI/software momentum\"],\n      \"social_sentiment\": {\n        \"x_summary\": \"Strong retail interest\",\n        \"stocktwits_summary\": \"Bullish, high watchlist adds\",\n        \"key_influencers\": [\"Stocktwits\"]\n      },\n      \"narrative\": \"AI platform gaining traction in social discussions for enterprise adoption.\",\n      \"risk_factors\": [\"High multiples\", \"Earnings dependency\"]\n    },\n    {\n      \"ticker\": \"CRDO\",\n      \"company\": \"Credo Technology Group\",\n      \"exchange\": \"NASDAQ\",\n      \"market_cap_usd\": 20000000000,\n      \"momentum_score\": 8,\n      \"bullish_catalysts\": [\"Stocktwits trending\", \"AI connectivity demand\"],\n      \"social_sentiment\": {\n        \"x_summary\": \"Buzz in semi space\",\n        \"stocktwits_summary\": \"Positive sentiment\",\n        \"key_influencers\": [\"@Stocktwits\"]\n      },\n      \"narrative\": \"AI infrastructure play with rising social attention.\",\n      \"risk_factors\": [\"Sector rotation\", \"Supply chain\"]\n    },\n    {\n      \"ticker\": \"ALAB\",\n      \"company\": \"Astera Labs Inc\",\n      \"exchange\": \"NASDAQ\",\n      \"market_cap_usd\": 10000000000,\n      \"momentum_score\": 8,\n      \"bullish_catalysts\": [\"Trending in AI semis\"],\n      \"social_sentiment\": {\n        \"x_summary\": \"Emerging buzz\",\n        \"stocktwits_summary\": \"Bullish mentions\",\n        \"key_influencers\": []\n      },\n      \"narrative\": \"Newer AI connectivity stock catching fire on social.\",\n      \"risk_factors\": [\"Early stage volatility\"]\n    },\n    {\n      \"ticker\": \"HIMS\",\n      \"company\": \"Hims & Hers Health Inc\",\n      \"exchange\": \"NYSE\",\n      \"market_cap_usd\": 3500000000,\n      \"momentum_score\": 7,\n      \"bullish_catalysts\": [\"Top trending on Stocktwits most active\"],\n      \"social_sentiment\": {\n        \"x_summary\": \"Mixed but high volume\",\n        \"stocktwits_summary\": \"High message activity\",\n        \"key_influencers\": []\n      },\n      \"narrative\": \"Telehealth leader with unusual social volume signaling momentum.\",\n      \"risk_factors\": [\"Recent price decline\", \"Regulatory scrutiny\"]\n    },\n    {\n      \"ticker\": \"APA\",\n      \"company\": \"APA Corporation\",\n      \"exchange\": \"NASDAQ\",\n      \"market_cap_usd\": 10000000000,\n      \"momentum_score\": 7,\n      \"bullish_catalysts\": [\"Analyst upgrade, new 52-week high\"],\n      \"social_sentiment\": {\n        \"x_summary\": \"Positive on upgrade\",\n        \"stocktwits_summary\": \"Neutral to bullish\",\n        \"key_influencers\": []\n      },\n      \"narrative\": \"Energy play with fresh analyst love and price breakout.\",\n      \"risk_factors\": [\"Oil price volatility\"]\n    },\n    {\n      \"ticker\": \"AEO\",\n      \"company\": \"American Eagle Outfitters Inc\",\n      \"exchange\": \"NYSE\",\n      \"market_cap_usd\": 4000000000,\n      \"momentum_score\": 7,\n      \"bullish_catalysts\": [\"Q4 earnings beat, comps +8%\"],\n      \"social_sentiment\": {\n        \"x_summary\": \"Positive earnings reaction\",\n        \"stocktwits_summary\": \"Bullish post-earnings\",\n        \"key_influencers\": []\n      },\n      \"narrative\": \"Retail strength from earnings beat amid consumer resilience.\",\n      \"risk_factors\": [\"Consumer spending slowdown\"]\n    },\n    {\n      \"ticker\": \"BLK\",\n      \"company\": \"BlackRock Inc\",\n      \"exchange\": \"NYSE\",\n      \"market_cap_usd\": 120000000000,\n      \"momentum_score\": 6,\n      \"bullish_catalysts\": [\"Trending on Stocktwits\"],\n      \"social_sentiment\": {\n        \"x_summary\": \"Discussions on AUM growth\",\n        \"stocktwits_summary\": \"High activity\",\n        \"key_influencers\": []\n      },\n      \"narrative\": \"Asset mgmt giant with ETF/crypto tailwinds despite recent dip.\",\n      \"risk_factors\": [\"Redemption concerns\", \"Rate sensitivity\"]\n    }\n  ]\n}",
+    "parsed_candidates": [
+      {
+        "ticker": "MRVL",
+        "company": "Marvell Technology Inc",
+        "exchange": "NASDAQ",
+        "market_cap_usd": 80000000000.0,
+        "momentum_score": 10.0,
+        "bullish_catalysts": [
+          "Q4 earnings beat with EPS $0.80 vs $0.79 est, revenue $2.22B vs $2.21B",
+          "Strong Q1 FY27 guidance $2.4B revenue",
+          "AI data center revenue growth 40% FY27, 50% FY28",
+          "Wall Street upgrades on AI/cloud demand"
+        ],
+        "social_sentiment": {
+          "x_summary": "Positive posts on earnings beat and AI growth, high engagement",
+          "stocktwits_summary": "Extremely bullish sentiment, top trending with high message volume",
+          "key_influencers": [
+            "@Stocktwits",
+            "@StockMKTNewz"
+          ]
+        },
+        "narrative": "Fresh earnings beat and robust AI guidance sparking momentum into next week amid semi rally.",
+        "risk_factors": [
+          "Broader market rotation away from semis",
+          "High valuation post-surge"
+        ]
+      },
+      {
+        "ticker": "AVGO",
+        "company": "Broadcom Inc",
+        "exchange": "NASDAQ",
+        "market_cap_usd": 700000000000.0,
+        "momentum_score": 9.0,
+        "bullish_catalysts": [
+          "Recent Q1 earnings beat",
+          "Continued AI chip demand"
+        ],
+        "social_sentiment": {
+          "x_summary": "Bullish on earnings and AI exposure",
+          "stocktwits_summary": "Bullish sentiment with steady discussions",
+          "key_influencers": [
+            "Stocktwits community"
+          ]
+        },
+        "narrative": "AI leader with recent positive earnings, positioned for continued strength.",
+        "risk_factors": [
+          "ROI concerns in AI capex",
+          "Market volatility"
+        ]
+      },
+      {
+        "ticker": "NVDA",
+        "company": "NVIDIA Corp",
+        "exchange": "NASDAQ",
+        "market_cap_usd": 2900000000000.0,
+        "momentum_score": 9.0,
+        "bullish_catalysts": [
+          "Top viewed on Stocktwits",
+          "Ongoing AI dominance"
+        ],
+        "social_sentiment": {
+          "x_summary": "Consistent bullish chatter in AI narrative",
+          "stocktwits_summary": "High bullish sentiment, top trending",
+          "key_influencers": [
+            "@Stocktwits"
+          ]
+        },
+        "narrative": "Perennial AI leader with persistent social buzz and sector momentum.",
+        "risk_factors": [
+          "Overextended valuation",
+          "Competition rising"
+        ]
+      },
+      {
+        "ticker": "ALAB",
+        "company": "Astera Labs Inc",
+        "exchange": "NASDAQ",
+        "market_cap_usd": 10000000000.0,
+        "momentum_score": 8.0,
+        "bullish_catalysts": [
+          "Trending in AI semis"
+        ],
+        "social_sentiment": {
+          "x_summary": "Emerging buzz",
+          "stocktwits_summary": "Bullish mentions",
+          "key_influencers": []
+        },
+        "narrative": "Newer AI connectivity stock catching fire on social.",
+        "risk_factors": [
+          "Early stage volatility"
+        ]
+      },
+      {
+        "ticker": "CRDO",
+        "company": "Credo Technology Group",
+        "exchange": "NASDAQ",
+        "market_cap_usd": 20000000000.0,
+        "momentum_score": 8.0,
+        "bullish_catalysts": [
+          "Stocktwits trending",
+          "AI connectivity demand"
+        ],
+        "social_sentiment": {
+          "x_summary": "Buzz in semi space",
+          "stocktwits_summary": "Positive sentiment",
+          "key_influencers": [
+            "@Stocktwits"
+          ]
+        },
+        "narrative": "AI infrastructure play with rising social attention.",
+        "risk_factors": [
+          "Sector rotation",
+          "Supply chain"
+        ]
+      },
+      {
+        "ticker": "PLTR",
+        "company": "Palantir Technologies Inc",
+        "exchange": "NYSE",
+        "market_cap_usd": 100000000000.0,
+        "momentum_score": 8.0,
+        "bullish_catalysts": [
+          "Trending on Stocktwits highlights",
+          "AI/software momentum"
+        ],
+        "social_sentiment": {
+          "x_summary": "Strong retail interest",
+          "stocktwits_summary": "Bullish, high watchlist adds",
+          "key_influencers": [
+            "Stocktwits"
+          ]
+        },
+        "narrative": "AI platform gaining traction in social discussions for enterprise adoption.",
+        "risk_factors": [
+          "High multiples",
+          "Earnings dependency"
+        ]
+      },
+      {
+        "ticker": "AEO",
+        "company": "American Eagle Outfitters Inc",
+        "exchange": "NYSE",
+        "market_cap_usd": 4000000000.0,
+        "momentum_score": 7.0,
+        "bullish_catalysts": [
+          "Q4 earnings beat, comps +8%"
+        ],
+        "social_sentiment": {
+          "x_summary": "Positive earnings reaction",
+          "stocktwits_summary": "Bullish post-earnings",
+          "key_influencers": []
+        },
+        "narrative": "Retail strength from earnings beat amid consumer resilience.",
+        "risk_factors": [
+          "Consumer spending slowdown"
+        ]
+      },
+      {
+        "ticker": "APA",
+        "company": "APA Corporation",
+        "exchange": "NASDAQ",
+        "market_cap_usd": 10000000000.0,
+        "momentum_score": 7.0,
+        "bullish_catalysts": [
+          "Analyst upgrade, new 52-week high"
+        ],
+        "social_sentiment": {
+          "x_summary": "Positive on upgrade",
+          "stocktwits_summary": "Neutral to bullish",
+          "key_influencers": []
+        },
+        "narrative": "Energy play with fresh analyst love and price breakout.",
+        "risk_factors": [
+          "Oil price volatility"
+        ]
+      },
+      {
+        "ticker": "HIMS",
+        "company": "Hims & Hers Health Inc",
+        "exchange": "NYSE",
+        "market_cap_usd": 3500000000.0,
+        "momentum_score": 7.0,
+        "bullish_catalysts": [
+          "Top trending on Stocktwits most active"
+        ],
+        "social_sentiment": {
+          "x_summary": "Mixed but high volume",
+          "stocktwits_summary": "High message activity",
+          "key_influencers": []
+        },
+        "narrative": "Telehealth leader with unusual social volume signaling momentum.",
+        "risk_factors": [
+          "Recent price decline",
+          "Regulatory scrutiny"
+        ]
+      },
+      {
+        "ticker": "BLK",
+        "company": "BlackRock Inc",
+        "exchange": "NYSE",
+        "market_cap_usd": 120000000000.0,
+        "momentum_score": 6.0,
+        "bullish_catalysts": [
+          "Trending on Stocktwits"
+        ],
+        "social_sentiment": {
+          "x_summary": "Discussions on AUM growth",
+          "stocktwits_summary": "High activity",
+          "key_influencers": []
+        },
+        "narrative": "Asset mgmt giant with ETF/crypto tailwinds despite recent dip.",
+        "risk_factors": [
+          "Redemption concerns",
+          "Rate sensitivity"
+        ]
+      }
+    ],
+    "errors": []
+  },
+  "stage2": {
+    "results": [
+      {
+        "ticker": "MRVL",
+        "candle_count": 138,
+        "raw_response": "{\n  \"ticker\": \"MRVL\",\n  \"decision\": \"SETUP\",\n  \"setup_type\": \"pullback_to_support\",\n  \"confidence\": 82,\n  \"entry\": {\"type\": \"limit\", \"price\": 86.0},\n  \"stop_loss\": 82.5,\n  \"take_profit\": 98.0,\n  \"risk_reward\": 3.4,\n  \"reasons\": [\"Strong gap-up breakout candle on ~5-6x average volume after basing near 75-82 range\", \"Low of breakout candle at 83.40 acts as new support level in prior uptrend from Aug 62 low\", \"Close in upper body near highs shows buyer control\", \"Prior resistance ~84-85 now support\"],\n  \"invalidations\": [\"Daily close below 83.40 breakout low\", \"Failure to reclaim 86 on pullback with increasing volume\"],\n  \"next_step\": \"Monitor for pullback to entry zone; enter limit order if filled, trail stop on confirmation higher\"\n}",
+        "parsed_analysis": {
+          "ticker": "MRVL",
+          "decision": "SETUP",
+          "setup_type": "pullback_to_support",
+          "confidence": 82.0,
+          "entry": {
+            "type": "limit",
+            "price": 86.0
+          },
+          "stop_loss": 82.5,
+          "take_profit": 98.0,
+          "risk_reward": 3.4,
+          "reasons": [
+            "Strong gap-up breakout candle on ~5-6x average volume after basing near 75-82 range",
+            "Low of breakout candle at 83.40 acts as new support level in prior uptrend from Aug 62 low",
+            "Close in upper body near highs shows buyer control",
+            "Prior resistance ~84-85 now support"
+          ],
+          "invalidations": [
+            "Daily close below 83.40 breakout low",
+            "Failure to reclaim 86 on pullback with increasing volume"
+          ],
+          "next_step": "Monitor for pullback to entry zone; enter limit order if filled, trail stop on confirmation higher"
+        },
+        "errors": []
+      },
+      {
+        "ticker": "AVGO",
+        "candle_count": 138,
+        "raw_response": "{\n  \"ticker\": \"AVGO\",\n  \"decision\": \"WAIT\",\n  \"setup_type\": null,\n  \"confidence\": null,\n  \"entry\": null,\n  \"stop_loss\": null,\n  \"take_profit\": null,\n  \"risk_reward\": null,\n  \"reasons\": [\"Choppy basing pattern between 295-350 after downtrend from 414 high.\", \"Recent bounce from 307 support on high volume (57M+), but failed to close above prior swing high of 343.\", \"No clear uptrend resumption; MAs likely flat/bearish.\"],\n  \"invalidations\": [\"Break below 307 support.\"],\n  \"next_step\": \"Wait for daily close above 343-350 resistance with volume for long confirmation.\"\n}",
+        "parsed_analysis": null,
+        "errors": [
+          "Missing or invalid confidence."
+        ]
+      },
+      {
+        "ticker": "NVDA",
+        "candle_count": 138,
+        "raw_response": "{\n  \"ticker\": \"NVDA\",\n  \"decision\": \"AVOID\",\n  \"setup_type\": null,\n  \"confidence\": null,\n  \"entry\": null,\n  \"stop_loss\": null,\n  \"take_profit\": null,\n  \"risk_reward\": null,\n  \"reasons\": [\"Price closed below SMA20 (186.16) and SMA50 (186.01), confirming short-term bearish trend.\", \"High-volume selling candles on Feb 26 (361M vol) and Feb 27 (312M vol) from peak 197.63, indicating distribution.\", \"Recent bounce to 183.34 failed, with latest candle closing near lows at 177.82 amid elevated volume.\", \"RSI at 44.78 neutral but declining, no oversold bounce or bullish divergence evident.\", \"No clear support hold or reversal pattern for quality long entry.\"],\n  \"invalidations\": [\"Break below multi-month lows near 171-175 would confirm deeper correction.\", \"Sustained trade below 177 without rebound increases bearish risk.\"],\n  \"next_step\": \"Avoid longs; monitor for stabilization above 183-184 resistance with bullish volume and MA crossover.\"\n}",
+        "parsed_analysis": null,
+        "errors": [
+          "Missing or invalid confidence."
+        ]
+      },
+      {
+        "ticker": "ALAB",
+        "candle_count": 138,
+        "raw_response": "{\n  \"ticker\": \"ALAB\",\n  \"decision\": \"AVOID\",\n  \"setup_type\": null,\n  \"confidence\": 88,\n  \"entry\": null,\n  \"stop_loss\": null,\n  \"take_profit\": null,\n  \"risk_reward\": null,\n  \"reasons\": [\n    \"Price at 119.20 below SMA20 (133.36) and SMA50 (153.45), confirming downtrend\",\n    \"New 50-day low at 107.08 recently hit, bounce unconfirmed with no higher highs/lows\",\n    \"RSI 40.3 neutral after oversold, lacks bullish momentum\",\n    \"Bearish structure intact since Sep 2025 peak\"\n  ],\n  \"invalidations\": [\n    \"Break and hold above 133 SMA20 with increasing volume\",\n    \"Higher high above 124 recent swing high\"\n  ],\n  \"next_step\": \"Monitor for reversal confirmation above SMA20 or failure below 107 low\"\n}",
+        "parsed_analysis": {
+          "ticker": "ALAB",
+          "decision": "AVOID",
+          "setup_type": null,
+          "confidence": 88.0,
+          "entry": null,
+          "stop_loss": null,
+          "take_profit": null,
+          "risk_reward": null,
+          "reasons": [
+            "Price at 119.20 below SMA20 (133.36) and SMA50 (153.45), confirming downtrend",
+            "New 50-day low at 107.08 recently hit, bounce unconfirmed with no higher highs/lows",
+            "RSI 40.3 neutral after oversold, lacks bullish momentum",
+            "Bearish structure intact since Sep 2025 peak"
+          ],
+          "invalidations": [
+            "Break and hold above 133 SMA20 with increasing volume",
+            "Higher high above 124 recent swing high"
+          ],
+          "next_step": "Monitor for reversal confirmation above SMA20 or failure below 107 low"
+        },
+        "errors": []
+      },
+      {
+        "ticker": "CRDO",
+        "candle_count": 138,
+        "raw_response": "{\n  \"ticker\": \"CRDO\",\n  \"decision\": \"AVOID\",\n  \"setup_type\": null,\n  \"confidence\": null,\n  \"entry\": null,\n  \"stop_loss\": null,\n  \"take_profit\": null,\n  \"risk_reward\": null,\n  \"reasons\": [\n    \"Downtrend intact since Dec 2025 high of 213\",\n    \"Recent bounce from 92.60 low rejected at 117.83 with bearish last candle (long upper shadow)\",\n    \"Price below recent SMA20/SMA50 (est. ~115-120)\",\n    \"High volume on breakdowns (19M+ on 03-03, 14M on 02-04)\",\n    \"Failed prior bounce from 96 to 134\"\n  ],\n  \"invalidations\": [\n    \"Sustained close above 118 with volume\",\n    \"Higher high above Feb peak ~134\"\n  ],\n  \"next_step\": \"Monitor for bullish confirmation above 118 or breakdown below 108\"\n}",
+        "parsed_analysis": null,
+        "errors": [
+          "Missing or invalid confidence."
+        ]
+      },
+      {
+        "ticker": "PLTR",
+        "candle_count": 138,
+        "raw_response": "{\n  \"ticker\": \"PLTR\",\n  \"decision\": \"SETUP\",\n  \"setup_type\": \"pullback_to_support\",\n  \"confidence\": 82,\n  \"entry\": {\"type\": \"limit\", \"price\": 154.5},\n  \"stop_loss\": 147.5,\n  \"take_profit\": 173.0,\n  \"risk_reward\": 2.6,\n  \"reasons\": [\"Breakout above 140-145 multi-week resistance on high volume starting Mar 2\", \"Series of higher lows (138.2, 148.1, 149.6, 150.3)\", \"Mar 6 strong bullish candle closing near highs on 74M volume after pullback to 150 support\", \"Closes well above estimated 20DMA ~142\"],\n  \"invalidations\": [\"Daily close below 148 support\", \"High-volume bearish engulfing candle\"],\n  \"next_step\": \"Enter limit at 154.5 on pullback, trail stop on strength\"\n}",
+        "parsed_analysis": {
+          "ticker": "PLTR",
+          "decision": "SETUP",
+          "setup_type": "pullback_to_support",
+          "confidence": 82.0,
+          "entry": {
+            "type": "limit",
+            "price": 154.5
+          },
+          "stop_loss": 147.5,
+          "take_profit": 173.0,
+          "risk_reward": 2.6,
+          "reasons": [
+            "Breakout above 140-145 multi-week resistance on high volume starting Mar 2",
+            "Series of higher lows (138.2, 148.1, 149.6, 150.3)",
+            "Mar 6 strong bullish candle closing near highs on 74M volume after pullback to 150 support",
+            "Closes well above estimated 20DMA ~142"
+          ],
+          "invalidations": [
+            "Daily close below 148 support",
+            "High-volume bearish engulfing candle"
+          ],
+          "next_step": "Enter limit at 154.5 on pullback, trail stop on strength"
+        },
+        "errors": []
+      },
+      {
+        "ticker": "AEO",
+        "candle_count": 138,
+        "raw_response": "{\n  \"ticker\": \"AEO\",\n  \"decision\": \"AVOID\",\n  \"setup_type\": null,\n  \"confidence\": null,\n  \"entry\": null,\n  \"stop_loss\": null,\n  \"take_profit\": null,\n  \"risk_reward\": null,\n  \"reasons\": [\n    \"Sharp breakdown below recent support at 22-23 on elevated volume (15M+ on Mar 5)\",\n    \"Close below SMA20 (23.55) and SMA50 (24.74)\",\n    \"Bearish momentum with successive lower lows and closes\",\n    \"RSI at 17.7 oversold but no reversal confirmation yet\"\n  ],\n  \"invalidations\": [\n    \"No valid long setup; potential for further downside to prior lows ~17 or 14\"\n  ],\n  \"next_step\": \"Wait for higher low formation and reclaim of 20+ with bullish volume\"\n}",
+        "parsed_analysis": null,
+        "errors": [
+          "Missing or invalid confidence."
+        ]
+      },
+      {
+        "ticker": "APA",
+        "candle_count": 138,
+        "raw_response": "{\n  \"ticker\": \"APA\",\n  \"decision\": \"SETUP\",\n  \"setup_type\": \"pullback_to_support\",\n  \"confidence\": 82,\n  \"entry\": {\"type\": \"limit\", \"price\": 32.2},\n  \"stop_loss\": 30.2,\n  \"take_profit\": 36.5,\n  \"risk_reward\": 2.37,\n  \"reasons\": [\"Strong uptrend with higher highs and lows since Aug 2025\", \"Gap up on Mar 2 tested and held support at 30.2-30.5 lows\", \"Bounce to new high 33.42 on elevated volume\", \"Price remains above projected SMA20 ~29.5 and SMA50 ~27.5\", \"RSI likely 65-70, bullish momentum intact\"],\n  \"invalidations\": [\"Break and close below 30.2 support\", \"Loss of 32.0 breakout level\"],\n  \"next_step\": \"Place limit order at 32.2, monitor volume on approach to support\"\n}",
+        "parsed_analysis": {
+          "ticker": "APA",
+          "decision": "SETUP",
+          "setup_type": "pullback_to_support",
+          "confidence": 82.0,
+          "entry": {
+            "type": "limit",
+            "price": 32.2
+          },
+          "stop_loss": 30.2,
+          "take_profit": 36.5,
+          "risk_reward": 2.37,
+          "reasons": [
+            "Strong uptrend with higher highs and lows since Aug 2025",
+            "Gap up on Mar 2 tested and held support at 30.2-30.5 lows",
+            "Bounce to new high 33.42 on elevated volume",
+            "Price remains above projected SMA20 ~29.5 and SMA50 ~27.5",
+            "RSI likely 65-70, bullish momentum intact"
+          ],
+          "invalidations": [
+            "Break and close below 30.2 support",
+            "Loss of 32.0 breakout level"
+          ],
+          "next_step": "Place limit order at 32.2, monitor volume on approach to support"
+        },
+        "errors": []
+      },
+      {
+        "ticker": "HIMS",
+        "candle_count": 138,
+        "raw_response": "{\n  \"ticker\": \"HIMS\",\n  \"decision\": \"WAIT\",\n  \"setup_type\": null,\n  \"confidence\": null,\n  \"entry\": null,\n  \"stop_loss\": null,\n  \"take_profit\": null,\n  \"risk_reward\": null,\n  \"reasons\": [\"Multi-month downtrend from ~65 to ~14, bearish structure intact.\", \"Recent bounce from 13.74 low on high volume (03-02 close 16.48), but failing to hold highs above 16.9.\", \"Current consolidation/pullback with small-bodied candles and declining volume.\", \"No bullish crossover of key MAs; price likely below SMA20/50.\"],\n  \"invalidations\": [\"Break and close above 16.90 on increased volume.\", \"Higher low confirmed above 15.0 with bullish engulfing.\"],\n  \"next_step\": \"Monitor for breakout above recent swing high ~16.90 or pullback holding 14.50 support.\"\n}",
+        "parsed_analysis": null,
+        "errors": [
+          "Missing or invalid confidence."
+        ]
+      },
+      {
+        "ticker": "BLK",
+        "candle_count": 138,
+        "raw_response": "{\n  \"ticker\": \"BLK\",\n  \"decision\": \"AVOID\",\n  \"setup_type\": null,\n  \"confidence\": null,\n  \"entry\": null,\n  \"stop_loss\": null,\n  \"take_profit\": null,\n  \"risk_reward\": null,\n  \"reasons\": [\n    \"Sharp 7.8% breakdown candle on 2026-03-06 with highest volume in recent history (1.845M vs avg ~600k)\",\n    \"Price violated recent support cluster ~1020-1040, confirming bearish momentum\",\n    \"Overall downtrend from Jan highs ~1163, no bullish reversal signals (bearish engulfing-like candle)\"\n  ],\n  \"invalidations\": [\n    \"N/A\"\n  ],\n  \"next_step\": \"Wait for bullish confirmation like hammer/doji on support ~950 with declining volume, or price action above 1035\"\n}",
+        "parsed_analysis": null,
+        "errors": [
+          "Missing or invalid confidence."
+        ]
+      }
+    ],
+    "successful_count": 4
+  },
+  "errors": [
+    "stage2:AVGO: Missing or invalid confidence.",
+    "stage2:NVDA: Missing or invalid confidence.",
+    "stage2:CRDO: Missing or invalid confidence.",
+    "stage2:AEO: Missing or invalid confidence.",
+    "stage2:HIMS: Missing or invalid confidence.",
+    "stage2:BLK: Missing or invalid confidence."
+  ]
+}
