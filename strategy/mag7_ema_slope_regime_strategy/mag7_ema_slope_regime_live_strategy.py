@@ -112,7 +112,7 @@ class Mag7EmaSlopeRegimeLiveStrategy(RealTimeTradingBase):
         ticker = data.id.upper()
         if ticker not in self._tickers:
             return
-
+        logger.info("Received tick for %s at %s for price %.2f", ticker, data.time, data.price)
         tick_time_utc = self._ensure_utc(data.time)
         tick_time_ny = tick_time_utc.astimezone(NY_TZ)
         candle_to_process: CandleStick | None = None
