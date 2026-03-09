@@ -79,6 +79,15 @@ class OrderRequestConverter:
                 order_id=order_id,
                 parent_id=parent_id,
             )
+        default_rth = not outside_rth
+        buy_limit_rth = order_request.buy_limit_rth if order_request.buy_limit_rth is not None else default_rth
+        stop_loss_rth = order_request.stop_loss_rth if order_request.stop_loss_rth is not None else default_rth
+        take_profit_rth = order_request.take_profit_rth if order_request.take_profit_rth is not None else default_rth
+
+        buy_limit_outside_rth = not buy_limit_rth
+        stop_loss_outside_rth = not stop_loss_rth
+        take_profit_outside_rth = not take_profit_rth
+
         coid = f"{order_request.ticker}_{conid}"
         ibkr_order = IbkrOrderRequest(
             conid=conid,
@@ -89,7 +98,7 @@ class OrderRequestConverter:
             acct_id=account_id,
             ticker=order_request.ticker,
             listing_exchange=listing_exchange,
-            outside_rth=outside_rth,
+            outside_rth=buy_limit_outside_rth,
             tif=cls.TIF_MAP[order_request.time_in_force],
         )
 
@@ -110,7 +119,7 @@ class OrderRequestConverter:
                 acct_id=account_id,
                 ticker=order_request.ticker,
                 listing_exchange=listing_exchange,
-                outside_rth=True,
+                outside_rth=stop_loss_outside_rth,
                 tif="GTC",
                 price=order_request.stop_price,
                 aux_price=order_request.stop_price,
@@ -132,7 +141,7 @@ class OrderRequestConverter:
                 acct_id=account_id,
                 ticker=order_request.ticker,
                 listing_exchange=listing_exchange,
-                outside_rth=True,
+                outside_rth=take_profit_outside_rth,
                 tif="GTC",
                 price=order_request.take_profit_price,
                 parent_id=coid,

@@ -276,14 +276,22 @@ class Mag7EmaSlopeRegimeLiveStrategy(RealTimeTradingBase):
                 open_orders = self._orders_for_ticker(portfolio, ticker)
                 position = portfolio.get_position(ticker)
                 position_side = self._position_side(position)
-                open_order_side = self._infer_open_order_side(open_orders)
+                open_order_side = self._infer_order_intent_side(open_orders)
+                current_side = position_side or open_order_side
 
-                if position_side == desired_side:
-                    logger.info("Skipping %s: already in %s position", ticker, desired_side.value)
+                if current_side == desired_side:
+                    logger.info(
+                        "Skipping %s: existing exposure/orders already aligned with %s signal",
+                        ticker,
+                        desired_side.value,
+                    )
                     return
 
-                if position is None and open_orders and open_order_side == desired_side:
-                    logger.info("Skipping %s: already has matching open order side %s", ticker, desired_side.value)
+                if current_side is None and open_orders:
+                    logger.info(
+                        "Skipping %s: existing open orders have ambiguous side; keeping current orders",
+                        ticker,
+                    )
                     return
 
                 if open_orders:
@@ -402,8 +410,8 @@ class Mag7EmaSlopeRegimeLiveStrategy(RealTimeTradingBase):
             stop_price=stop_price,
             take_profit_price=take_profit_price,
             time_in_force=TimeInForce.DAY,
-            buy_limit_rth=False,
-            take_profit_rth=False,
+            buy_limit_rth=True,
+            take_profit_rth=True,
             stop_loss_rth=False,
         )
 
@@ -489,15 +497,23 @@ class Mag7EmaSlopeRegimeLiveStrategy(RealTimeTradingBase):
         return OrderSide.BUY if position.quantity > 0 else OrderSide.SELL
 
     @staticmethod
-    def _infer_open_order_side(orders: list[OrderResponse]) -> OrderSide | None:
+    def _infer_order_intent_side(orders: list[OrderResponse]) -> OrderSide | None:
         if not orders:
             return None
-        has_buy = any(order.side == OrderSide.BUY for order in orders)
-        has_sell = any(order.side == OrderSide.SELL for order in orders)
-        if has_buy and not has_sell:
+
+        buy_count = sum(1 for order in orders if order.side == OrderSide.BUY)
+        sell_count = sum(1 for order in orders if order.side == OrderSide.SELL)
+
+        if buy_count and not sell_count:
             return OrderSide.BUY
-        if has_sell and not has_buy:
+        if sell_count and not buy_count:
             return OrderSide.SELL
+
+        # Bracket orders usually have one entry order and two exit orders.
+        # Infer the entry intent from the minority side when counts differ by one.
+        if buy_count and sell_count and abs(buy_count - sell_count) == 1:
+            return OrderSide.BUY if buy_count < sell_count else OrderSide.SELL
+
         return None
 
     @staticmethod

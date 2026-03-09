@@ -50,7 +50,7 @@ class InteractiveBorkersOrderAdapter:
             limit_price=round(plan.entry_price, 2),
             take_profit_price=round(plan.take_profit_price, 2),
             stop_price=round(plan.stop_price, 2),
-            time_in_force=TimeInForce.DAY,
+            time_in_force=TimeInForce.GTC,
             buy_limit_rth=self._buy_limit_rth,
             take_profit_rth=self._take_profit_rth,
             stop_loss_rth=self._stop_loss_rth,
