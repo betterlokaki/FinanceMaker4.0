@@ -122,6 +122,18 @@ class YahooRealtimeProvider(RealtimeProviderBase):
 
     def _start_listener(self) -> None:
         """Start the background listener task."""
+        current_task: asyncio.Task[None] | None
+        try:
+            current_task = asyncio.current_task()
+        except RuntimeError:
+            current_task = None
+
+        # If we're already in the active listener task, don't restart.
+        # Restarting from inside itself can create concurrent recv loops.
+        if self._listener_task is not None and self._listener_task is current_task and not self._listener_task.done():
+            logger.debug("Listener restart skipped: already running in current task")
+            return
+
         # Cancel existing task if it's still running
         if self._listener_task is not None and not self._listener_task.done():
             self._listener_task.cancel()
