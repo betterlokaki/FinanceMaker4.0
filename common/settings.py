@@ -101,6 +101,14 @@ class IBKRConfig(BaseSettings):
     signature_key_path: str = Field(default="", description="Path to signature key file")
     listing_exchange: str = Field(default="SMART", description="Default listing exchange")
     outside_rth: bool = Field(default=True, description="Allow outside regular trading hours")
+    request_retry_attempts: int = Field(
+        default=2,
+        description="Number of reconnect/retry attempts for failed IBKR requests",
+    )
+    request_retry_delay_seconds: float = Field(
+        default=1.0,
+        description="Delay between IBKR reconnect/retry attempts (seconds)",
+    )
 
 
 class YahooConfig(BaseSettings):

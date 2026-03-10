@@ -1,10 +1,12 @@
 """Interactive Brokers Web API broker implementation."""
 import asyncio
+from functools import wraps
 import logging
-from typing import Any
+from typing import Any, Awaitable, Callable, TypeVar, cast
 
 from ibind import IbkrClient, QuestionType
 from ibind.oauth.oauth1a import OAuth1aConfig
+from ibind.support.errors import ExternalBrokerError
 
 from common.converters.ibkr import (
     OrderRequestConverter,
@@ -22,6 +24,72 @@ from publishers.abstracts.broker_base import BrokerBase
 from publishers.interactive_brokers.always_yes_dict import AlwaysYesDict
 
 logger: logging.Logger = logging.getLogger(__name__)
+T = TypeVar("T")
+
+
+def retry_ibkr_request(
+    func: Callable[..., Awaitable[T]],
+) -> Callable[..., Awaitable[T]]:
+    """Retry decorated broker method after reconnect on IBKR request failures."""
+
+    @wraps(func)
+    async def wrapper(self: "InteractiveWebapiBroker", *args: Any, **kwargs: Any) -> T:
+        total_attempts = self._request_retry_attempts + 1
+
+        for attempt in range(1, total_attempts + 1):
+            try:
+                return await func(self, *args, **kwargs)
+            except ExternalBrokerError as e:
+                status_code = getattr(e, "status_code", None)
+                should_retry = self._is_retryable_status_code(status_code)
+                if not should_retry or attempt >= total_attempts:
+                    raise
+
+                logger.warning(
+                    "IBKR request %s failed with status=%s (attempt %d/%d). "
+                    "Reconnecting and retrying.",
+                    func.__name__,
+                    status_code,
+                    attempt,
+                    total_attempts,
+                )
+                try:
+                    await self._reconnect_for_retry()
+                except Exception as reconnect_error:
+                    logger.warning(
+                        "Reconnect attempt after %s failure did not complete: %s",
+                        func.__name__,
+                        reconnect_error,
+                        exc_info=True,
+                    )
+                if self._request_retry_delay_seconds > 0:
+                    await asyncio.sleep(self._request_retry_delay_seconds)
+            except ConnectionError:
+                if attempt >= total_attempts:
+                    raise
+
+                logger.warning(
+                    "Broker connection failed during %s (attempt %d/%d). "
+                    "Reconnecting and retrying.",
+                    func.__name__,
+                    attempt,
+                    total_attempts,
+                )
+                try:
+                    await self._reconnect_for_retry()
+                except Exception as reconnect_error:
+                    logger.warning(
+                        "Reconnect attempt after connection failure in %s did not complete: %s",
+                        func.__name__,
+                        reconnect_error,
+                        exc_info=True,
+                    )
+                if self._request_retry_delay_seconds > 0:
+                    await asyncio.sleep(self._request_retry_delay_seconds)
+
+        raise RuntimeError(f"Unexpected retry flow exit for {func.__name__}")
+
+    return cast(Callable[..., Awaitable[T]], wrapper)
 
 
 class InteractiveWebapiBroker(BrokerBase):
@@ -59,6 +127,8 @@ class InteractiveWebapiBroker(BrokerBase):
         self._account_id: str | None = None
         self._conid_cache: dict[str, int] = {}
         self._portfolio_refresh_task: asyncio.Task[None] | None = None
+        self._request_retry_attempts: int = max(0, config.request_retry_attempts)
+        self._request_retry_delay_seconds: float = max(0.0, config.request_retry_delay_seconds)
     
     async def connect(self) -> None:
         """Establish connection to Interactive Brokers.
@@ -115,7 +185,7 @@ class InteractiveWebapiBroker(BrokerBase):
             # Immediately fetch and log portfolio after connection
             logger.info("📈 Fetching portfolio information...")
             try:
-                portfolio = await self.get_portfolio()
+                portfolio = await self._get_portfolio_once()
                 logger.info("=" * 80)
                 logger.info("📊 PORTFOLIO SUMMARY")
                 logger.info("=" * 80)
@@ -186,6 +256,7 @@ class InteractiveWebapiBroker(BrokerBase):
         self._conid_cache.clear()
         self._connected = False
     
+    @retry_ibkr_request
     async def place_order(self, order_request: OrderRequest) -> OrderResponse:
         """Place an order with Interactive Brokers.
         
@@ -237,8 +308,17 @@ class InteractiveWebapiBroker(BrokerBase):
             result.data,
             order_request,
         )
-        self.portfolio = await self.get_portfolio()
+        try:
+            self.portfolio = await self.get_portfolio()
+        except Exception as portfolio_error:
+            logger.warning(
+                "Order submitted but portfolio refresh failed: %s",
+                portfolio_error,
+                exc_info=True,
+            )
         return order_responses
+
+    @retry_ibkr_request
     async def cancel_order(self, order_id: str) -> OrderResponse:
         """Cancel an existing order.
         
@@ -267,6 +347,7 @@ class InteractiveWebapiBroker(BrokerBase):
         # Get updated order status
         return await self.get_order(order_id)
     
+    @retry_ibkr_request
     async def get_order(self, order_id: str) -> OrderResponse:
         """Get the current status of an order.
         
@@ -279,7 +360,7 @@ class InteractiveWebapiBroker(BrokerBase):
         Raises:
             ValueError: If order_id is not found.
         """
-        self._ensure_connected()
+        await self._ensure_connected()
         assert self._client is not None
         
         # First try order_status for specific order
@@ -309,12 +390,17 @@ class InteractiveWebapiBroker(BrokerBase):
         
         raise ValueError(f"Order not found: {order_id}")
     
+    @retry_ibkr_request
     async def get_portfolio(self) -> Portfolio:
         """Get the current portfolio with all positions and open orders.
         
         Returns:
             Portfolio containing positions, open orders, and account summary.
         """
+        return await self._get_portfolio_once()
+
+    async def _get_portfolio_once(self) -> Portfolio:
+        """Execute a single portfolio fetch without decorator retries."""
         logger.debug("Getting portfolio for account: %s", self._account_id)
         await self._ensure_connected()
         assert self._client is not None and self._account_id is not None
@@ -344,7 +430,7 @@ class InteractiveWebapiBroker(BrokerBase):
         
         # Get open orders
         logger.debug("Fetching open orders...")
-        open_orders = await self.get_open_orders()
+        open_orders = await self._get_open_orders_once()
         logger.info("📋 Retrieved %d open order(s) from IBKR", len(open_orders))
         
         portfolio = PortfolioConverter.from_ibkr_positions(positions_data, ledger_data, open_orders)
@@ -352,6 +438,7 @@ class InteractiveWebapiBroker(BrokerBase):
         self.portfolio = portfolio
         return portfolio
     
+    @retry_ibkr_request
     async def get_buying_power(self) -> float:
         """Get the current buying power available for trading.
         
@@ -379,12 +466,17 @@ class InteractiveWebapiBroker(BrokerBase):
         base_ledger = ledger_data.get("BASE", ledger_data.get("USD", {}))
         return float(base_ledger.get("settledcash", 0) or 0)
     
+    @retry_ibkr_request
     async def get_open_orders(self) -> list[OrderResponse]:
         """Get all open/pending orders.
         
         Returns:
             List of OrderResponse objects for all active orders (pending, submitted, partially filled).
         """
+        return await self._get_open_orders_once()
+
+    async def _get_open_orders_once(self) -> list[OrderResponse]:
+        """Execute a single open-orders fetch without decorator retries."""
         logger.debug("Getting open orders...")
         await self._ensure_connected()
         assert self._client is not None
@@ -480,6 +572,22 @@ class InteractiveWebapiBroker(BrokerBase):
         self._conid_cache[ticker_upper] = conid
         
         return conid
+
+    async def _reconnect_for_retry(self) -> None:
+        """Reconnect broker for retrying failed requests."""
+        try:
+            await self.disconnect()
+        except Exception as e:
+            logger.warning("Disconnect during retry reconnect failed: %s", e, exc_info=True)
+
+        await self.connect()
+
+    @staticmethod
+    def _is_retryable_status_code(status_code: int | None) -> bool:
+        """Retry on non-2xx status (or missing status for transport-level failures)."""
+        if status_code is None:
+            return True
+        return not (200 <= status_code <= 299)
     
     @property
     def account_id(self) -> str | None:
