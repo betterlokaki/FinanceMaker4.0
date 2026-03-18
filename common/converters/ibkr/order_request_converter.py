@@ -115,22 +115,21 @@ class OrderRequestConverter:
                 conid=conid,
                 side="SELL" if order_request.side == OrderSide.BUY else "BUY",
                 quantity=order_request.quantity,
-                order_type="LMT",
+                order_type="STP",
                 acct_id=account_id,
                 ticker=order_request.ticker,
                 listing_exchange=listing_exchange,
-                outside_rth=stop_loss_outside_rth,
+                outside_rth=False,
                 tif="GTC",
                 price=order_request.stop_price,
-                aux_price=order_request.stop_price,
                 parent_id=coid,
-                 custom_fields={
-                "type": "price",
-                "conid": conid,    # The asset being watched
-                "operator": "<=",      # Trigger when SPY is >= value
-                "value": order_request.stop_price,     # The price trigger level
-                "logicBind": "AND"
-            }
+            #      custom_fields={
+            #     "type": "price",
+            #     "conid": conid,    # The asset being watched
+            #     "operator": "<=",      # Trigger when SPY is >= value
+            #     "value": order_request.stop_price,     # The price trigger level
+            #     "logicBind": "AND"
+            # }
             )
         if order_request.take_profit_price is not None:
             take_profit_order = IbkrOrderRequest(

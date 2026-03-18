@@ -4,14 +4,14 @@ from __future__ import annotations
 import asyncio
 import logging
 import math
-from datetime import datetime, time, timedelta, timezone
+from datetime import datetime, timedelta, timezone
 from typing import Any
 from zoneinfo import ZoneInfo
 
 import pandas as pd
 
+from common.helpers.market_calendar import MarketCalendar
 from common.models.candlestick import CandleStick
-from common.models.market_hours import MarketHours
 from common.models.order import OrderSide, OrderType, TimeInForce
 from common.models.order_request import OrderRequest
 from common.models.period import Period
@@ -42,8 +42,6 @@ class Mag7EmaSlopeRegimeLiveStrategy(RealTimeTradingBase):
         "TSLA",
         "GOOGL",
     )
-    SESSION_OPEN: time = time(9, 30)
-    SESSION_CLOSE: time = time(16, 0)
     HISTORY_LOOKBACK_DAYS: int = 60
     MAX_HISTORY_BARS: int = 600
     TRANSITION_TIMEOUT_SECONDS: float = 30.0
@@ -55,7 +53,7 @@ class Mag7EmaSlopeRegimeLiveStrategy(RealTimeTradingBase):
         market_provider: IMarketProvider,
         broker: IBroker,
         trade_direction: str = "Both",
-        notional_per_trade: float = 30_000.0,
+        notional_per_trade: float = 5_000.0,
         ema_period: int = 20,
         slope_len: int = 36,
         band: float = 0.0,
@@ -73,6 +71,7 @@ class Mag7EmaSlopeRegimeLiveStrategy(RealTimeTradingBase):
         self._band: float = max(0.0, float(band))
         self._stop_loss_pct: float = max(0.0, float(stop_loss_pct))
         self._take_profit_pct: float = max(0.0, float(take_profit_pct))
+        self._market_calendar: MarketCalendar = MarketCalendar()
 
         self._hourly_states: dict[str, dict[str, Any]] = {}
         self._close_history: dict[str, list[float]] = {}
@@ -108,14 +107,25 @@ class Mag7EmaSlopeRegimeLiveStrategy(RealTimeTradingBase):
         return list(self.MAG7_TICKERS)
 
     async def on_tick(self, data: PricingData) -> None:
-        """Build market-session hourly candles and dispatch confirmed candles."""
+        """Build pre-market+regular hourly bars and evaluate every tick."""
         ticker = data.id.upper()
         if ticker not in self._tickers:
             return
         logger.info("Received tick for %s at %s for price %.2f", ticker, data.time, data.price)
         tick_time_utc = self._ensure_utc(data.time)
         tick_time_ny = tick_time_utc.astimezone(NY_TZ)
+        session_window = self._session_window_for_tick(tick_time_ny)
+        if session_window is None:
+            return
+        pre_market_open_ny, regular_open_ny, regular_close_ny = session_window
+
         candle_to_process: CandleStick | None = None
+        live_price: float = float(data.price)
+        should_evaluate_now: bool = self._is_regular_market_time(
+            tick_time_ny=tick_time_ny,
+            regular_open_ny=regular_open_ny,
+            regular_close_ny=regular_close_ny,
+        )
 
         lock = self._get_lock(self._candle_locks, ticker)
         async with lock:
@@ -134,71 +144,51 @@ class Mag7EmaSlopeRegimeLiveStrategy(RealTimeTradingBase):
                 self._hourly_states.pop(ticker, None)
                 state = None
 
-            if self._is_regular_market_tick(data, tick_time_ny):
-                bucket = self._session_bucket_bounds(tick_time_ny)
-                if bucket is None:
-                    pass
-                else:
-                    bucket_start_ny, bucket_end_ny = bucket
-                    state = self._hourly_states.get(ticker)
+            bucket = self._session_bucket_bounds(
+                tick_time_ny=tick_time_ny,
+                session_start_ny=pre_market_open_ny,
+                session_end_ny=regular_close_ny,
+            )
+            if bucket is None:
+                return
+            bucket_start_ny, bucket_end_ny = bucket
+            state = self._hourly_states.get(ticker)
 
-                    if state is None:
-                        self._hourly_states[ticker] = self._create_hourly_state(
-                            data=data,
-                            bucket_start_ny=bucket_start_ny,
-                            bucket_end_ny=bucket_end_ny,
-                        )
-                    elif state["start_time_ny"] != bucket_start_ny:
-                        candle_to_process = self._finalize_hourly_state(state)
-                        self._hourly_states[ticker] = self._create_hourly_state(
-                            data=data,
-                            bucket_start_ny=bucket_start_ny,
-                            bucket_end_ny=bucket_end_ny,
-                        )
-                    else:
-                        self._update_hourly_state(state, data)
+            if state is None:
+                self._hourly_states[ticker] = self._create_hourly_state(
+                    data=data,
+                    bucket_start_ny=bucket_start_ny,
+                    bucket_end_ny=bucket_end_ny,
+                )
+            elif state["start_time_ny"] != bucket_start_ny:
+                candle_to_process = self._finalize_hourly_state(state)
+                self._hourly_states[ticker] = self._create_hourly_state(
+                    data=data,
+                    bucket_start_ny=bucket_start_ny,
+                    bucket_end_ny=bucket_end_ny,
+                )
+            else:
+                self._update_hourly_state(state, data)
+
+            active_state = self._hourly_states.get(ticker)
+            if active_state is not None:
+                live_price = float(active_state["close"])
 
         if candle_to_process is not None:
             await self.on_candle(ticker, candle_to_process)
 
+        if should_evaluate_now:
+            await self._evaluate_signal_with_price(ticker=ticker, price=live_price)
+
     async def on_candle(self, ticker: str, candle: CandleStick) -> None:
-        """Compute regime signal on confirmed hourly candle and execute."""
+        """Keep finalized candle history up to date."""
         price = float(candle.close)
         if not math.isfinite(price) or price <= 0:
             return
-
         history = self._close_history.setdefault(ticker, [])
         history.append(price)
         if len(history) > self.MAX_HISTORY_BARS:
             del history[: len(history) - self.MAX_HISTORY_BARS]
-
-        warmup = self._ema_period + self._slope_len + 2
-        bar_index = len(history) - 1
-        if bar_index < warmup:
-            return
-
-        close_series = pd.Series(history, dtype=float)
-        ema_series = close_series.ewm(
-            span=max(2, self._ema_period),
-            adjust=False,
-            min_periods=1,
-        ).mean()
-        ema_value = float(ema_series.iloc[-1])
-        slope_series = ema_series - ema_series.shift(max(1, self._slope_len))
-        slope_value = float(slope_series.fillna(0.0).iloc[-1])
-
-        long_signal = (price > (ema_value * (1.0 + self._band))) and (slope_value > 0.0)
-        short_signal = (price < (ema_value * (1.0 - self._band))) and (slope_value < 0.0)
-
-        can_long = self._trade_direction in ("Both", "Long Only")
-        can_short = self._trade_direction in ("Both", "Short Only")
-
-        if long_signal and can_long:
-            await self._process_signal(ticker=ticker, desired_side=OrderSide.BUY, entry_price=price)
-            return
-
-        if short_signal and can_short:
-            await self._process_signal(ticker=ticker, desired_side=OrderSide.SELL, entry_price=price)
 
     async def shutdown(self) -> None:
         """Shutdown strategy and clear internal state."""
@@ -221,7 +211,7 @@ class Mag7EmaSlopeRegimeLiveStrategy(RealTimeTradingBase):
                     end_time=end_time,
                     period=Period.HOUR,
                 )
-                self._close_history[ticker] = self._extract_regular_session_closes(df)
+                self._close_history[ticker] = self._extract_premarket_and_regular_closes(df)
                 logger.info(
                     "Bootstrapped %s with %d hourly closes",
                     ticker,
@@ -231,7 +221,7 @@ class Mag7EmaSlopeRegimeLiveStrategy(RealTimeTradingBase):
                 logger.warning("Failed to bootstrap hourly history for %s: %s", ticker, exc)
                 self._close_history[ticker] = []
 
-    def _extract_regular_session_closes(self, df: pd.DataFrame | None) -> list[float]:
+    def _extract_premarket_and_regular_closes(self, df: pd.DataFrame | None) -> list[float]:
         if df is None or df.empty:
             return []
 
@@ -254,7 +244,11 @@ class Mag7EmaSlopeRegimeLiveStrategy(RealTimeTradingBase):
 
         frame.index = frame.index.tz_convert(NY_TZ)
         frame = frame[frame.index.dayofweek < 5]
-        frame = frame.between_time("09:30", "16:00", inclusive="left")
+        if frame.empty:
+            return []
+
+        mask = [self._is_in_premarket_or_regular_session(ts.to_pydatetime()) for ts in frame.index]
+        frame = frame.loc[mask]
         if frame.empty:
             return []
 
@@ -262,6 +256,72 @@ class Mag7EmaSlopeRegimeLiveStrategy(RealTimeTradingBase):
         if len(closes) > self.MAX_HISTORY_BARS:
             closes = closes[-self.MAX_HISTORY_BARS :]
         return closes
+
+    @staticmethod
+    def _is_regular_market_time(
+        tick_time_ny: datetime,
+        regular_open_ny: datetime,
+        regular_close_ny: datetime,
+    ) -> bool:
+        return regular_open_ny <= tick_time_ny < regular_close_ny
+
+    def _session_window_for_tick(
+        self,
+        tick_time_ny: datetime,
+    ) -> tuple[datetime, datetime, datetime] | None:
+        if not self._market_calendar.is_trading_day(tick_time_ny):
+            return None
+
+        pre_market_open_ny = self._market_calendar.get_pre_market_open(tick_time_ny)
+        regular_open_ny = self._market_calendar.get_regular_market_open(tick_time_ny)
+        regular_close_ny = self._market_calendar.get_regular_market_close(tick_time_ny)
+
+        if tick_time_ny < pre_market_open_ny or tick_time_ny >= regular_close_ny:
+            return None
+
+        return pre_market_open_ny, regular_open_ny, regular_close_ny
+
+    def _is_in_premarket_or_regular_session(self, tick_time_ny: datetime) -> bool:
+        window = self._session_window_for_tick(tick_time_ny)
+        return window is not None
+
+    async def _evaluate_signal_with_price(self, ticker: str, price: float) -> None:
+        if not math.isfinite(price) or price <= 0:
+            return
+
+        history = self._close_history.setdefault(ticker, [])
+        if not history:
+            return
+        if len(history) > self.MAX_HISTORY_BARS:
+            del history[: len(history) - self.MAX_HISTORY_BARS]
+
+        close_values = history + [float(price)]
+        warmup = self._ema_period + self._slope_len + 2
+        if len(close_values) < warmup:
+            return
+
+        close_series = pd.Series(close_values, dtype=float)
+        ema_series = close_series.ewm(
+            span=max(2, self._ema_period),
+            adjust=False,
+            min_periods=1,
+        ).mean()
+        ema_value = float(ema_series.iloc[-1])
+        slope_series = ema_series - ema_series.shift(max(1, self._slope_len))
+        slope_value = float(slope_series.fillna(0.0).iloc[-1])
+
+        long_signal = (price > (ema_value * (1.0 + self._band))) and (slope_value > 0.0)
+        short_signal = (price < (ema_value * (1.0 - self._band))) and (slope_value < 0.0)
+
+        can_long = self._trade_direction in ("Both", "Long Only")
+        can_short = self._trade_direction in ("Both", "Short Only")
+
+        if long_signal and can_long:
+            await self._process_signal(ticker=ticker, desired_side=OrderSide.BUY, entry_price=price)
+            return
+
+        if short_signal and can_short:
+            await self._process_signal(ticker=ticker, desired_side=OrderSide.SELL, entry_price=price)
 
     async def _process_signal(self, ticker: str, desired_side: OrderSide, entry_price: float) -> None:
         lock = self._get_lock(self._order_locks, ticker)
@@ -315,7 +375,7 @@ class Mag7EmaSlopeRegimeLiveStrategy(RealTimeTradingBase):
                     logger.info("Skipping %s: exposure still present after transition checks", ticker)
                     return
 
-                quantity = int(self._notional_per_trade / max(entry_price, 0.01))
+                quantity = int(min(self._notional_per_trade, await self._broker.get_buying_power()) / max(entry_price, 0.01))
                 if quantity < 1:
                     logger.warning(
                         "Skipping %s: quantity < 1 (entry=%.2f, notional=%.2f)",
@@ -415,37 +475,19 @@ class Mag7EmaSlopeRegimeLiveStrategy(RealTimeTradingBase):
             stop_loss_rth=False,
         )
 
-    def _is_regular_market_tick(self, data: PricingData, tick_time_ny: datetime) -> bool:
-        if data.market_hours != MarketHours.REGULAR_MARKET:
-            return False
-        if tick_time_ny.weekday() >= 5:
-            return False
-        local_time = tick_time_ny.time()
-        return self.SESSION_OPEN <= local_time < self.SESSION_CLOSE
-
     def _session_bucket_bounds(
         self,
         tick_time_ny: datetime,
+        session_start_ny: datetime,
+        session_end_ny: datetime,
     ) -> tuple[datetime, datetime] | None:
-        session_open = tick_time_ny.replace(
-            hour=self.SESSION_OPEN.hour,
-            minute=self.SESSION_OPEN.minute,
-            second=0,
-            microsecond=0,
-        )
-        session_close = tick_time_ny.replace(
-            hour=self.SESSION_CLOSE.hour,
-            minute=self.SESSION_CLOSE.minute,
-            second=0,
-            microsecond=0,
-        )
-        if tick_time_ny < session_open or tick_time_ny >= session_close:
+        if tick_time_ny < session_start_ny or tick_time_ny >= session_end_ny:
             return None
 
-        minutes_since_open = int((tick_time_ny - session_open).total_seconds() // 60)
+        minutes_since_open = int((tick_time_ny - session_start_ny).total_seconds() // 60)
         bucket_index = minutes_since_open // 60
-        bucket_start = session_open + timedelta(hours=bucket_index)
-        bucket_end = min(bucket_start + timedelta(hours=1), session_close)
+        bucket_start = session_start_ny + timedelta(hours=bucket_index)
+        bucket_end = min(bucket_start + timedelta(hours=1), session_end_ny)
         return bucket_start, bucket_end
 
     def _create_hourly_state(

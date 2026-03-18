@@ -151,6 +151,18 @@ class MarketCalendar:
         """Get pre-market open time (4:00 AM EST)."""
         return trading_day.replace(hour=self.PRE_MARKET_OPEN_HOUR, minute=0, second=0, microsecond=0)
 
+    def get_regular_market_open(self, trading_day: datetime) -> datetime:
+        """Get regular market open for the provided trading day."""
+        session = pd.Timestamp(trading_day.date())
+        session_open = self._calendar.session_open(session)
+        return session_open.tz_convert(self._timezone).to_pydatetime()
+
+    def get_regular_market_close(self, trading_day: datetime) -> datetime:
+        """Get regular market close for the provided trading day."""
+        session = pd.Timestamp(trading_day.date())
+        session_close = self._calendar.session_close(session)
+        return session_close.tz_convert(self._timezone).to_pydatetime()
+
     def get_after_hours_close(self, trading_day: datetime) -> datetime:
         """Get after-hours close time (8:00 PM EST)."""
         return trading_day.replace(hour=self.AFTER_HOURS_CLOSE_HOUR, minute=0, second=0, microsecond=0)
