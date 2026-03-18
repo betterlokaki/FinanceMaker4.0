@@ -467,7 +467,7 @@ class Mag7EmaSlopeRegimeLiveStrategy(RealTimeTradingBase):
             side=desired_side,
             order_type=OrderType.LIMIT,
             limit_price=entry,
-            stop_price=stop_price,
+            stop_loss_price=stop_price,
             take_profit_price=take_profit_price,
             time_in_force=TimeInForce.DAY,
             buy_limit_rth=True,
