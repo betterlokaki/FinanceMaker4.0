@@ -1,8 +1,8 @@
 """IBKR order request converter."""
 from __future__ import annotations
 
-from typing import Union
 import time
+from typing import Union
 
 from ibind import OrderRequest as IbkrOrderRequest
 
@@ -67,6 +67,7 @@ class OrderRequestConverter:
         # A bracket is triggered by (fixed SL OR trailing SL) AND take profit.
         has_stop_loss: bool = (
             order_request.stop_loss_price is not None
+            or order_request.stop_price is not None
             or order_request.trailing_stop_amt is not None
         )
         if has_stop_loss and order_request.take_profit_price is not None:
@@ -88,7 +89,7 @@ class OrderRequestConverter:
         stop_loss_outside_rth = not stop_loss_rth
         take_profit_outside_rth = not take_profit_rth
 
-        coid = f"{order_request.ticker}_{conid}"
+        coid = cls._build_coid(order_request.ticker, order_id)
         ibkr_order = IbkrOrderRequest(
             conid=conid,
             side=cls.SIDE_MAP[order_request.side],
@@ -108,29 +109,22 @@ class OrderRequestConverter:
 
         # Add stop price if applicable (aux_price in IBKR)
         # Add optional order IDs
-        stopp_loss_order = None
+        fixed_stop_price = cls._resolve_fixed_stop_price(order_request)
+        stop_loss_order = None
         take_profit_order = None
-        if order_request.stop_price is not None:
-            stopp_loss_order = IbkrOrderRequest(
+        if fixed_stop_price is not None:
+            stop_loss_order = IbkrOrderRequest(
                 conid=conid,
                 side="SELL" if order_request.side == OrderSide.BUY else "BUY",
                 quantity=order_request.quantity,
-                order_type="LMT",
+                order_type=cls.ORDER_TYPE_MAP[OrderType.STOP],
                 acct_id=account_id,
                 ticker=order_request.ticker,
                 listing_exchange=listing_exchange,
                 outside_rth=stop_loss_outside_rth,
                 tif="GTC",
-                price=order_request.stop_price,
-                aux_price=order_request.stop_price,
+                aux_price=fixed_stop_price,
                 parent_id=coid,
-                 custom_fields={
-                "type": "price",
-                "conid": conid,    # The asset being watched
-                "operator": "<=",      # Trigger when SPY is >= value
-                "value": order_request.stop_price,     # The price trigger level
-                "logicBind": "AND"
-            }
             )
         if order_request.take_profit_price is not None:
             take_profit_order = IbkrOrderRequest(
@@ -145,10 +139,9 @@ class OrderRequestConverter:
                 tif="GTC",
                 price=order_request.take_profit_price,
                 parent_id=coid,
-                
             )
-        
-        return [order for order in [ibkr_order, stopp_loss_order, take_profit_order] if order is not None]
+
+        return [order for order in [ibkr_order, stop_loss_order, take_profit_order] if order is not None]
 
     @classmethod
     def to_bracket_ibkr(
@@ -169,8 +162,8 @@ class OrderRequestConverter:
         - Parent receives a `coid` client order id which children reference via
           `parent_id`.
         """
-        # Ensure we have a client order id for the parent
-        parent_coid = order_id or f"{order_request.ticker}-{int(time.time())}"
+        # Ensure we have a unique client order id for the parent.
+        parent_coid = cls._build_coid(order_request.ticker, order_id)
 
         # Determine RTH settings for each order
         # outside_rth=False means RTH-only (can only execute during regular trading hours)
@@ -178,9 +171,9 @@ class OrderRequestConverter:
         # buy_limit_rth=True means RTH-only → outside_rth=False
         # buy_limit_rth=False means can execute outside RTH → outside_rth=True
         buy_limit_outside_rth = not (order_request.buy_limit_rth if order_request.buy_limit_rth is not None else True)
-        # stop_loss_rth: False in config means outside_rth=False (RTH-only) per user requirement
-        # But user said stop loss can't trigger outside RTH, so it should always be RTH-only
-        stop_loss_outside_rth = False  # Always RTH-only for stop loss
+        stop_loss_outside_rth = not (
+            order_request.stop_loss_rth if order_request.stop_loss_rth is not None else True
+        )
         take_profit_outside_rth = not (order_request.take_profit_rth if order_request.take_profit_rth is not None else True)
 
         # Parent order (entry). For bracket usage parent is typically a limit
@@ -208,7 +201,7 @@ class OrderRequestConverter:
             # Dynamic trailing stop — IBKR moves the stop automatically as
             # price moves in our favour.  trailing_type defaults to "%".
             trailing_type: str = order_request.trailing_stop_type or "%"
-            stopp_loss_order = IbkrOrderRequest(
+            stop_loss_order = IbkrOrderRequest(
                 conid=conid,
                 side=stop_loss_side,
                 quantity=order_request.quantity,
@@ -223,26 +216,23 @@ class OrderRequestConverter:
                 parent_id=parent_coid,
             )
         else:
-            stopp_loss_order = IbkrOrderRequest(
+            fixed_stop_price = cls._resolve_fixed_stop_price(order_request)
+            if fixed_stop_price is None:
+                raise ValueError(
+                    "Bracket order requires stop_loss_price, stop_price, or trailing_stop_amt"
+                )
+            stop_loss_order = IbkrOrderRequest(
                 conid=conid,
-                side="SELL" if order_request.side == OrderSide.BUY else "BUY",
+                side=stop_loss_side,
                 quantity=order_request.quantity,
-                order_type="LMT",
+                order_type=cls.ORDER_TYPE_MAP[OrderType.STOP],
                 acct_id=account_id,
                 ticker=order_request.ticker,
                 listing_exchange=listing_exchange,
-                outside_rth=True,
+                outside_rth=stop_loss_outside_rth,
                 tif="GTC",
-                price=order_request.stop_price,
-                aux_price=order_request.stop_price,
+                aux_price=fixed_stop_price,
                 parent_id=parent_coid,
-                 custom_fields={
-                "type": "price",
-                "conid": conid,    # The asset being watched
-                "operator": "<=",      # Trigger when SPY is >= value
-                "value": order_request.stop_price,     # The price trigger level
-                "logicBind": "AND"
-            }
             )
 
         # Take profit child: opposite side, LMT order
@@ -260,5 +250,19 @@ class OrderRequestConverter:
             parent_id=parent_coid,
         )
 
-        return [parent, stopp_loss_order, take_profit]
-    
+        return [parent, stop_loss_order, take_profit]
+
+    @staticmethod
+    def _build_coid(ticker: str, provided_coid: str | None = None) -> str:
+        if provided_coid:
+            return provided_coid
+        # Millisecond precision avoids parent-id collisions on rapid submissions.
+        return f"{ticker}-{int(time.time() * 1000)}"
+
+    @staticmethod
+    def _resolve_fixed_stop_price(order_request: OrderRequest) -> float | None:
+        if order_request.stop_loss_price is not None:
+            return order_request.stop_loss_price
+        if order_request.stop_price is not None:
+            return order_request.stop_price
+        return None

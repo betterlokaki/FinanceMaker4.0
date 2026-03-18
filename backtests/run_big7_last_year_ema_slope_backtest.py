@@ -7,6 +7,7 @@ import asyncio
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 import sys
+from zoneinfo import ZoneInfo
 
 import httpx
 import matplotlib.pyplot as plt
@@ -48,6 +49,7 @@ DEFAULT_TICKERS: list[str] = [
     "TSLA",
     "GOOGL",
 ]
+NY_TZ = ZoneInfo("America/New_York")
 
 
 def _parse_args() -> argparse.Namespace:
@@ -63,13 +65,13 @@ def _parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--lookback-days",
         type=int,
-        default=365,
+        default=60,
         help="Lookback window in days from now.",
     )
     parser.add_argument(
         "--period",
         choices=["minute", "hour", "daily"],
-        default="daily",
+        default="hour",
         help="Data interval.",
     )
     parser.add_argument(
@@ -107,6 +109,18 @@ def _parse_args() -> argparse.Namespace:
         type=float,
         default=0.0,
         help="Dead-zone band around EMA (fraction).",
+    )
+    parser.add_argument(
+        "--stop-loss-pct",
+        type=float,
+        default=0.03,
+        help="Fixed stop loss fraction (live parity).",
+    )
+    parser.add_argument(
+        "--take-profit-pct",
+        type=float,
+        default=0.06,
+        help="Fixed take profit fraction (live parity).",
     )
     parser.add_argument(
         "--trade-direction",
@@ -271,6 +285,26 @@ def _build_single_buy_and_hold_equity(
     return (initial_capital * (close / first_price)).ffill().fillna(initial_capital)
 
 
+def _filter_regular_session(df: pd.DataFrame) -> pd.DataFrame:
+    """Match live strategy regular-session filtering for intraday bars."""
+    if df.empty:
+        return df
+    index_utc = pd.to_datetime(df.index, utc=True, errors="coerce")
+    valid = ~index_utc.isna()
+    if not valid.any():
+        return df.iloc[0:0].copy()
+
+    frame = df.loc[valid].copy()
+    frame.index = index_utc[valid].tz_convert(NY_TZ)
+    frame = frame[frame.index.dayofweek < 5]
+    frame = frame.between_time("09:30", "16:00", inclusive="left")
+    if frame.empty:
+        return frame
+
+    frame.index = frame.index.tz_convert("UTC").tz_localize(None)
+    return frame.sort_index()
+
+
 def _plot_three_pnl_graphs(
     strategy_equity: pd.Series,
     basket_bh_equity: pd.Series,
@@ -341,6 +375,7 @@ def main() -> None:
     )
     print(
         f"EMA={args.ema_period} | slope_len={args.slope_len} | band={args.band:.4f} | "
+        f"SL={args.stop_loss_pct:.4f} | TP={args.take_profit_pct:.4f} | "
         f"Commission=${args.round_trip_commission:.2f}/pair"
     )
     print("=" * 92)
@@ -363,6 +398,14 @@ def main() -> None:
 
     data_by_ticker = {ticker: fetched_data[ticker] for ticker in tickers if ticker in fetched_data}
     benchmark_df = fetched_data.get(benchmark_ticker, pd.DataFrame())
+    if period in (Period.MINUTE, Period.HOUR):
+        data_by_ticker = {
+            ticker: _filter_regular_session(df)
+            for ticker, df in data_by_ticker.items()
+        }
+        if benchmark_df is not None and not benchmark_df.empty:
+            benchmark_df = _filter_regular_session(benchmark_df)
+
     if not data_by_ticker:
         print("No strategy-ticker data fetched.")
         return
@@ -401,6 +444,9 @@ def main() -> None:
             ema_period=int(args.ema_period),
             slope_len=int(args.slope_len),
             band=float(args.band),
+            stop_loss_pct=max(0.0, float(args.stop_loss_pct)),
+            take_profit_pct=max(0.0, float(args.take_profit_pct)),
+            use_limit_entry=True,
         )
 
         trades = stats.get("_trades", pd.DataFrame())
