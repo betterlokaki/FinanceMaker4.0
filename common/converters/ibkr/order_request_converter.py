@@ -124,6 +124,7 @@ class OrderRequestConverter:
                 outside_rth=stop_loss_outside_rth,
                 tif="GTC",
                 aux_price=fixed_stop_price,
+                price=fixed_stop_price,
                 parent_id=coid,
             )
         if order_request.take_profit_price is not None:
@@ -232,6 +233,7 @@ class OrderRequestConverter:
                 outside_rth=stop_loss_outside_rth,
                 tif="GTC",
                 aux_price=fixed_stop_price,
+                price=fixed_stop_price,
                 parent_id=parent_coid,
             )
 
