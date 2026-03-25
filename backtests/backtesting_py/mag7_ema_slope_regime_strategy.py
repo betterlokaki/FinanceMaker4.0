@@ -21,8 +21,8 @@ class Mag7EmaSlopeRegimeStrategy(Strategy):
     ema_period: int = 20
     slope_len: int = 24
     band: float = 0.016
-    stop_loss_pct: float = 0.0
-    take_profit_pct: float = 0.12
+    stop_loss_pct: float = 0.02
+    take_profit_pct: float = 0.06
     use_limit_entry: bool = True
     close_on_neutral_signal: bool = False
     use_full_equity_sizing: bool = False

@@ -63,8 +63,27 @@ except ImportError as exc:  # pragma: no cover - runtime dependency gate
 
 
 DEFAULT_TICKERS: list[str] = [
-  "NVDA",
-  
+    "AAPL",
+    "MSFT",
+    "NVDA",
+    "AMZN",
+    "META",
+    "TSLA",
+    "GOOGL",
+    "NIO",
+    "LI",
+    "HUT",
+    "MARA",
+    "INTU",
+    "APP",
+    "IT",
+    "WDAY",
+    "HOOD",
+    "TTD",
+    "EPAM",
+    "NOW",
+    "FDS",
+    "EXPE",
 ]
 NY_TZ = ZoneInfo("America/New_York")
 
@@ -121,31 +140,31 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument(
         "--ema-period",
         type=int,
-        default=20,
+        default=14,
         help="EMA lookback for regime filter.",
     )
     parser.add_argument(
         "--slope-len",
         type=int,
-        default=24,
+        default=96,
         help="Bars used for EMA slope direction check.",
     )
     parser.add_argument(
         "--band",
         type=float,
-        default=0.016,
+        default=0.005,
         help="Dead-zone band around EMA (fraction).",
     )
     parser.add_argument(
         "--stop-loss-pct",
         type=float,
-        default=0.0,
+        default=0.02,
         help="Fixed stop loss fraction (live parity).",
     )
     parser.add_argument(
         "--take-profit-pct",
         type=float,
-        default=0.12,
+        default=0.06,
         help="Fixed take profit fraction (live parity).",
     )
     parser.add_argument(
@@ -204,7 +223,7 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument(
         "--target-return-pct",
         type=float,
-        default=170.0,
+        default=250.0,
         help="Target portfolio return percentage used for HIT/MISS status.",
     )
     return parser.parse_args(argv)

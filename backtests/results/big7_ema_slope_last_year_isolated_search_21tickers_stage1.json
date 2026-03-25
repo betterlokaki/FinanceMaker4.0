@@ -1,0 +1,1254 @@
+{
+  "generated_at_utc": "2026-03-25T08:16:32.312687+00:00",
+  "constraints": {
+    "run_mode": "isolated",
+    "isolated_objective": "min",
+    "tickers": [
+      "AAPL",
+      "MSFT",
+      "NVDA",
+      "AMZN",
+      "META",
+      "TSLA",
+      "GOOGL",
+      "NIO",
+      "LI",
+      "HUT",
+      "MARA",
+      "INTU",
+      "APP",
+      "IT",
+      "WDAY",
+      "HOOD",
+      "TTD",
+      "EPAM",
+      "NOW",
+      "FDS",
+      "EXPE"
+    ],
+    "lookback_days": 475,
+    "period": "hour",
+    "regular_session_only": false,
+    "initial_capital": 10000.0,
+    "leverage": 1.0,
+    "notional_per_trade": 10000.0,
+    "round_trip_commission": 1.0,
+    "short_borrow_fee_apr": 0.03,
+    "compounding_position_sizing": true,
+    "position_size_cash_fraction": 0.85,
+    "target_return_pct": 250.0,
+    "target_min_ticker_return_pct": 250.0,
+    "seed": 42,
+    "stage_a_samples": 120,
+    "stage_b_samples": 60,
+    "refine_top_k": 30
+  },
+  "summary": {
+    "target_hit": false,
+    "hit_stage": null,
+    "stage_a_evaluated": 120,
+    "stage_b_evaluated": 60,
+    "total_evaluated": 180,
+    "best_result": {
+      "candidate": {
+        "ema_period": 2,
+        "slope_len": 72,
+        "band": 0.02,
+        "stop_loss_pct": 0.025,
+        "take_profit_pct": 0.12,
+        "trade_direction": "Both",
+        "use_limit_entry": false,
+        "close_on_neutral_signal": true
+      },
+      "return_pct": -2.662196409950424,
+      "max_drawdown_pct": 22.924839871520884,
+      "trades": 245,
+      "wins": 91,
+      "losses": 154,
+      "skipped_entries": 0,
+      "final_equity": 9733.780359004959,
+      "scoring_mode": "isolated",
+      "ticker_count": 21,
+      "min_ticker_return_pct": -21.178577715736264,
+      "median_ticker_return_pct": -2.122737876106257,
+      "per_ticker_return_pct": [
+        [
+          "AAPL",
+          -0.7761000000000058
+        ],
+        [
+          "AMZN",
+          -5.137607949999983
+        ],
+        [
+          "APP",
+          -8.61545192633048
+        ],
+        [
+          "EPAM",
+          -2.290991794433576
+        ],
+        [
+          "EXPE",
+          -1.0153581278991806
+        ],
+        [
+          "FDS",
+          -9.569796755371081
+        ],
+        [
+          "GOOGL",
+          -6.044581790625016
+        ],
+        [
+          "HOOD",
+          -9.031321647453334
+        ],
+        [
+          "HUT",
+          -21.178577715736264
+        ],
+        [
+          "INTU",
+          -0.04227526855467659
+        ],
+        [
+          "IT",
+          29.430665496533205
+        ],
+        [
+          "LI",
+          2.399306506347675
+        ],
+        [
+          "MARA",
+          -2.122737876106257
+        ],
+        [
+          "META",
+          -1.1260504150390442
+        ],
+        [
+          "MSFT",
+          -4.744847575000003
+        ],
+        [
+          "NIO",
+          0.23710389385223607
+        ],
+        [
+          "NOW",
+          -7.4702642685546925
+        ],
+        [
+          "NVDA",
+          0.8417073626098682
+        ],
+        [
+          "TSLA",
+          -11.387847812499984
+        ],
+        [
+          "TTD",
+          1.534634300418875
+        ],
+        [
+          "WDAY",
+          0.2042687548828144
+        ]
+      ]
+    }
+  },
+  "top_results": [
+    {
+      "candidate": {
+        "ema_period": 2,
+        "slope_len": 72,
+        "band": 0.02,
+        "stop_loss_pct": 0.025,
+        "take_profit_pct": 0.12,
+        "trade_direction": "Both",
+        "use_limit_entry": false,
+        "close_on_neutral_signal": true
+      },
+      "return_pct": -2.662196409950424,
+      "max_drawdown_pct": 22.924839871520884,
+      "trades": 245,
+      "wins": 91,
+      "losses": 154,
+      "skipped_entries": 0,
+      "final_equity": 9733.780359004959,
+      "scoring_mode": "isolated",
+      "ticker_count": 21,
+      "min_ticker_return_pct": -21.178577715736264,
+      "median_ticker_return_pct": -2.122737876106257,
+      "per_ticker_return_pct": [
+        [
+          "AAPL",
+          -0.7761000000000058
+        ],
+        [
+          "AMZN",
+          -5.137607949999983
+        ],
+        [
+          "APP",
+          -8.61545192633048
+        ],
+        [
+          "EPAM",
+          -2.290991794433576
+        ],
+        [
+          "EXPE",
+          -1.0153581278991806
+        ],
+        [
+          "FDS",
+          -9.569796755371081
+        ],
+        [
+          "GOOGL",
+          -6.044581790625016
+        ],
+        [
+          "HOOD",
+          -9.031321647453334
+        ],
+        [
+          "HUT",
+          -21.178577715736264
+        ],
+        [
+          "INTU",
+          -0.04227526855467659
+        ],
+        [
+          "IT",
+          29.430665496533205
+        ],
+        [
+          "LI",
+          2.399306506347675
+        ],
+        [
+          "MARA",
+          -2.122737876106257
+        ],
+        [
+          "META",
+          -1.1260504150390442
+        ],
+        [
+          "MSFT",
+          -4.744847575000003
+        ],
+        [
+          "NIO",
+          0.23710389385223607
+        ],
+        [
+          "NOW",
+          -7.4702642685546925
+        ],
+        [
+          "NVDA",
+          0.8417073626098682
+        ],
+        [
+          "TSLA",
+          -11.387847812499984
+        ],
+        [
+          "TTD",
+          1.534634300418875
+        ],
+        [
+          "WDAY",
+          0.2042687548828144
+        ]
+      ]
+    },
+    {
+      "candidate": {
+        "ema_period": 3,
+        "slope_len": 30,
+        "band": 0.02,
+        "stop_loss_pct": 0.02,
+        "take_profit_pct": 0.22,
+        "trade_direction": "Long Only",
+        "use_limit_entry": false,
+        "close_on_neutral_signal": true
+      },
+      "return_pct": -1.6135437216335062,
+      "max_drawdown_pct": 27.56116310724489,
+      "trades": 333,
+      "wins": 132,
+      "losses": 201,
+      "skipped_entries": 0,
+      "final_equity": 9838.64562783665,
+      "scoring_mode": "isolated",
+      "ticker_count": 21,
+      "min_ticker_return_pct": -26.080984159124775,
+      "median_ticker_return_pct": -2.8479826233593486,
+      "per_ticker_return_pct": [
+        [
+          "AAPL",
+          3.4494993652343506
+        ],
+        [
+          "AMZN",
+          2.6215155258789125
+        ],
+        [
+          "APP",
+          -12.638803259345677
+        ],
+        [
+          "EPAM",
+          -7.498666681640626
+        ],
+        [
+          "EXPE",
+          10.237023446655275
+        ],
+        [
+          "FDS",
+          -5.767094946289071
+        ],
+        [
+          "GOOGL",
+          -5.106481144824192
+        ],
+        [
+          "HOOD",
+          13.980891148376468
+        ],
+        [
+          "HUT",
+          -26.080984159124775
+        ],
+        [
+          "INTU",
+          -2.8479826233593486
+        ],
+        [
+          "IT",
+          2.913535050644532
+        ],
+        [
+          "LI",
+          -5.174335589660677
+        ],
+        [
+          "MARA",
+          3.8738765822029015
+        ],
+        [
+          "META",
+          -4.055638874843753
+        ],
+        [
+          "MSFT",
+          -6.163985129921875
+        ],
+        [
+          "NIO",
+          -5.111378543979663
+        ],
+        [
+          "NOW",
+          3.912076309204113
+        ],
+        [
+          "NVDA",
+          -1.645748560937518
+        ],
+        [
+          "TSLA",
+          -3.9087568188476687
+        ],
+        [
+          "TTD",
+          5.338934385528555
+        ],
+        [
+          "WDAY",
+          5.788086364746105
+        ]
+      ]
+    },
+    {
+      "candidate": {
+        "ema_period": 8,
+        "slope_len": 60,
+        "band": 0.025,
+        "stop_loss_pct": 0.01,
+        "take_profit_pct": 0.3,
+        "trade_direction": "Long Only",
+        "use_limit_entry": false,
+        "close_on_neutral_signal": true
+      },
+      "return_pct": -7.213069865747182,
+      "max_drawdown_pct": 29.80634372298502,
+      "trades": 643,
+      "wins": 176,
+      "losses": 467,
+      "skipped_entries": 0,
+      "final_equity": 9278.693013425282,
+      "scoring_mode": "isolated",
+      "ticker_count": 21,
+      "min_ticker_return_pct": -27.62871220697674,
+      "median_ticker_return_pct": -6.607458649489726,
+      "per_ticker_return_pct": [
+        [
+          "AAPL",
+          -4.607247879999996
+        ],
+        [
+          "AMZN",
+          -7.244240551269504
+        ],
+        [
+          "APP",
+          -22.69807350560065
+        ],
+        [
+          "EPAM",
+          -8.732070825927712
+        ],
+        [
+          "EXPE",
+          4.716641961669884
+        ],
+        [
+          "FDS",
+          -8.547670159912123
+        ],
+        [
+          "GOOGL",
+          -6.607458649489726
+        ],
+        [
+          "HOOD",
+          8.376573090910588
+        ],
+        [
+          "HUT",
+          -27.62871220697674
+        ],
+        [
+          "INTU",
+          -3.7987436889648416
+        ],
+        [
+          "IT",
+          -4.441723091132808
+        ],
+        [
+          "LI",
+          -4.844476598571764
+        ],
+        [
+          "MARA",
+          -15.846121051963802
+        ],
+        [
+          "META",
+          -7.243657755371095
+        ],
+        [
+          "MSFT",
+          -4.655339757954098
+        ],
+        [
+          "NIO",
+          -20.201687621321742
+        ],
+        [
+          "NOW",
+          -5.240093724975559
+        ],
+        [
+          "NVDA",
+          -7.122649170642125
+        ],
+        [
+          "TSLA",
+          -8.907422479257802
+        ],
+        [
+          "TTD",
+          1.7415934073303103
+        ],
+        [
+          "WDAY",
+          2.0581130787304756
+        ]
+      ]
+    },
+    {
+      "candidate": {
+        "ema_period": 10,
+        "slope_len": 16,
+        "band": 0.012,
+        "stop_loss_pct": 0.0,
+        "take_profit_pct": 0.04,
+        "trade_direction": "Short Only",
+        "use_limit_entry": true,
+        "close_on_neutral_signal": true
+      },
+      "return_pct": -6.246159489591333,
+      "max_drawdown_pct": 52.81632789855701,
+      "trades": 2897,
+      "wins": 1118,
+      "losses": 1779,
+      "skipped_entries": 0,
+      "final_equity": 9375.384051040866,
+      "scoring_mode": "isolated",
+      "ticker_count": 21,
+      "min_ticker_return_pct": -28.913067026611376,
+      "median_ticker_return_pct": -6.104052114135866,
+      "per_ticker_return_pct": [
+        [
+          "AAPL",
+          -2.7988198237304096
+        ],
+        [
+          "AMZN",
+          -23.37987561621092
+        ],
+        [
+          "APP",
+          -27.70816602197252
+        ],
+        [
+          "EPAM",
+          -6.950281542968733
+        ],
+        [
+          "EXPE",
+          13.208089174170054
+        ],
+        [
+          "FDS",
+          -28.607733035058537
+        ],
+        [
+          "GOOGL",
+          -24.39732111877927
+        ],
+        [
+          "HOOD",
+          -4.723375199523762
+        ],
+        [
+          "HUT",
+          -16.00329104873643
+        ],
+        [
+          "INTU",
+          12.804661816406297
+        ],
+        [
+          "IT",
+          7.97517107885742
+        ],
+        [
+          "LI",
+          -28.913067026611376
+        ],
+        [
+          "MARA",
+          -10.734171776161075
+        ],
+        [
+          "META",
+          -6.334429352539009
+        ],
+        [
+          "MSFT",
+          13.09208957666011
+        ],
+        [
+          "NIO",
+          -24.377788779575386
+        ],
+        [
+          "NOW",
+          -6.104052114135866
+        ],
+        [
+          "NVDA",
+          31.376371644653332
+        ],
+        [
+          "TSLA",
+          -3.096868623242153
+        ],
+        [
+          "TTD",
+          1.219929513183706
+        ],
+        [
+          "WDAY",
+          3.283578993896535
+        ]
+      ]
+    },
+    {
+      "candidate": {
+        "ema_period": 4,
+        "slope_len": 20,
+        "band": 0.022,
+        "stop_loss_pct": 0.015,
+        "take_profit_pct": 0.16,
+        "trade_direction": "Long Only",
+        "use_limit_entry": false,
+        "close_on_neutral_signal": true
+      },
+      "return_pct": -5.593135495494839,
+      "max_drawdown_pct": 32.117685227555484,
+      "trades": 460,
+      "wins": 163,
+      "losses": 297,
+      "skipped_entries": 0,
+      "final_equity": 9440.686450450516,
+      "scoring_mode": "isolated",
+      "ticker_count": 21,
+      "min_ticker_return_pct": -29.367840374345022,
+      "median_ticker_return_pct": -5.4814553525683545,
+      "per_ticker_return_pct": [
+        [
+          "AAPL",
+          -0.6318150100000093
+        ],
+        [
+          "AMZN",
+          -2.4715351507568086
+        ],
+        [
+          "APP",
+          -11.846049829401855
+        ],
+        [
+          "EPAM",
+          -13.50846575210571
+        ],
+        [
+          "EXPE",
+          10.38551828308102
+        ],
+        [
+          "FDS",
+          -7.838308602905291
+        ],
+        [
+          "GOOGL",
+          -7.620021047871087
+        ],
+        [
+          "HOOD",
+          0.3935884679641822
+        ],
+        [
+          "HUT",
+          -29.367840374345022
+        ],
+        [
+          "INTU",
+          -7.079507115895995
+        ],
+        [
+          "IT",
+          -6.061624587260721
+        ],
+        [
+          "LI",
+          -2.0097618600158604
+        ],
+        [
+          "MARA",
+          -8.7742950216407
+        ],
+        [
+          "META",
+          -3.9812146812744325
+        ],
+        [
+          "MSFT",
+          -5.4814553525683545
+        ],
+        [
+          "NIO",
+          -7.642896438389362
+        ],
+        [
+          "NOW",
+          -1.5998447180175754
+        ],
+        [
+          "NVDA",
+          -4.568403135960725
+        ],
+        [
+          "TSLA",
+          -6.09769336120602
+        ],
+        [
+          "TTD",
+          -3.118989594726609
+        ],
+        [
+          "WDAY",
+          1.4647694779053018
+        ]
+      ]
+    },
+    {
+      "candidate": {
+        "ema_period": 10,
+        "slope_len": 60,
+        "band": 0.022,
+        "stop_loss_pct": 0.005,
+        "take_profit_pct": 0.22,
+        "trade_direction": "Long Only",
+        "use_limit_entry": false,
+        "close_on_neutral_signal": true
+      },
+      "return_pct": -10.180339600882533,
+      "max_drawdown_pct": 38.33210345586057,
+      "trades": 1200,
+      "wins": 204,
+      "losses": 996,
+      "skipped_entries": 0,
+      "final_equity": 8981.966039911747,
+      "scoring_mode": "isolated",
+      "ticker_count": 21,
+      "min_ticker_return_pct": -35.71131402686249,
+      "median_ticker_return_pct": -7.510611515903911,
+      "per_ticker_return_pct": [
+        [
+          "AAPL",
+          -4.58304266177487
+        ],
+        [
+          "AMZN",
+          -6.988736310730001
+        ],
+        [
+          "APP",
+          -23.62306419145989
+        ],
+        [
+          "EPAM",
+          -9.213917741363494
+        ],
+        [
+          "EXPE",
+          0.9902322068091416
+        ],
+        [
+          "FDS",
+          -7.98228490142823
+        ],
+        [
+          "GOOGL",
+          -9.474075548157943
+        ],
+        [
+          "HOOD",
+          1.2466720519855516
+        ],
+        [
+          "HUT",
+          -35.71131402686249
+        ],
+        [
+          "INTU",
+          -6.10501502246092
+        ],
+        [
+          "IT",
+          -4.986562208774394
+        ],
+        [
+          "LI",
+          -15.111806266338391
+        ],
+        [
+          "MARA",
+          -30.149762481832067
+        ],
+        [
+          "META",
+          -7.036850608642617
+        ],
+        [
+          "MSFT",
+          -7.359771981274371
+        ],
+        [
+          "NIO",
+          -16.505467467209748
+        ],
+        [
+          "NOW",
+          -9.224658352737388
+        ],
+        [
+          "NVDA",
+          -5.573195245964362
+        ],
+        [
+          "TSLA",
+          -12.53728505546993
+        ],
+        [
+          "TTD",
+          -7.510611515903911
+        ],
+        [
+          "WDAY",
+          3.6533857110571084
+        ]
+      ]
+    },
+    {
+      "candidate": {
+        "ema_period": 8,
+        "slope_len": 20,
+        "band": 0.012,
+        "stop_loss_pct": 0.005,
+        "take_profit_pct": 0.04,
+        "trade_direction": "Long Only",
+        "use_limit_entry": false,
+        "close_on_neutral_signal": true
+      },
+      "return_pct": -19.470765240149444,
+      "max_drawdown_pct": 39.08600863052582,
+      "trades": 3411,
+      "wins": 644,
+      "losses": 2767,
+      "skipped_entries": 0,
+      "final_equity": 8052.923475985055,
+      "scoring_mode": "isolated",
+      "ticker_count": 21,
+      "min_ticker_return_pct": -36.11010285216082,
+      "median_ticker_return_pct": -18.051689028293513,
+      "per_ticker_return_pct": [
+        [
+          "AAPL",
+          -4.6858903770703
+        ],
+        [
+          "AMZN",
+          -16.530984306213465
+        ],
+        [
+          "APP",
+          -27.36544588475568
+        ],
+        [
+          "EPAM",
+          -20.858007495452814
+        ],
+        [
+          "EXPE",
+          -7.429575024903516
+        ],
+        [
+          "FDS",
+          -27.105249723936787
+        ],
+        [
+          "GOOGL",
+          -21.192603340684848
+        ],
+        [
+          "HOOD",
+          -12.490420953136454
+        ],
+        [
+          "HUT",
+          -31.795993989976935
+        ],
+        [
+          "INTU",
+          -9.079567976152266
+        ],
+        [
+          "IT",
+          -18.051689028293513
+        ],
+        [
+          "LI",
+          -14.4747955754356
+        ],
+        [
+          "MARA",
+          -32.17698235805785
+        ],
+        [
+          "META",
+          -20.171484413554815
+        ],
+        [
+          "MSFT",
+          -11.29155762589593
+        ],
+        [
+          "NIO",
+          -36.11010285216082
+        ],
+        [
+          "NOW",
+          -18.049532572787484
+        ],
+        [
+          "NVDA",
+          -34.50513315311845
+        ],
+        [
+          "TSLA",
+          -29.602945330067215
+        ],
+        [
+          "TTD",
+          -7.345927140332479
+        ],
+        [
+          "WDAY",
+          -8.572180921151121
+        ]
+      ]
+    },
+    {
+      "candidate": {
+        "ema_period": 12,
+        "slope_len": 72,
+        "band": 0.02,
+        "stop_loss_pct": 0.01,
+        "take_profit_pct": 0.12,
+        "trade_direction": "Long Only",
+        "use_limit_entry": false,
+        "close_on_neutral_signal": true
+      },
+      "return_pct": -13.520569194019359,
+      "max_drawdown_pct": 40.15428005372302,
+      "trades": 1306,
+      "wins": 317,
+      "losses": 989,
+      "skipped_entries": 0,
+      "final_equity": 8647.943080598065,
+      "scoring_mode": "isolated",
+      "ticker_count": 21,
+      "min_ticker_return_pct": -36.54081091828623,
+      "median_ticker_return_pct": -13.161194742431709,
+      "per_ticker_return_pct": [
+        [
+          "AAPL",
+          -9.073072736611339
+        ],
+        [
+          "AMZN",
+          -13.161194742431709
+        ],
+        [
+          "APP",
+          -30.999317427163
+        ],
+        [
+          "EPAM",
+          -12.59584254162597
+        ],
+        [
+          "EXPE",
+          1.3401461579979879
+        ],
+        [
+          "FDS",
+          -12.312719802856481
+        ],
+        [
+          "GOOGL",
+          -16.646212380141588
+        ],
+        [
+          "HOOD",
+          15.474548477035476
+        ],
+        [
+          "HUT",
+          -35.37586501155662
+        ],
+        [
+          "INTU",
+          -4.853634814453089
+        ],
+        [
+          "IT",
+          -4.411323016425795
+        ],
+        [
+          "LI",
+          -21.043647920143137
+        ],
+        [
+          "MARA",
+          -33.791831523047335
+        ],
+        [
+          "META",
+          -13.645856524218726
+        ],
+        [
+          "MSFT",
+          -13.374764406640608
+        ],
+        [
+          "NIO",
+          -19.7436991398176
+        ],
+        [
+          "NOW",
+          -12.186507035278336
+        ],
+        [
+          "NVDA",
+          -20.12015745784789
+        ],
+        [
+          "TSLA",
+          -36.54081091828623
+        ],
+        [
+          "TTD",
+          9.656370049334946
+        ],
+        [
+          "WDAY",
+          -0.526560360229505
+        ]
+      ]
+    },
+    {
+      "candidate": {
+        "ema_period": 3,
+        "slope_len": 96,
+        "band": 0.012,
+        "stop_loss_pct": 0.01,
+        "take_profit_pct": 0.0,
+        "trade_direction": "Short Only",
+        "use_limit_entry": true,
+        "close_on_neutral_signal": true
+      },
+      "return_pct": -9.199371137820677,
+      "max_drawdown_pct": 45.58841249260267,
+      "trades": 1075,
+      "wins": 416,
+      "losses": 659,
+      "skipped_entries": 0,
+      "final_equity": 9080.062886217933,
+      "scoring_mode": "isolated",
+      "ticker_count": 21,
+      "min_ticker_return_pct": -37.979772649108874,
+      "median_ticker_return_pct": -8.180971455993639,
+      "per_ticker_return_pct": [
+        [
+          "AAPL",
+          -3.0085953562011674
+        ],
+        [
+          "AMZN",
+          -15.335597678730483
+        ],
+        [
+          "APP",
+          -35.374710564453146
+        ],
+        [
+          "EPAM",
+          -2.2745744335937528
+        ],
+        [
+          "EXPE",
+          -0.5555381298828069
+        ],
+        [
+          "FDS",
+          -8.948614388488823
+        ],
+        [
+          "GOOGL",
+          -10.73101212622063
+        ],
+        [
+          "HOOD",
+          -28.951170214080722
+        ],
+        [
+          "HUT",
+          19.97700538436886
+        ],
+        [
+          "INTU",
+          2.280883264160166
+        ],
+        [
+          "IT",
+          -8.324660075927769
+        ],
+        [
+          "LI",
+          -6.727176626205473
+        ],
+        [
+          "MARA",
+          -23.99310600976559
+        ],
+        [
+          "META",
+          -0.11723692480469254
+        ],
+        [
+          "MSFT",
+          -4.580951649902327
+        ],
+        [
+          "NIO",
+          2.3307641516990225
+        ],
+        [
+          "NOW",
+          -22.010037918701173
+        ],
+        [
+          "NVDA",
+          -18.552442779174854
+        ],
+        [
+          "TSLA",
+          -37.979772649108874
+        ],
+        [
+          "TTD",
+          17.870722286773653
+        ],
+        [
+          "WDAY",
+          -8.180971455993639
+        ]
+      ]
+    },
+    {
+      "candidate": {
+        "ema_period": 3,
+        "slope_len": 12,
+        "band": 0.02,
+        "stop_loss_pct": 0.015,
+        "take_profit_pct": 0.18,
+        "trade_direction": "Long Only",
+        "use_limit_entry": false,
+        "close_on_neutral_signal": false
+      },
+      "return_pct": -14.370244837821149,
+      "max_drawdown_pct": 47.11138009210314,
+      "trades": 365,
+      "wins": 11,
+      "losses": 354,
+      "skipped_entries": 0,
+      "final_equity": 8562.975516217886,
+      "scoring_mode": "isolated",
+      "ticker_count": 21,
+      "min_ticker_return_pct": -38.19291800348027,
+      "median_ticker_return_pct": -11.876006482116736,
+      "per_ticker_return_pct": [
+        [
+          "AAPL",
+          -5.801928472167983
+        ],
+        [
+          "AMZN",
+          -7.205858844085705
+        ],
+        [
+          "APP",
+          -34.32010980193851
+        ],
+        [
+          "EPAM",
+          -14.455205989837669
+        ],
+        [
+          "EXPE",
+          -13.829594722442634
+        ],
+        [
+          "FDS",
+          -13.499813543701203
+        ],
+        [
+          "GOOGL",
+          -7.395441428033428
+        ],
+        [
+          "HOOD",
+          -10.493039398840065
+        ],
+        [
+          "HUT",
+          -38.19291800348027
+        ],
+        [
+          "INTU",
+          -11.640528592641585
+        ],
+        [
+          "IT",
+          3.3665391686437762
+        ],
+        [
+          "LI",
+          -11.876006482116736
+        ],
+        [
+          "MARA",
+          -26.598850073535424
+        ],
+        [
+          "META",
+          -9.922952107543988
+        ],
+        [
+          "MSFT",
+          -5.8231680180957115
+        ],
+        [
+          "NIO",
+          -24.755589662238197
+        ],
+        [
+          "NOW",
+          -11.422589476013181
+        ],
+        [
+          "NVDA",
+          -12.667020090750174
+        ],
+        [
+          "TSLA",
+          -18.88936007885742
+        ],
+        [
+          "TTD",
+          -16.29253486131291
+        ],
+        [
+          "WDAY",
+          -10.059171115255122
+        ]
+      ]
+    }
+  ]
+}
