@@ -1,0 +1,123 @@
+{
+  "generated_at_utc": "2026-03-21T10:34:54.208866+00:00",
+  "constraints": {
+    "tickers": [
+      "AAPL",
+      "MSFT",
+      "NVDA",
+      "AMZN",
+      "META",
+      "TSLA",
+      "GOOGL"
+    ],
+    "lookback_days": 475,
+    "period": "hour",
+    "regular_session_only": false,
+    "initial_capital": 10000.0,
+    "leverage": 1.0,
+    "notional_per_trade": 10000.0,
+    "round_trip_commission": 1.0,
+    "short_borrow_fee_apr": 0.03,
+    "compounding_position_sizing": true,
+    "position_size_cash_fraction": 0.85,
+    "target_return_pct": 170.0,
+    "seed": 42,
+    "stage_a_samples": 40,
+    "stage_b_samples": 20,
+    "refine_top_k": 10
+  },
+  "summary": {
+    "target_hit": true,
+    "hit_stage": "stage_a",
+    "stage_a_evaluated": 4,
+    "stage_b_evaluated": 0,
+    "total_evaluated": 4,
+    "best_result": {
+      "candidate": {
+        "ema_period": 10,
+        "slope_len": 48,
+        "band": 0.025,
+        "stop_loss_pct": 0.0,
+        "take_profit_pct": 0.18,
+        "trade_direction": "Short Only"
+      },
+      "return_pct": 271.5285042060128,
+      "max_drawdown_pct": 36.623439551086136,
+      "trades": 24,
+      "wins": 21,
+      "losses": 3,
+      "skipped_entries": 25,
+      "final_equity": 37152.85042060128
+    }
+  },
+  "top_results": [
+    {
+      "candidate": {
+        "ema_period": 10,
+        "slope_len": 48,
+        "band": 0.025,
+        "stop_loss_pct": 0.0,
+        "take_profit_pct": 0.18,
+        "trade_direction": "Short Only"
+      },
+      "return_pct": 271.5285042060128,
+      "max_drawdown_pct": 36.623439551086136,
+      "trades": 24,
+      "wins": 21,
+      "losses": 3,
+      "skipped_entries": 25,
+      "final_equity": 37152.85042060128
+    },
+    {
+      "candidate": {
+        "ema_period": 40,
+        "slope_len": 20,
+        "band": 0.001,
+        "stop_loss_pct": 0.015,
+        "take_profit_pct": 0.12,
+        "trade_direction": "Short Only"
+      },
+      "return_pct": -5.273650426234253,
+      "max_drawdown_pct": 11.973284475340263,
+      "trades": 34,
+      "wins": 2,
+      "losses": 32,
+      "skipped_entries": 6,
+      "final_equity": 9472.634957376575
+    },
+    {
+      "candidate": {
+        "ema_period": 4,
+        "slope_len": 12,
+        "band": 0.02,
+        "stop_loss_pct": 0.01,
+        "take_profit_pct": 0.18,
+        "trade_direction": "Both"
+      },
+      "return_pct": -19.355477819417683,
+      "max_drawdown_pct": 19.35144539168727,
+      "trades": 33,
+      "wins": 1,
+      "losses": 32,
+      "skipped_entries": 0,
+      "final_equity": 8064.452218058232
+    },
+    {
+      "candidate": {
+        "ema_period": 2,
+        "slope_len": 24,
+        "band": 0.003,
+        "stop_loss_pct": 0.06,
+        "take_profit_pct": 0.08,
+        "trade_direction": "Short Only"
+      },
+      "return_pct": -26.017088588679837,
+      "max_drawdown_pct": 44.13674428380388,
+      "trades": 53,
+      "wins": 18,
+      "losses": 35,
+      "skipped_entries": 15,
+      "final_equity": 7398.2911411320165
+    }
+  ]
+}

@@ -1,0 +1,1075 @@
+{
+  "generated_at_utc": "2026-03-24T20:46:15.174568+00:00",
+  "constraints": {
+    "run_mode": "isolated",
+    "isolated_objective": "min",
+    "tickers": [
+      "AAPL",
+      "MSFT",
+      "NVDA",
+      "AMZN",
+      "META",
+      "TSLA",
+      "GOOGL",
+      "NIO",
+      "HUT",
+      "MARA",
+      "XPEV",
+      "BABA",
+      "AMD",
+      "ADBE"
+    ],
+    "lookback_days": 475,
+    "period": "hour",
+    "regular_session_only": false,
+    "initial_capital": 10000.0,
+    "leverage": 1.0,
+    "notional_per_trade": 10000.0,
+    "round_trip_commission": 1.0,
+    "short_borrow_fee_apr": 0.03,
+    "compounding_position_sizing": true,
+    "position_size_cash_fraction": 0.85,
+    "target_return_pct": 250.0,
+    "target_min_ticker_return_pct": 250.0,
+    "seed": 42,
+    "stage_a_samples": 800,
+    "stage_b_samples": 400,
+    "refine_top_k": 40
+  },
+  "summary": {
+    "target_hit": false,
+    "hit_stage": null,
+    "stage_a_evaluated": 800,
+    "stage_b_evaluated": 400,
+    "total_evaluated": 1200,
+    "best_result": {
+      "candidate": {
+        "ema_period": 2,
+        "slope_len": 16,
+        "band": 0.025,
+        "stop_loss_pct": 0.02,
+        "take_profit_pct": 0.06,
+        "trade_direction": "Long Only"
+      },
+      "return_pct": -0.23097226864591122,
+      "max_drawdown_pct": 6.115478686046927,
+      "trades": 44,
+      "wins": 19,
+      "losses": 25,
+      "skipped_entries": 0,
+      "final_equity": 9976.902773135409,
+      "scoring_mode": "isolated",
+      "ticker_count": 14,
+      "min_ticker_return_pct": -2.003320000000003,
+      "median_ticker_return_pct": -0.093149999999996,
+      "per_ticker_return_pct": [
+        [
+          "AAPL",
+          0.0
+        ],
+        [
+          "ADBE",
+          0.0
+        ],
+        [
+          "AMD",
+          0.939177298706054
+        ],
+        [
+          "AMZN",
+          -2.003320000000003
+        ],
+        [
+          "BABA",
+          1.6064999999999965
+        ],
+        [
+          "GOOGL",
+          -1.987587199999998
+        ],
+        [
+          "HUT",
+          1.7901075760269305
+        ],
+        [
+          "MARA",
+          -1.0791799203949086
+        ],
+        [
+          "META",
+          -0.425099999999984
+        ],
+        [
+          "MSFT",
+          -0.41459999999999125
+        ],
+        [
+          "NIO",
+          0.3657999999999993
+        ],
+        [
+          "NVDA",
+          -0.01
+        ],
+        [
+          "TSLA",
+          -1.83910951538086
+        ],
+        [
+          "XPEV",
+          -0.176299999999992
+        ]
+      ]
+    }
+  },
+  "top_results": [
+    {
+      "candidate": {
+        "ema_period": 2,
+        "slope_len": 16,
+        "band": 0.025,
+        "stop_loss_pct": 0.02,
+        "take_profit_pct": 0.06,
+        "trade_direction": "Long Only"
+      },
+      "return_pct": -0.23097226864591122,
+      "max_drawdown_pct": 6.115478686046927,
+      "trades": 44,
+      "wins": 19,
+      "losses": 25,
+      "skipped_entries": 0,
+      "final_equity": 9976.902773135409,
+      "scoring_mode": "isolated",
+      "ticker_count": 14,
+      "min_ticker_return_pct": -2.003320000000003,
+      "median_ticker_return_pct": -0.093149999999996,
+      "per_ticker_return_pct": [
+        [
+          "AAPL",
+          0.0
+        ],
+        [
+          "ADBE",
+          0.0
+        ],
+        [
+          "AMD",
+          0.939177298706054
+        ],
+        [
+          "AMZN",
+          -2.003320000000003
+        ],
+        [
+          "BABA",
+          1.6064999999999965
+        ],
+        [
+          "GOOGL",
+          -1.987587199999998
+        ],
+        [
+          "HUT",
+          1.7901075760269305
+        ],
+        [
+          "MARA",
+          -1.0791799203949086
+        ],
+        [
+          "META",
+          -0.425099999999984
+        ],
+        [
+          "MSFT",
+          -0.41459999999999125
+        ],
+        [
+          "NIO",
+          0.3657999999999993
+        ],
+        [
+          "NVDA",
+          -0.01
+        ],
+        [
+          "TSLA",
+          -1.83910951538086
+        ],
+        [
+          "XPEV",
+          -0.176299999999992
+        ]
+      ]
+    },
+    {
+      "candidate": {
+        "ema_period": 2,
+        "slope_len": 4,
+        "band": 0.025,
+        "stop_loss_pct": 0.0,
+        "take_profit_pct": 0.05,
+        "trade_direction": "Long Only"
+      },
+      "return_pct": 0.8085302837407289,
+      "max_drawdown_pct": 9.127512098510582,
+      "trades": 50,
+      "wins": 26,
+      "losses": 24,
+      "skipped_entries": 0,
+      "final_equity": 10080.853028374073,
+      "scoring_mode": "isolated",
+      "ticker_count": 14,
+      "min_ticker_return_pct": -2.0326839551238844,
+      "median_ticker_return_pct": 0.0,
+      "per_ticker_return_pct": [
+        [
+          "AAPL",
+          0.0
+        ],
+        [
+          "ADBE",
+          0.0
+        ],
+        [
+          "AMD",
+          11.256182301025401
+        ],
+        [
+          "AMZN",
+          1.8279999999999927
+        ],
+        [
+          "BABA",
+          1.1214999999999964
+        ],
+        [
+          "GOOGL",
+          -0.7195000000000072
+        ],
+        [
+          "HUT",
+          0.33455220117570206
+        ],
+        [
+          "MARA",
+          -2.0326839551238844
+        ],
+        [
+          "META",
+          -0.425099999999984
+        ],
+        [
+          "MSFT",
+          -0.41459999999999125
+        ],
+        [
+          "NIO",
+          0.22270000000000437
+        ],
+        [
+          "NVDA",
+          -1.0496500000000015
+        ],
+        [
+          "TSLA",
+          1.3743234252929688
+        ],
+        [
+          "XPEV",
+          -0.176299999999992
+        ]
+      ]
+    },
+    {
+      "candidate": {
+        "ema_period": 2,
+        "slope_len": 8,
+        "band": 0.02,
+        "stop_loss_pct": 0.01,
+        "take_profit_pct": 0.12,
+        "trade_direction": "Long Only"
+      },
+      "return_pct": 0.0737253530281552,
+      "max_drawdown_pct": 9.2740667398431,
+      "trades": 94,
+      "wins": 27,
+      "losses": 67,
+      "skipped_entries": 0,
+      "final_equity": 10007.372535302815,
+      "scoring_mode": "isolated",
+      "ticker_count": 14,
+      "min_ticker_return_pct": -2.302431051788262,
+      "median_ticker_return_pct": -0.3383090821442693,
+      "per_ticker_return_pct": [
+        [
+          "AAPL",
+          -0.7761000000000058
+        ],
+        [
+          "ADBE",
+          -0.02
+        ],
+        [
+          "AMD",
+          5.050143134374994
+        ],
+        [
+          "AMZN",
+          0.10174000000000888
+        ],
+        [
+          "BABA",
+          0.6175000000000365
+        ],
+        [
+          "GOOGL",
+          -1.0026636000000144
+        ],
+        [
+          "HUT",
+          -1.0254828340110724
+        ],
+        [
+          "MARA",
+          3.8486319869155885
+        ],
+        [
+          "META",
+          -1.4345725280761508
+        ],
+        [
+          "MSFT",
+          0.646840000000011
+        ],
+        [
+          "NIO",
+          -0.6052104097719349
+        ],
+        [
+          "NVDA",
+          -1.994832000732422
+        ],
+        [
+          "TSLA",
+          -0.07140775451660375
+        ],
+        [
+          "XPEV",
+          -2.302431051788262
+        ]
+      ]
+    },
+    {
+      "candidate": {
+        "ema_period": 2,
+        "slope_len": 4,
+        "band": 0.025,
+        "stop_loss_pct": 0.015,
+        "take_profit_pct": 0.16,
+        "trade_direction": "Long Only"
+      },
+      "return_pct": 0.10086158708379513,
+      "max_drawdown_pct": 5.220263836315786,
+      "trades": 49,
+      "wins": 20,
+      "losses": 29,
+      "skipped_entries": 0,
+      "final_equity": 10010.08615870838,
+      "scoring_mode": "isolated",
+      "ticker_count": 14,
+      "min_ticker_return_pct": -2.898432545032465,
+      "median_ticker_return_pct": -0.093149999999996,
+      "per_ticker_return_pct": [
+        [
+          "AAPL",
+          0.0
+        ],
+        [
+          "ADBE",
+          0.0
+        ],
+        [
+          "AMD",
+          6.201602676757812
+        ],
+        [
+          "AMZN",
+          -1.5049899999999978
+        ],
+        [
+          "BABA",
+          1.1214999999999964
+        ],
+        [
+          "GOOGL",
+          -1.4951253999999972
+        ],
+        [
+          "HUT",
+          -2.898432545032465
+        ],
+        [
+          "MARA",
+          2.139500509603513
+        ],
+        [
+          "META",
+          -0.425099999999984
+        ],
+        [
+          "MSFT",
+          -0.41459999999999125
+        ],
+        [
+          "NIO",
+          0.22270000000000437
+        ],
+        [
+          "NVDA",
+          -0.01
+        ],
+        [
+          "TSLA",
+          -1.3486930221557667
+        ],
+        [
+          "XPEV",
+          -0.176299999999992
+        ]
+      ]
+    },
+    {
+      "candidate": {
+        "ema_period": 2,
+        "slope_len": 12,
+        "band": 0.02,
+        "stop_loss_pct": 0.03,
+        "take_profit_pct": 0.16,
+        "trade_direction": "Long Only"
+      },
+      "return_pct": 0.9110783032869131,
+      "max_drawdown_pct": 10.026211425793408,
+      "trades": 84,
+      "wins": 43,
+      "losses": 41,
+      "skipped_entries": 0,
+      "final_equity": 10091.107830328692,
+      "scoring_mode": "isolated",
+      "ticker_count": 14,
+      "min_ticker_return_pct": -2.9725108000000002,
+      "median_ticker_return_pct": 1.1361497924804735,
+      "per_ticker_return_pct": [
+        [
+          "AAPL",
+          -0.7761000000000058
+        ],
+        [
+          "ADBE",
+          -0.02
+        ],
+        [
+          "AMD",
+          3.036158103515627
+        ],
+        [
+          "AMZN",
+          2.936399999999994
+        ],
+        [
+          "BABA",
+          1.3272000000000117
+        ],
+        [
+          "GOOGL",
+          -2.9725108000000002
+        ],
+        [
+          "HUT",
+          -2.602295529739349
+        ],
+        [
+          "MARA",
+          7.8852945660820115
+        ],
+        [
+          "META",
+          0.9887995849609433
+        ],
+        [
+          "MSFT",
+          1.2835000000000036
+        ],
+        [
+          "NIO",
+          2.0010069068908525
+        ],
+        [
+          "NVDA",
+          -2.340376162719731
+        ],
+        [
+          "TSLA",
+          2.1827234252929704
+        ],
+        [
+          "XPEV",
+          -0.1747038482665448
+        ]
+      ]
+    },
+    {
+      "candidate": {
+        "ema_period": 2,
+        "slope_len": 4,
+        "band": 0.02,
+        "stop_loss_pct": 0.015,
+        "take_profit_pct": 0.16,
+        "trade_direction": "Long Only"
+      },
+      "return_pct": 0.6679573822532893,
+      "max_drawdown_pct": 8.48688397003362,
+      "trades": 98,
+      "wins": 38,
+      "losses": 60,
+      "skipped_entries": 0,
+      "final_equity": 10066.795738225328,
+      "scoring_mode": "isolated",
+      "ticker_count": 14,
+      "min_ticker_return_pct": -2.9772480010986326,
+      "median_ticker_return_pct": -0.20829499999999826,
+      "per_ticker_return_pct": [
+        [
+          "AAPL",
+          -0.7761000000000058
+        ],
+        [
+          "ADBE",
+          -0.02
+        ],
+        [
+          "AMD",
+          6.201602676757812
+        ],
+        [
+          "AMZN",
+          -0.3965899999999965
+        ],
+        [
+          "BABA",
+          0.6175000000000365
+        ],
+        [
+          "GOOGL",
+          -1.4951253999999972
+        ],
+        [
+          "HUT",
+          0.9881662321720068
+        ],
+        [
+          "MARA",
+          9.890995756380125
+        ],
+        [
+          "META",
+          0.9887995849609433
+        ],
+        [
+          "MSFT",
+          1.2835000000000036
+        ],
+        [
+          "NIO",
+          -1.4499014222822189
+        ],
+        [
+          "NVDA",
+          -2.9772480010986326
+        ],
+        [
+          "TSLA",
+          -0.5618242477417152
+        ],
+        [
+          "XPEV",
+          -2.9423718276023103
+        ]
+      ]
+    },
+    {
+      "candidate": {
+        "ema_period": 2,
+        "slope_len": 60,
+        "band": 0.025,
+        "stop_loss_pct": 0.005,
+        "take_profit_pct": 0.1,
+        "trade_direction": "Long Only"
+      },
+      "return_pct": -0.7118370248127199,
+      "max_drawdown_pct": 3.5863153385899293,
+      "trades": 34,
+      "wins": 6,
+      "losses": 28,
+      "skipped_entries": 0,
+      "final_equity": 9928.816297518728,
+      "scoring_mode": "isolated",
+      "ticker_count": 14,
+      "min_ticker_return_pct": -3.1943744206428164,
+      "median_ticker_return_pct": -0.5088090795898461,
+      "per_ticker_return_pct": [
+        [
+          "AAPL",
+          0.0
+        ],
+        [
+          "ADBE",
+          0.0
+        ],
+        [
+          "AMD",
+          -1.4462701000000016
+        ],
+        [
+          "AMZN",
+          -0.5083300000000054
+        ],
+        [
+          "BABA",
+          -0.4132025000000067
+        ],
+        [
+          "GOOGL",
+          -0.5102017999999953
+        ],
+        [
+          "HUT",
+          -3.1943744206428164
+        ],
+        [
+          "MARA",
+          -2.8586243675555854
+        ],
+        [
+          "META",
+          -0.6068999999999869
+        ],
+        [
+          "MSFT",
+          -0.5384449999999924
+        ],
+        [
+          "NIO",
+          0.3657999999999993
+        ],
+        [
+          "NVDA",
+          -0.21688200000000504
+        ],
+        [
+          "TSLA",
+          -0.5092881591796868
+        ],
+        [
+          "XPEV",
+          0.47100000000000364
+        ]
+      ]
+    },
+    {
+      "candidate": {
+        "ema_period": 3,
+        "slope_len": 48,
+        "band": 0.025,
+        "stop_loss_pct": 0.0,
+        "take_profit_pct": 0.22,
+        "trade_direction": "Long Only"
+      },
+      "return_pct": 2.0377873568213283,
+      "max_drawdown_pct": 16.04037241635924,
+      "trades": 130,
+      "wins": 66,
+      "losses": 64,
+      "skipped_entries": 0,
+      "final_equity": 10203.778735682134,
+      "scoring_mode": "isolated",
+      "ticker_count": 14,
+      "min_ticker_return_pct": -3.2070883235931795,
+      "median_ticker_return_pct": 0.26489912109374925,
+      "per_ticker_return_pct": [
+        [
+          "AAPL",
+          -0.8832999999999992
+        ],
+        [
+          "ADBE",
+          -0.01
+        ],
+        [
+          "AMD",
+          5.272499160766583
+        ],
+        [
+          "AMZN",
+          6.517499328613285
+        ],
+        [
+          "BABA",
+          0.33799824218749563
+        ],
+        [
+          "GOOGL",
+          -0.3167400000000089
+        ],
+        [
+          "HUT",
+          -1.099851482009908
+        ],
+        [
+          "MARA",
+          -1.510527007888777
+        ],
+        [
+          "META",
+          8.260747126953119
+        ],
+        [
+          "MSFT",
+          0.1918000000000029
+        ],
+        [
+          "NIO",
+          -3.2070883235931795
+        ],
+        [
+          "NVDA",
+          4.765266671752925
+        ],
+        [
+          "TSLA",
+          5.52445644531248
+        ],
+        [
+          "XPEV",
+          4.68626283340458
+        ]
+      ]
+    },
+    {
+      "candidate": {
+        "ema_period": 2,
+        "slope_len": 72,
+        "band": 0.025,
+        "stop_loss_pct": 0.015,
+        "take_profit_pct": 0.12,
+        "trade_direction": "Long Only"
+      },
+      "return_pct": -0.3759473898881048,
+      "max_drawdown_pct": 4.32013187332152,
+      "trades": 32,
+      "wins": 14,
+      "losses": 18,
+      "skipped_entries": 0,
+      "final_equity": 9962.405261011188,
+      "scoring_mode": "isolated",
+      "ticker_count": 14,
+      "min_ticker_return_pct": -3.777063636016828,
+      "median_ticker_return_pct": -0.005,
+      "per_ticker_return_pct": [
+        [
+          "AAPL",
+          0.0
+        ],
+        [
+          "ADBE",
+          0.0
+        ],
+        [
+          "AMD",
+          -1.8339663505859427
+        ],
+        [
+          "AMZN",
+          -1.5049899999999978
+        ],
+        [
+          "BABA",
+          1.6064999999999965
+        ],
+        [
+          "GOOGL",
+          -1.4951253999999972
+        ],
+        [
+          "HUT",
+          -3.777063636016828
+        ],
+        [
+          "MARA",
+          1.6279562445755256
+        ],
+        [
+          "META",
+          -0.425099999999984
+        ],
+        [
+          "MSFT",
+          -0.41459999999999125
+        ],
+        [
+          "NIO",
+          0.3657999999999993
+        ],
+        [
+          "NVDA",
+          -0.01
+        ],
+        [
+          "TSLA",
+          0.12632568359375
+        ],
+        [
+          "XPEV",
+          0.47100000000000364
+        ]
+      ]
+    },
+    {
+      "candidate": {
+        "ema_period": 2,
+        "slope_len": 20,
+        "band": 0.025,
+        "stop_loss_pct": 0.005,
+        "take_profit_pct": 0.03,
+        "trade_direction": "Long Only"
+      },
+      "return_pct": -0.8896101370603278,
+      "max_drawdown_pct": 4.786720688888135,
+      "trades": 43,
+      "wins": 7,
+      "losses": 36,
+      "skipped_entries": 0,
+      "final_equity": 9911.038986293966,
+      "scoring_mode": "isolated",
+      "ticker_count": 14,
+      "min_ticker_return_pct": -4.368518998817436,
+      "median_ticker_return_pct": -0.5092659000000004,
+      "per_ticker_return_pct": [
+        [
+          "AAPL",
+          0.0
+        ],
+        [
+          "ADBE",
+          0.0
+        ],
+        [
+          "AMD",
+          -1.9546509699951273
+        ],
+        [
+          "AMZN",
+          -0.5083300000000054
+        ],
+        [
+          "BABA",
+          -0.4132025000000067
+        ],
+        [
+          "GOOGL",
+          -0.5102017999999953
+        ],
+        [
+          "HUT",
+          -2.681138045967091
+        ],
+        [
+          "MARA",
+          -4.368518998817436
+        ],
+        [
+          "META",
+          -0.6068999999999869
+        ],
+        [
+          "MSFT",
+          -0.5384449999999924
+        ],
+        [
+          "NIO",
+          0.3657999999999993
+        ],
+        [
+          "NVDA",
+          -0.21688200000000504
+        ],
+        [
+          "TSLA",
+          -0.9986051040649545
+        ],
+        [
+          "XPEV",
+          -0.02346749999998792
+        ]
+      ]
+    },
+    {
+      "candidate": {
+        "ema_period": 2,
+        "slope_len": 12,
+        "band": 0.022,
+        "stop_loss_pct": 0.005,
+        "take_profit_pct": 0.08,
+        "trade_direction": "Long Only"
+      },
+      "return_pct": -0.083223198157553,
+      "max_drawdown_pct": 6.084415717992265,
+      "trades": 59,
+      "wins": 12,
+      "losses": 47,
+      "skipped_entries": 0,
+      "final_equity": 9991.677680184246,
+      "scoring_mode": "isolated",
+      "ticker_count": 14,
+      "min_ticker_return_pct": -4.398630514392845,
+      "median_ticker_return_pct": -0.46076625000000604,
+      "per_ticker_return_pct": [
+        [
+          "AAPL",
+          0.0
+        ],
+        [
+          "ADBE",
+          0.0
+        ],
+        [
+          "AMD",
+          6.427065483203133
+        ],
+        [
+          "AMZN",
+          -0.5083300000000054
+        ],
+        [
+          "BABA",
+          -0.4132025000000067
+        ],
+        [
+          "GOOGL",
+          -0.5102017999999953
+        ],
+        [
+          "HUT",
+          -4.398630514392845
+        ],
+        [
+          "MARA",
+          2.130391976005576
+        ],
+        [
+          "META",
+          -1.1192885467529232
+        ],
+        [
+          "MSFT",
+          -0.5384449999999924
+        ],
+        [
+          "NIO",
+          -0.1089180000000124
+        ],
+        [
+          "NVDA",
+          -1.0180175003051772
+        ],
+        [
+          "TSLA",
+          -0.9986051040649545
+        ],
+        [
+          "XPEV",
+          -0.10894326789853948
+        ]
+      ]
+    },
+    {
+      "candidate": {
+        "ema_period": 2,
+        "slope_len": 6,
+        "band": 0.022,
+        "stop_loss_pct": 0.005,
+        "take_profit_pct": 0.18,
+        "trade_direction": "Long Only"
+      },
+      "return_pct": -0.10206132511833596,
+      "max_drawdown_pct": 6.266323505030281,
+      "trades": 69,
+      "wins": 13,
+      "losses": 56,
+      "skipped_entries": 0,
+      "final_equity": 9989.793867488168,
+      "scoring_mode": "isolated",
+      "ticker_count": 14,
+      "min_ticker_return_pct": -4.54517076434895,
+      "median_ticker_return_pct": -0.5243233999999939,
+      "per_ticker_return_pct": [
+        [
+          "AAPL",
+          0.0
+        ],
+        [
+          "ADBE",
+          0.0
+        ],
+        [
+          "AMD",
+          6.624043534374996
+        ],
+        [
+          "AMZN",
+          -0.5083300000000054
+        ],
+        [
+          "BABA",
+          -0.8984325000000172
+        ],
+        [
+          "GOOGL",
+          -0.5102017999999953
+        ],
+        [
+          "HUT",
+          -4.54517076434895
+        ],
+        [
+          "MARA",
+          2.9825611446723816
+        ],
+        [
+          "META",
+          -1.1192885467529232
+        ],
+        [
+          "MSFT",
+          -0.5384449999999924
+        ],
+        [
+          "NIO",
+          -0.7254869973793211
+        ],
+        [
+          "NVDA",
+          -1.0180175003051772
+        ],
+        [
+          "TSLA",
+          -0.9986051040649545
+        ],
+        [
+          "XPEV",
+          -0.17348501785274495
+        ]
+      ]
+    }
+  ]
+}
