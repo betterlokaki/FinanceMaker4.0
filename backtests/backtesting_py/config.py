@@ -80,3 +80,6 @@ class PortfolioConfig:
     slippage_ticks: float = 2.0
     fixed_commission_per_side: float = 0.0
     default_tick_size: float = 0.01
+    dynamic_position_sizing: bool = False
+    position_size_cash_fraction: float = 1.0
+    short_borrow_fee_apr: float = 0.0

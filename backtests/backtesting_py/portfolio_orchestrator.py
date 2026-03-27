@@ -25,6 +25,7 @@ class ExecutedPortfolioTrade:
     net_pnl: float
     entry_cost: float
     exit_cost: float
+    short_borrow_fee: float
 
 
 @dataclass(frozen=True)
@@ -117,6 +118,11 @@ def _max_drawdown_pct(equity_curve: list[tuple[pd.Timestamp, float]]) -> float:
     return abs(float(drawdown.min())) * 100.0 if not drawdown.empty else 0.0
 
 
+def _year_fraction(entry_time: pd.Timestamp, exit_time: pd.Timestamp) -> float:
+    seconds = max(0.0, float((exit_time - entry_time).total_seconds()))
+    return seconds / (365.0 * 24.0 * 60.0 * 60.0)
+
+
 def run_shared_capital_portfolio(
     trades_by_ticker: dict[str, pd.DataFrame],
     portfolio_config: PortfolioConfig,
@@ -125,6 +131,9 @@ def run_shared_capital_portfolio(
     """Allocate multi-symbol candidate trades under shared capital constraints."""
     tick_sizes = tick_size_by_ticker or {}
     candidates = _iter_candidates(trades_by_ticker)
+    allocation_fraction = float(portfolio_config.position_size_cash_fraction)
+    allocation_fraction = max(0.0, min(1.0, allocation_fraction))
+    short_borrow_fee_apr = max(0.0, float(portfolio_config.short_borrow_fee_apr))
 
     events: list[tuple[pd.Timestamp, int, str, str, _CandidateTrade]] = []
     for candidate in candidates:
@@ -148,7 +157,27 @@ def run_shared_capital_portfolio(
                 continue
 
             capacity = cash * portfolio_config.max_leverage
-            if used_notional + candidate.notional > capacity:
+            size = candidate.size
+            notional = candidate.notional
+            if portfolio_config.dynamic_position_sizing:
+                remaining_capacity = max(0.0, capacity - used_notional)
+                target_notional = min(
+                    remaining_capacity,
+                    cash * portfolio_config.max_leverage * allocation_fraction,
+                )
+                size = int(target_notional / candidate.entry_price)
+                if size < 1:
+                    skipped.append(
+                        SkippedPortfolioTrade(
+                            ticker=ticker,
+                            entry_time=event_time,
+                            reason="insufficient_effective_size",
+                        )
+                    )
+                    continue
+                notional = candidate.entry_price * size
+
+            if used_notional + notional > capacity:
                 skipped.append(
                     SkippedPortfolioTrade(
                         ticker=ticker,
@@ -159,7 +188,7 @@ def run_shared_capital_portfolio(
                 continue
 
             entry_cost = calculate_side_cost(
-                order_size=candidate.size * candidate.direction,
+                order_size=size * candidate.direction,
                 price=candidate.entry_price,
                 commission_rate=portfolio_config.commission_rate,
                 tick_size=tick_size,
@@ -177,8 +206,16 @@ def run_shared_capital_portfolio(
                 continue
 
             cash -= entry_cost
-            used_notional += candidate.notional
-            open_positions[candidate] = {"entry_cost": entry_cost, "tick_size": tick_size}
+            used_notional += notional
+            open_positions[candidate] = {
+                "entry_cost": entry_cost,
+                "tick_size": tick_size,
+                "size": size,
+                "direction": candidate.direction,
+                "entry_price": candidate.entry_price,
+                "entry_time": candidate.entry_time,
+                "notional": notional,
+            }
             equity_curve.append((event_time, cash))
             continue
 
@@ -187,13 +224,16 @@ def run_shared_capital_portfolio(
         if position is None:
             continue
 
+        size = int(position["size"])
+        direction = int(position["direction"])
+        entry_price = float(position["entry_price"])
         gross_pnl = (
-            (candidate.exit_price - candidate.entry_price)
-            * candidate.size
-            * candidate.direction
+            (candidate.exit_price - entry_price)
+            * size
+            * direction
         )
         exit_cost = calculate_side_cost(
-            order_size=-candidate.size * candidate.direction,
+            order_size=-size * direction,
             price=candidate.exit_price,
             commission_rate=portfolio_config.commission_rate,
             tick_size=float(position["tick_size"]),
@@ -201,24 +241,31 @@ def run_shared_capital_portfolio(
             fixed_commission_per_side=portfolio_config.fixed_commission_per_side,
         )
         entry_cost = float(position["entry_cost"])
-        net_pnl = gross_pnl - entry_cost - exit_cost
+        short_borrow_fee = 0.0
+        if direction < 0 and short_borrow_fee_apr > 0.0:
+            short_borrow_fee = float(position["notional"]) * short_borrow_fee_apr * _year_fraction(
+                pd.Timestamp(position["entry_time"]),
+                candidate.exit_time,
+            )
+        net_pnl = gross_pnl - entry_cost - exit_cost - short_borrow_fee
 
-        cash += gross_pnl - exit_cost
-        used_notional = max(0.0, used_notional - candidate.notional)
+        cash += gross_pnl - exit_cost - short_borrow_fee
+        used_notional = max(0.0, used_notional - float(position["notional"]))
 
         executed.append(
             ExecutedPortfolioTrade(
                 ticker=ticker,
-                direction="Long" if candidate.direction > 0 else "Short",
-                size=candidate.size,
-                entry_time=candidate.entry_time,
+                direction="Long" if direction > 0 else "Short",
+                size=size,
+                entry_time=pd.Timestamp(position["entry_time"]),
                 exit_time=candidate.exit_time,
-                entry_price=candidate.entry_price,
+                entry_price=entry_price,
                 exit_price=candidate.exit_price,
                 gross_pnl=gross_pnl,
                 net_pnl=net_pnl,
                 entry_cost=entry_cost,
                 exit_cost=exit_cost,
+                short_borrow_fee=short_borrow_fee,
             )
         )
         equity_curve.append((event_time, cash))

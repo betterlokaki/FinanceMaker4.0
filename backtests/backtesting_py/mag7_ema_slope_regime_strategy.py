@@ -17,13 +17,16 @@ class Mag7EmaSlopeRegimeStrategy(Strategy):
     """
 
     trade_direction: str = "Both"
-    notional_per_trade: float = 30_000.0
+    notional_per_trade: float = 5000.0
     ema_period: int = 20
-    slope_len: int = 36
-    band: float = 0.0
-    stop_loss_pct: float = 0.03
+    slope_len: int = 24
+    band: float = 0.016
+    stop_loss_pct: float = 0.02
     take_profit_pct: float = 0.06
     use_limit_entry: bool = True
+    close_on_neutral_signal: bool = False
+    use_full_equity_sizing: bool = False
+    full_equity_fraction: float = 1.0
 
     def init(self) -> None:
         close = pd.Series(np.asarray(self.data.Close, dtype=float))
@@ -66,6 +69,8 @@ class Mag7EmaSlopeRegimeStrategy(Strategy):
                 self.position.close()
             elif desired_side < 0 and self.position.is_long:
                 self.position.close()
+            elif desired_side == 0 and bool(self.close_on_neutral_signal):
+                self.position.close()
             return
 
         pending_orders = self._active_entry_orders()
@@ -77,9 +82,21 @@ class Mag7EmaSlopeRegimeStrategy(Strategy):
         for order in pending_orders:
             order.cancel()
 
-        shares = int(self.notional_per_trade / price)
-        if shares < 1:
-            return
+        size: int | float
+        if bool(self.use_full_equity_sizing):
+            # backtesting.py interprets size >= 1 as absolute units (shares/contracts).
+            # Keep sizing strictly below 1.0 to represent "all available liquidity".
+            fraction = max(0.0, min(1.0, float(self.full_equity_fraction)))
+            if fraction >= 1.0:
+                fraction = 0.999999
+            if fraction <= 0.0:
+                return
+            size = fraction
+        else:
+            shares = int(self.notional_per_trade / price)
+            if shares < 1:
+                return
+            size = shares
 
         entry_price = float(price)
         stop_loss_pct = max(0.0, float(self.stop_loss_pct))
@@ -90,7 +107,7 @@ class Mag7EmaSlopeRegimeStrategy(Strategy):
             tp = entry_price * (1.0 + take_profit_pct) if take_profit_pct > 0 else None
             self._place_entry(
                 is_long=True,
-                shares=shares,
+                size=size,
                 entry_price=entry_price,
                 stop_price=sl,
                 take_profit_price=tp,
@@ -101,7 +118,7 @@ class Mag7EmaSlopeRegimeStrategy(Strategy):
         tp = entry_price * (1.0 - take_profit_pct) if take_profit_pct > 0 else None
         self._place_entry(
             is_long=False,
-            shares=shares,
+            size=size,
             entry_price=entry_price,
             stop_price=sl,
             take_profit_price=tp,
@@ -111,13 +128,13 @@ class Mag7EmaSlopeRegimeStrategy(Strategy):
         self,
         *,
         is_long: bool,
-        shares: int,
+        size: int | float,
         entry_price: float,
         stop_price: float | None,
         take_profit_price: float | None,
     ) -> None:
         kwargs: dict[str, float | int | None] = {
-            "size": shares,
+            "size": size,
             "sl": stop_price,
             "tp": take_profit_price,
         }
