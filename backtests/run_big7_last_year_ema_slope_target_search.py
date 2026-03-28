@@ -221,6 +221,24 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         ),
     )
     parser.add_argument(
+        "--fixed-stop-loss-pct",
+        type=float,
+        default=None,
+        help=(
+            "Optional fixed stop-loss fraction for the entire search grid. "
+            "Must be used together with --fixed-take-profit-pct."
+        ),
+    )
+    parser.add_argument(
+        "--fixed-take-profit-pct",
+        type=float,
+        default=None,
+        help=(
+            "Optional fixed take-profit fraction for the entire search grid. "
+            "Must be used together with --fixed-stop-loss-pct."
+        ),
+    )
+    parser.add_argument(
         "--stage-a-samples",
         type=int,
         default=600,
@@ -264,7 +282,21 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     return parser.parse_args(argv)
 
 
-def _build_search_grid() -> list[SearchCandidate]:
+def _build_search_grid(
+    *,
+    fixed_stop_loss_pct: float | None = None,
+    fixed_take_profit_pct: float | None = None,
+) -> list[SearchCandidate]:
+    stop_values = (
+        (float(fixed_stop_loss_pct),)
+        if fixed_stop_loss_pct is not None
+        else STOP_VALUES
+    )
+    take_profit_values = (
+        (float(fixed_take_profit_pct),)
+        if fixed_take_profit_pct is not None
+        else TAKE_PROFIT_VALUES
+    )
     return [
         SearchCandidate(
             ema_period=ema,
@@ -279,8 +311,8 @@ def _build_search_grid() -> list[SearchCandidate]:
         for ema in EMA_VALUES
         for slope in SLOPE_VALUES
         for band in BAND_VALUES
-        for stop_loss in STOP_VALUES
-        for take_profit in TAKE_PROFIT_VALUES
+        for stop_loss in stop_values
+        for take_profit in take_profit_values
         for trade_direction in TRADE_DIRECTIONS
         for use_limit_entry in USE_LIMIT_ENTRY_VALUES
         for close_on_neutral_signal in CLOSE_ON_NEUTRAL_VALUES
@@ -638,6 +670,8 @@ def _write_report(
     position_size_cash_fraction: float,
     target_return_pct: float,
     target_min_ticker_return_pct: float | None,
+    fixed_stop_loss_pct: float | None,
+    fixed_take_profit_pct: float | None,
     seed: int,
     stage_a_samples: int,
     stage_b_samples: int,
@@ -666,6 +700,8 @@ def _write_report(
             "position_size_cash_fraction": position_size_cash_fraction,
             "target_return_pct": target_return_pct,
             "target_min_ticker_return_pct": target_min_ticker_return_pct,
+            "fixed_stop_loss_pct": fixed_stop_loss_pct,
+            "fixed_take_profit_pct": fixed_take_profit_pct,
             "seed": seed,
             "stage_a_samples": stage_a_samples,
             "stage_b_samples": stage_b_samples,
@@ -742,6 +778,12 @@ def main(argv: list[str] | None = None) -> int:
         else float(args.target_min_ticker_return_pct)
     )
     isolated_objective = str(args.isolated_objective).strip().lower()
+    fixed_stop_loss_pct = (
+        None if args.fixed_stop_loss_pct is None else float(args.fixed_stop_loss_pct)
+    )
+    fixed_take_profit_pct = (
+        None if args.fixed_take_profit_pct is None else float(args.fixed_take_profit_pct)
+    )
     commission_per_side = max(0.0, round_trip_commission / 2.0)
 
     _validate_backtest_inputs(
@@ -754,6 +796,16 @@ def main(argv: list[str] | None = None) -> int:
     )
     if target_min_ticker_return_pct is not None and target_min_ticker_return_pct <= 0:
         raise SystemExit("Invalid --target-min-ticker-return-pct. Value must be > 0.")
+    has_fixed_sl = fixed_stop_loss_pct is not None
+    has_fixed_tp = fixed_take_profit_pct is not None
+    if has_fixed_sl != has_fixed_tp:
+        raise SystemExit(
+            "Use --fixed-stop-loss-pct and --fixed-take-profit-pct together."
+        )
+    if fixed_stop_loss_pct is not None and fixed_stop_loss_pct < 0:
+        raise SystemExit("Invalid --fixed-stop-loss-pct. Value must be >= 0.")
+    if fixed_take_profit_pct is not None and fixed_take_profit_pct < 0:
+        raise SystemExit("Invalid --fixed-take-profit-pct. Value must be >= 0.")
     if leverage != 1.0:
         raise SystemExit(
             "Strict no-leverage search requires --leverage 1.0. "
@@ -808,6 +860,11 @@ def main(argv: list[str] | None = None) -> int:
         f"CompoundingSizing={compounding_position_sizing} | "
         f"CashFraction/Trade={position_size_cash_fraction:.2f}"
     )
+    if fixed_stop_loss_pct is not None and fixed_take_profit_pct is not None:
+        print(
+            "Fixed SL/TP: "
+            f"SL={fixed_stop_loss_pct:.4f} | TP={fixed_take_profit_pct:.4f}"
+        )
     print("=" * 96)
 
     data_by_ticker = _fetch_strategy_data(
@@ -821,7 +878,10 @@ def main(argv: list[str] | None = None) -> int:
         print("No strategy-ticker data fetched.")
         return 2
 
-    grid = _build_search_grid()
+    grid = _build_search_grid(
+        fixed_stop_loss_pct=fixed_stop_loss_pct,
+        fixed_take_profit_pct=fixed_take_profit_pct,
+    )
     if not grid:
         print("Search grid is empty.")
         return 2
@@ -901,6 +961,8 @@ def main(argv: list[str] | None = None) -> int:
         position_size_cash_fraction=position_size_cash_fraction,
         target_return_pct=target_return_pct,
         target_min_ticker_return_pct=target_min_ticker_return_pct,
+        fixed_stop_loss_pct=fixed_stop_loss_pct,
+        fixed_take_profit_pct=fixed_take_profit_pct,
         seed=int(args.seed),
         stage_a_samples=stage_a_samples,
         stage_b_samples=stage_b_samples,

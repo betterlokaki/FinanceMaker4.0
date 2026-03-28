@@ -1,15 +1,22 @@
 {
-  "generated_at_utc": "2026-03-25T18:47:31.703975+00:00",
+  "generated_at_utc": "2026-03-27T13:35:26.473351+00:00",
   "constraints": {
     "run_mode": "isolated",
     "isolated_objective": "min",
     "tickers": [
-      "LULU"
+      "PLTR",
+      "ASST",
+      "CSCO",
+      "HUT",
+      "MARA",
+      "RIOT",
+      "ADBE",
+      "WIX"
     ],
-    "lookback_days": 30,
+    "lookback_days": 20,
     "period": "hour",
     "regular_session_only": false,
-    "initial_capital": 10000.0,
+    "initial_capital": 5000.0,
     "leverage": 1.0,
     "notional_per_trade": 10000.0,
     "round_trip_commission": 1.0,
@@ -18,6 +25,8 @@
     "position_size_cash_fraction": 0.85,
     "target_return_pct": 250.0,
     "target_min_ticker_return_pct": 250.0,
+    "fixed_stop_loss_pct": 0.02,
+    "fixed_take_profit_pct": 0.06,
     "seed": 42,
     "stage_a_samples": 800,
     "stage_b_samples": 400,
@@ -31,30 +40,58 @@
     "total_evaluated": 1200,
     "best_result": {
       "candidate": {
-        "ema_period": 8,
-        "slope_len": 12,
-        "band": 0.001,
-        "stop_loss_pct": 0.0,
-        "take_profit_pct": 0.08,
+        "ema_period": 2,
+        "slope_len": 36,
+        "band": 0.022,
+        "stop_loss_pct": 0.02,
+        "take_profit_pct": 0.05,
         "trade_direction": "Short Only",
-        "use_limit_entry": false,
-        "close_on_neutral_signal": false
+        "use_limit_entry": true,
+        "close_on_neutral_signal": true
       },
-      "return_pct": 14.791189074707036,
-      "max_drawdown_pct": 7.809584158009675,
-      "trades": 3,
-      "wins": 2,
-      "losses": 1,
+      "return_pct": 0.10579999999999927,
+      "max_drawdown_pct": 0.04380982965707103,
+      "trades": 1,
+      "wins": 1,
+      "losses": 0,
       "skipped_entries": 0,
-      "final_equity": 11479.118907470704,
+      "final_equity": 5005.29,
       "scoring_mode": "isolated",
-      "ticker_count": 1,
-      "min_ticker_return_pct": 14.791189074707036,
-      "median_ticker_return_pct": 14.791189074707036,
+      "ticker_count": 8,
+      "min_ticker_return_pct": 0.0,
+      "median_ticker_return_pct": 0.0,
       "per_ticker_return_pct": [
         [
-          "LULU",
-          14.791189074707036
+          "ADBE",
+          0.8463999999999942
+        ],
+        [
+          "ASST",
+          0.0
+        ],
+        [
+          "CSCO",
+          0.0
+        ],
+        [
+          "HUT",
+          0.0
+        ],
+        [
+          "MARA",
+          0.0
+        ],
+        [
+          "PLTR",
+          0.0
+        ],
+        [
+          "RIOT",
+          0.0
+        ],
+        [
+          "WIX",
+          0.0
         ]
       ]
     }
@@ -62,291 +99,571 @@
   "top_results": [
     {
       "candidate": {
-        "ema_period": 8,
-        "slope_len": 12,
-        "band": 0.001,
-        "stop_loss_pct": 0.0,
-        "take_profit_pct": 0.08,
+        "ema_period": 2,
+        "slope_len": 36,
+        "band": 0.022,
+        "stop_loss_pct": 0.02,
+        "take_profit_pct": 0.05,
         "trade_direction": "Short Only",
-        "use_limit_entry": false,
-        "close_on_neutral_signal": false
+        "use_limit_entry": true,
+        "close_on_neutral_signal": true
       },
-      "return_pct": 14.791189074707036,
-      "max_drawdown_pct": 7.809584158009675,
-      "trades": 3,
-      "wins": 2,
-      "losses": 1,
+      "return_pct": 0.10579999999999927,
+      "max_drawdown_pct": 0.04380982965707103,
+      "trades": 1,
+      "wins": 1,
+      "losses": 0,
       "skipped_entries": 0,
-      "final_equity": 11479.118907470704,
+      "final_equity": 5005.29,
       "scoring_mode": "isolated",
-      "ticker_count": 1,
-      "min_ticker_return_pct": 14.791189074707036,
-      "median_ticker_return_pct": 14.791189074707036,
+      "ticker_count": 8,
+      "min_ticker_return_pct": 0.0,
+      "median_ticker_return_pct": 0.0,
       "per_ticker_return_pct": [
         [
-          "LULU",
-          14.791189074707036
+          "ADBE",
+          0.8463999999999942
+        ],
+        [
+          "ASST",
+          0.0
+        ],
+        [
+          "CSCO",
+          0.0
+        ],
+        [
+          "HUT",
+          0.0
+        ],
+        [
+          "MARA",
+          0.0
+        ],
+        [
+          "PLTR",
+          0.0
+        ],
+        [
+          "RIOT",
+          0.0
+        ],
+        [
+          "WIX",
+          0.0
         ]
       ]
     },
     {
       "candidate": {
         "ema_period": 3,
-        "slope_len": 24,
-        "band": 0.0,
-        "stop_loss_pct": 0.0,
-        "take_profit_pct": 0.16,
+        "slope_len": 96,
+        "band": 0.02,
+        "stop_loss_pct": 0.015,
+        "take_profit_pct": 0.06,
         "trade_direction": "Short Only",
         "use_limit_entry": true,
-        "close_on_neutral_signal": false
+        "close_on_neutral_signal": true
       },
-      "return_pct": 14.088254010009768,
-      "max_drawdown_pct": 7.856661767072593,
-      "trades": 2,
-      "wins": 1,
-      "losses": 1,
-      "skipped_entries": 0,
-      "final_equity": 11408.825401000977,
-      "scoring_mode": "isolated",
-      "ticker_count": 1,
-      "min_ticker_return_pct": 14.088254010009768,
-      "median_ticker_return_pct": 14.088254010009768,
-      "per_ticker_return_pct": [
-        [
-          "LULU",
-          14.088254010009768
-        ]
-      ]
-    },
-    {
-      "candidate": {
-        "ema_period": 4,
-        "slope_len": 20,
-        "band": 0.001,
-        "stop_loss_pct": 0.0,
-        "take_profit_pct": 0.12,
-        "trade_direction": "Short Only",
-        "use_limit_entry": false,
-        "close_on_neutral_signal": false
-      },
-      "return_pct": 13.641964459228511,
-      "max_drawdown_pct": 7.46354460628983,
-      "trades": 2,
-      "wins": 2,
-      "losses": 0,
-      "skipped_entries": 0,
-      "final_equity": 11364.196445922851,
-      "scoring_mode": "isolated",
-      "ticker_count": 1,
-      "min_ticker_return_pct": 13.641964459228511,
-      "median_ticker_return_pct": 13.641964459228511,
-      "per_ticker_return_pct": [
-        [
-          "LULU",
-          13.641964459228511
-        ]
-      ]
-    },
-    {
-      "candidate": {
-        "ema_period": 4,
-        "slope_len": 2,
-        "band": 0.008,
-        "stop_loss_pct": 0.0,
-        "take_profit_pct": 0.0,
-        "trade_direction": "Short Only",
-        "use_limit_entry": false,
-        "close_on_neutral_signal": false
-      },
-      "return_pct": 12.08725570678711,
-      "max_drawdown_pct": 6.055517610443706,
+      "return_pct": 0.026637372970581056,
+      "max_drawdown_pct": 0.054251661025328524,
       "trades": 1,
       "wins": 1,
       "losses": 0,
       "skipped_entries": 0,
-      "final_equity": 11208.725570678711,
+      "final_equity": 5001.331868648529,
       "scoring_mode": "isolated",
-      "ticker_count": 1,
-      "min_ticker_return_pct": 12.08725570678711,
-      "median_ticker_return_pct": 12.08725570678711,
+      "ticker_count": 8,
+      "min_ticker_return_pct": 0.0,
+      "median_ticker_return_pct": 0.0,
       "per_ticker_return_pct": [
         [
-          "LULU",
-          12.08725570678711
+          "ADBE",
+          0.0
+        ],
+        [
+          "ASST",
+          0.0
+        ],
+        [
+          "CSCO",
+          0.0
+        ],
+        [
+          "HUT",
+          0.0
+        ],
+        [
+          "MARA",
+          0.21309898376464845
+        ],
+        [
+          "PLTR",
+          0.0
+        ],
+        [
+          "RIOT",
+          0.0
+        ],
+        [
+          "WIX",
+          0.0
+        ]
+      ]
+    },
+    {
+      "candidate": {
+        "ema_period": 2,
+        "slope_len": 96,
+        "band": 0.022,
+        "stop_loss_pct": 0.02,
+        "take_profit_pct": 0.06,
+        "trade_direction": "Short Only",
+        "use_limit_entry": false,
+        "close_on_neutral_signal": true
+      },
+      "return_pct": 0.0,
+      "max_drawdown_pct": 0.0,
+      "trades": 0,
+      "wins": 0,
+      "losses": 0,
+      "skipped_entries": 0,
+      "final_equity": 5000.0,
+      "scoring_mode": "isolated",
+      "ticker_count": 8,
+      "min_ticker_return_pct": 0.0,
+      "median_ticker_return_pct": 0.0,
+      "per_ticker_return_pct": [
+        [
+          "ADBE",
+          0.0
+        ],
+        [
+          "ASST",
+          0.0
+        ],
+        [
+          "CSCO",
+          0.0
+        ],
+        [
+          "HUT",
+          0.0
+        ],
+        [
+          "MARA",
+          0.0
+        ],
+        [
+          "PLTR",
+          0.0
+        ],
+        [
+          "RIOT",
+          0.0
+        ],
+        [
+          "WIX",
+          0.0
+        ]
+      ]
+    },
+    {
+      "candidate": {
+        "ema_period": 2,
+        "slope_len": 48,
+        "band": 0.025,
+        "stop_loss_pct": 0.02,
+        "take_profit_pct": 0.06,
+        "trade_direction": "Long Only",
+        "use_limit_entry": false,
+        "close_on_neutral_signal": true
+      },
+      "return_pct": 0.0,
+      "max_drawdown_pct": 0.0,
+      "trades": 0,
+      "wins": 0,
+      "losses": 0,
+      "skipped_entries": 0,
+      "final_equity": 5000.0,
+      "scoring_mode": "isolated",
+      "ticker_count": 8,
+      "min_ticker_return_pct": 0.0,
+      "median_ticker_return_pct": 0.0,
+      "per_ticker_return_pct": [
+        [
+          "ADBE",
+          0.0
+        ],
+        [
+          "ASST",
+          0.0
+        ],
+        [
+          "CSCO",
+          0.0
+        ],
+        [
+          "HUT",
+          0.0
+        ],
+        [
+          "MARA",
+          0.0
+        ],
+        [
+          "PLTR",
+          0.0
+        ],
+        [
+          "RIOT",
+          0.0
+        ],
+        [
+          "WIX",
+          0.0
+        ]
+      ]
+    },
+    {
+      "candidate": {
+        "ema_period": 2,
+        "slope_len": 96,
+        "band": 0.022,
+        "stop_loss_pct": 0.02,
+        "take_profit_pct": 0.05,
+        "trade_direction": "Long Only",
+        "use_limit_entry": false,
+        "close_on_neutral_signal": false
+      },
+      "return_pct": 0.0,
+      "max_drawdown_pct": 0.0,
+      "trades": 0,
+      "wins": 0,
+      "losses": 0,
+      "skipped_entries": 0,
+      "final_equity": 5000.0,
+      "scoring_mode": "isolated",
+      "ticker_count": 8,
+      "min_ticker_return_pct": 0.0,
+      "median_ticker_return_pct": 0.0,
+      "per_ticker_return_pct": [
+        [
+          "ADBE",
+          0.0
+        ],
+        [
+          "ASST",
+          0.0
+        ],
+        [
+          "CSCO",
+          0.0
+        ],
+        [
+          "HUT",
+          0.0
+        ],
+        [
+          "MARA",
+          0.0
+        ],
+        [
+          "PLTR",
+          0.0
+        ],
+        [
+          "RIOT",
+          0.0
+        ],
+        [
+          "WIX",
+          0.0
+        ]
+      ]
+    },
+    {
+      "candidate": {
+        "ema_period": 2,
+        "slope_len": 36,
+        "band": 0.022,
+        "stop_loss_pct": 0.02,
+        "take_profit_pct": 0.06,
+        "trade_direction": "Long Only",
+        "use_limit_entry": true,
+        "close_on_neutral_signal": true
+      },
+      "return_pct": 0.03840385913848877,
+      "max_drawdown_pct": 0.3667996597290002,
+      "trades": 3,
+      "wins": 2,
+      "losses": 1,
+      "skipped_entries": 0,
+      "final_equity": 5001.920192956924,
+      "scoring_mode": "isolated",
+      "ticker_count": 8,
+      "min_ticker_return_pct": -0.19839557647705078,
+      "median_ticker_return_pct": 0.0,
+      "per_ticker_return_pct": [
+        [
+          "ADBE",
+          0.0
+        ],
+        [
+          "ASST",
+          -0.19839557647705078
+        ],
+        [
+          "CSCO",
+          0.0
+        ],
+        [
+          "HUT",
+          0.0
+        ],
+        [
+          "MARA",
+          0.12483001708984375
+        ],
+        [
+          "PLTR",
+          0.0
+        ],
+        [
+          "RIOT",
+          0.3807964324951172
+        ],
+        [
+          "WIX",
+          0.0
+        ]
+      ]
+    },
+    {
+      "candidate": {
+        "ema_period": 3,
+        "slope_len": 72,
+        "band": 0.025,
+        "stop_loss_pct": 0.015,
+        "take_profit_pct": 0.06,
+        "trade_direction": "Long Only",
+        "use_limit_entry": true,
+        "close_on_neutral_signal": true
+      },
+      "return_pct": -0.024799447059631347,
+      "max_drawdown_pct": 0.3667996597290002,
+      "trades": 1,
+      "wins": 0,
+      "losses": 1,
+      "skipped_entries": 0,
+      "final_equity": 4998.760027647018,
+      "scoring_mode": "isolated",
+      "ticker_count": 8,
+      "min_ticker_return_pct": -0.19839557647705078,
+      "median_ticker_return_pct": 0.0,
+      "per_ticker_return_pct": [
+        [
+          "ADBE",
+          0.0
+        ],
+        [
+          "ASST",
+          -0.19839557647705078
+        ],
+        [
+          "CSCO",
+          0.0
+        ],
+        [
+          "HUT",
+          0.0
+        ],
+        [
+          "MARA",
+          0.0
+        ],
+        [
+          "PLTR",
+          0.0
+        ],
+        [
+          "RIOT",
+          0.0
+        ],
+        [
+          "WIX",
+          0.0
+        ]
+      ]
+    },
+    {
+      "candidate": {
+        "ema_period": 2,
+        "slope_len": 72,
+        "band": 0.012,
+        "stop_loss_pct": 0.015,
+        "take_profit_pct": 0.08,
+        "trade_direction": "Long Only",
+        "use_limit_entry": true,
+        "close_on_neutral_signal": true
+      },
+      "return_pct": 0.290926084899902,
+      "max_drawdown_pct": 1.6825126789913325,
+      "trades": 5,
+      "wins": 2,
+      "losses": 3,
+      "skipped_entries": 0,
+      "final_equity": 5014.546304244996,
+      "scoring_mode": "isolated",
+      "ticker_count": 8,
+      "min_ticker_return_pct": -0.19979583740234375,
+      "median_ticker_return_pct": 0.0,
+      "per_ticker_return_pct": [
+        [
+          "ADBE",
+          0.0
+        ],
+        [
+          "ASST",
+          0.892802508544919
+        ],
+        [
+          "CSCO",
+          0.0
+        ],
+        [
+          "HUT",
+          1.6344020080566406
+        ],
+        [
+          "MARA",
+          0.0
+        ],
+        [
+          "PLTR",
+          -0.19979583740234375
+        ],
+        [
+          "RIOT",
+          0.0
+        ],
+        [
+          "WIX",
+          0.0
         ]
       ]
     },
     {
       "candidate": {
         "ema_period": 6,
-        "slope_len": 6,
+        "slope_len": 72,
+        "band": 0.012,
+        "stop_loss_pct": 0.015,
+        "take_profit_pct": 0.06,
+        "trade_direction": "Long Only",
+        "use_limit_entry": true,
+        "close_on_neutral_signal": true
+      },
+      "return_pct": -0.10714441820193091,
+      "max_drawdown_pct": 6.017540189114778,
+      "trades": 29,
+      "wins": 14,
+      "losses": 15,
+      "skipped_entries": 0,
+      "final_equity": 4994.642779089903,
+      "scoring_mode": "isolated",
+      "ticker_count": 8,
+      "min_ticker_return_pct": -1.155999221801776,
+      "median_ticker_return_pct": -0.3780225882263221,
+      "per_ticker_return_pct": [
+        [
+          "ADBE",
+          0.0
+        ],
+        [
+          "ASST",
+          0.9900679123496774
+        ],
+        [
+          "CSCO",
+          -0.8434944152832031
+        ],
+        [
+          "HUT",
+          -0.556542826599125
+        ],
+        [
+          "MARA",
+          1.6135033988952636
+        ],
+        [
+          "PLTR",
+          -0.7051878433227649
+        ],
+        [
+          "RIOT",
+          -1.155999221801776
+        ],
+        [
+          "WIX",
+          -0.19950234985351925
+        ]
+      ]
+    },
+    {
+      "candidate": {
+        "ema_period": 2,
+        "slope_len": 24,
         "band": 0.02,
-        "stop_loss_pct": 0.0,
-        "take_profit_pct": 0.12,
-        "trade_direction": "Short Only",
-        "use_limit_entry": true,
-        "close_on_neutral_signal": false
-      },
-      "return_pct": 11.86692000000001,
-      "max_drawdown_pct": 2.8540899641119277,
-      "trades": 1,
-      "wins": 1,
-      "losses": 0,
-      "skipped_entries": 0,
-      "final_equity": 11186.692000000001,
-      "scoring_mode": "isolated",
-      "ticker_count": 1,
-      "min_ticker_return_pct": 11.86692000000001,
-      "median_ticker_return_pct": 11.86692000000001,
-      "per_ticker_return_pct": [
-        [
-          "LULU",
-          11.86692000000001
-        ]
-      ]
-    },
-    {
-      "candidate": {
-        "ema_period": 12,
-        "slope_len": 16,
-        "band": 0.022,
-        "stop_loss_pct": 0.04,
-        "take_profit_pct": 0.12,
-        "trade_direction": "Short Only",
-        "use_limit_entry": true,
-        "close_on_neutral_signal": false
-      },
-      "return_pct": 11.86692000000001,
-      "max_drawdown_pct": 2.8540899641119277,
-      "trades": 1,
-      "wins": 1,
-      "losses": 0,
-      "skipped_entries": 0,
-      "final_equity": 11186.692000000001,
-      "scoring_mode": "isolated",
-      "ticker_count": 1,
-      "min_ticker_return_pct": 11.86692000000001,
-      "median_ticker_return_pct": 11.86692000000001,
-      "per_ticker_return_pct": [
-        [
-          "LULU",
-          11.86692000000001
-        ]
-      ]
-    },
-    {
-      "candidate": {
-        "ema_period": 24,
-        "slope_len": 12,
-        "band": 0.003,
-        "stop_loss_pct": 0.0,
+        "stop_loss_pct": 0.015,
         "take_profit_pct": 0.06,
         "trade_direction": "Short Only",
         "use_limit_entry": false,
-        "close_on_neutral_signal": false
+        "close_on_neutral_signal": true
       },
-      "return_pct": 11.616451296386712,
-      "max_drawdown_pct": 7.703917193736077,
-      "trades": 3,
-      "wins": 2,
+      "return_pct": -0.050965797805786237,
+      "max_drawdown_pct": 1.2541263824462856,
+      "trades": 2,
+      "wins": 1,
       "losses": 1,
       "skipped_entries": 0,
-      "final_equity": 11161.645129638671,
+      "final_equity": 4997.451710109711,
       "scoring_mode": "isolated",
-      "ticker_count": 1,
-      "min_ticker_return_pct": 11.616451296386712,
-      "median_ticker_return_pct": 11.616451296386712,
+      "ticker_count": 8,
+      "min_ticker_return_pct": -1.254126382446284,
+      "median_ticker_return_pct": 0.0,
       "per_ticker_return_pct": [
         [
-          "LULU",
-          11.616451296386712
-        ]
-      ]
-    },
-    {
-      "candidate": {
-        "ema_period": 24,
-        "slope_len": 8,
-        "band": 0.002,
-        "stop_loss_pct": 0.0,
-        "take_profit_pct": 0.05,
-        "trade_direction": "Short Only",
-        "use_limit_entry": true,
-        "close_on_neutral_signal": false
-      },
-      "return_pct": 11.406461216735844,
-      "max_drawdown_pct": 7.502153263190758,
-      "trades": 3,
-      "wins": 3,
-      "losses": 0,
-      "skipped_entries": 0,
-      "final_equity": 11140.646121673584,
-      "scoring_mode": "isolated",
-      "ticker_count": 1,
-      "min_ticker_return_pct": 11.406461216735844,
-      "median_ticker_return_pct": 11.406461216735844,
-      "per_ticker_return_pct": [
+          "ADBE",
+          0.8463999999999942
+        ],
         [
-          "LULU",
-          11.406461216735844
-        ]
-      ]
-    },
-    {
-      "candidate": {
-        "ema_period": 20,
-        "slope_len": 12,
-        "band": 0.003,
-        "stop_loss_pct": 0.0,
-        "take_profit_pct": 0.05,
-        "trade_direction": "Short Only",
-        "use_limit_entry": true,
-        "close_on_neutral_signal": false
-      },
-      "return_pct": 11.406461216735844,
-      "max_drawdown_pct": 7.502153263190758,
-      "trades": 3,
-      "wins": 3,
-      "losses": 0,
-      "skipped_entries": 0,
-      "final_equity": 11140.646121673584,
-      "scoring_mode": "isolated",
-      "ticker_count": 1,
-      "min_ticker_return_pct": 11.406461216735844,
-      "median_ticker_return_pct": 11.406461216735844,
-      "per_ticker_return_pct": [
+          "ASST",
+          -1.254126382446284
+        ],
         [
-          "LULU",
-          11.406461216735844
-        ]
-      ]
-    },
-    {
-      "candidate": {
-        "ema_period": 32,
-        "slope_len": 36,
-        "band": 0.005,
-        "stop_loss_pct": 0.0,
-        "take_profit_pct": 0.05,
-        "trade_direction": "Short Only",
-        "use_limit_entry": false,
-        "close_on_neutral_signal": false
-      },
-      "return_pct": 11.295070144653327,
-      "max_drawdown_pct": 7.509506776807773,
-      "trades": 3,
-      "wins": 3,
-      "losses": 0,
-      "skipped_entries": 0,
-      "final_equity": 11129.507014465333,
-      "scoring_mode": "isolated",
-      "ticker_count": 1,
-      "min_ticker_return_pct": 11.295070144653327,
-      "median_ticker_return_pct": 11.295070144653327,
-      "per_ticker_return_pct": [
+          "CSCO",
+          0.0
+        ],
         [
-          "LULU",
-          11.295070144653327
+          "HUT",
+          0.0
+        ],
+        [
+          "MARA",
+          0.0
+        ],
+        [
+          "PLTR",
+          0.0
+        ],
+        [
+          "RIOT",
+          0.0
+        ],
+        [
+          "WIX",
+          0.0
         ]
       ]
     }
