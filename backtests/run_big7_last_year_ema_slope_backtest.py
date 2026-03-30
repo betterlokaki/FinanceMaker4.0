@@ -52,6 +52,10 @@ from backtests.backtesting_py.portfolio_orchestrator import (
     SharedPortfolioResult,
     run_shared_capital_portfolio,
 )
+from backtests.backtesting_py.plotting import (
+    plot_candlestick_trade_markers,
+    trade_markers_from_shared_executed_trades,
+)
 from common.models.period import Period
 from common.settings import settings
 from pullers.market.yahoo.yahoo_market_provider import YahooMarketProvider
@@ -924,6 +928,16 @@ def main() -> None:
                 tickers=tickers,
                 benchmark_ticker=benchmark_ticker,
             )
+            strategy_chart_plotted = plot_candlestick_trade_markers(
+                data_by_ticker=data_by_ticker,
+                trade_markers=trade_markers_from_shared_executed_trades(shared.executed_trades),
+                title="Shared Strategy Period Candlesticks with Long/Short/Sell/Cover",
+            )
+            if not strategy_chart_plotted:
+                print(
+                    "Candlestick marker chart: skipped "
+                    "(no executed trades in strategy period)."
+                )
     else:
         print("Comparison chart: skipped (empty index).")
 
