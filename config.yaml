@@ -74,6 +74,13 @@ cache:
   enabled: true
   cache_dir: "./cache/tickers"
 
+# End-of-day portfolio report email
+eod_report:
+  enabled: true
+  recipient_email: "betterlokaki@gmail.com"
+  since_month: 4
+  since_day: 1
+
 # Demand Zone Strategy Configuration
 demand_zone_strategy:
   finviz_url: "https://finviz.com/screener.ashx?v=111&f=cap_midover%2Cfa_epsqoq_pos%2Cta_perf_13wdown%2Cta_sma200_pa&ft=4"

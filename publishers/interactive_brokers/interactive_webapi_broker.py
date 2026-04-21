@@ -1,5 +1,6 @@
 """Interactive Brokers Web API broker implementation."""
 import asyncio
+from datetime import date, datetime, timezone
 from functools import wraps
 import logging
 from typing import Any, Awaitable, Callable, TypeVar, cast
@@ -14,10 +15,10 @@ from common.converters.ibkr import (
     PortfolioConverter,
 )
 from common.helpers.dh_prime_helper import extract_dh_prime
-from common.models import portfolio
 from common.models.order_request import OrderRequest
 from common.models.order_response import OrderResponse
 from common.models.portfolio import Portfolio
+from common.models.pnl_summary import PnlSummary
 from common.settings import IBKRConfig
 from common.models.order import OrderSide, OrderStatus, OrderType
 from publishers.abstracts.broker_base import BrokerBase
@@ -482,6 +483,207 @@ class InteractiveWebapiBroker(BrokerBase):
         # Extract buying power from ledger - use BASE or USD
         base_ledger = ledger_data.get("BASE", ledger_data.get("USD", {}))
         return float(base_ledger.get("settledcash", 0) or 0)
+
+    @retry_ibkr_request
+    async def get_pnl_summary(self, since_date: date) -> PnlSummary:
+        """Get normalized daily and cumulative P/L from IBKR endpoints."""
+        await self._ensure_connected()
+        assert self._client is not None and self._account_id is not None
+
+        pnl_result = self._client.account_profit_and_loss()
+        performance_result = self._client.account_performance([self._account_id], period="1Y")
+
+        daily_pnl = self._extract_daily_pnl(
+            payload=pnl_result.data,
+            account_id=self._account_id,
+        )
+        (
+            pnl_since_date,
+            baseline_date,
+            baseline_nav,
+            current_nav,
+            currency,
+        ) = self._extract_since_date_pnl(
+            payload=performance_result.data,
+            since_date=since_date,
+            account_id=self._account_id,
+        )
+
+        return PnlSummary(
+            as_of_date=datetime.now(timezone.utc).date(),
+            since_date=since_date,
+            currency=currency or "USD",
+            daily_pnl=daily_pnl,
+            pnl_since_date=pnl_since_date,
+            baseline_date=baseline_date,
+            baseline_nav=baseline_nav,
+            current_nav=current_nav,
+        )
+
+    @staticmethod
+    def _extract_daily_pnl(payload: Any, account_id: str | None) -> float | None:
+        """Extract daily P/L (`dpl`) from /iserver/account/pnl/partitioned."""
+        if not isinstance(payload, dict):
+            return None
+
+        upnl_payload = payload.get("upnl")
+        if not isinstance(upnl_payload, dict) or not upnl_payload:
+            return None
+
+        preferred_keys: list[str] = []
+        if account_id:
+            preferred_keys.extend([f"{account_id}.Core", account_id])
+
+        selected: dict[str, Any] | None = None
+        for key in preferred_keys:
+            candidate = upnl_payload.get(key)
+            if isinstance(candidate, dict):
+                selected = candidate
+                break
+
+        if selected is None:
+            for key, value in upnl_payload.items():
+                if isinstance(value, dict) and isinstance(key, str) and key.endswith(".Core"):
+                    selected = value
+                    break
+
+        if selected is None:
+            selected = next(
+                (value for value in upnl_payload.values() if isinstance(value, dict)),
+                None,
+            )
+
+        if selected is None:
+            return None
+
+        return InteractiveWebapiBroker._safe_float(selected.get("dpl"))
+
+    @staticmethod
+    def _extract_since_date_pnl(
+        payload: Any,
+        since_date: date,
+        account_id: str | None,
+    ) -> tuple[float | None, date | None, float | None, float | None, str | None]:
+        """Extract cumulative P/L since `since_date` from /pa/performance NAV series."""
+        if not isinstance(payload, dict):
+            return None, None, None, None, None
+
+        nav = payload.get("nav")
+        if not isinstance(nav, dict):
+            return None, None, None, None, None
+
+        dates_raw = nav.get("dates")
+        if not isinstance(dates_raw, list):
+            return None, None, None, None, None
+
+        nav_data = nav.get("data")
+        if not isinstance(nav_data, list) or not nav_data:
+            return None, None, None, None, None
+
+        selected = None
+        if account_id:
+            selected = next(
+                (
+                    item
+                    for item in nav_data
+                    if isinstance(item, dict) and str(item.get("id", "")) == account_id
+                ),
+                None,
+            )
+        if selected is None:
+            selected = next((item for item in nav_data if isinstance(item, dict)), None)
+        if not isinstance(selected, dict):
+            return None, None, None, None, None
+
+        navs_raw = selected.get("navs")
+        if not isinstance(navs_raw, list):
+            return None, None, None, None, None
+
+        paired: list[tuple[date, float]] = []
+        max_items = min(len(dates_raw), len(navs_raw))
+        for idx in range(max_items):
+            dt = InteractiveWebapiBroker._parse_yyyymmdd(dates_raw[idx])
+            value = InteractiveWebapiBroker._safe_float(navs_raw[idx])
+            if dt is None or value is None:
+                continue
+            paired.append((dt, value))
+
+        if not paired:
+            return None, None, None, None, None
+
+        baseline_date, baseline_nav = InteractiveWebapiBroker._pick_baseline_nav(
+            nav_points=paired,
+            start_nav=selected.get("startNAV"),
+            since_date=since_date,
+        )
+
+        current_date, current_nav = paired[-1]
+        if baseline_nav is None:
+            return None, baseline_date, None, current_nav, selected.get("baseCurrency")
+        if since_date > current_date:
+            return None, baseline_date, baseline_nav, current_nav, selected.get("baseCurrency")
+
+        return (
+            current_nav - baseline_nav,
+            baseline_date,
+            baseline_nav,
+            current_nav,
+            selected.get("baseCurrency"),
+        )
+
+    @staticmethod
+    def _pick_baseline_nav(
+        nav_points: list[tuple[date, float]],
+        start_nav: Any,
+        since_date: date,
+    ) -> tuple[date | None, float | None]:
+        """Pick baseline NAV immediately before `since_date` if available."""
+        if not nav_points:
+            return None, None
+
+        first_idx: int | None = None
+        for idx, (dt, _) in enumerate(nav_points):
+            if dt >= since_date:
+                first_idx = idx
+                break
+
+        if first_idx is None:
+            return nav_points[-1][0], nav_points[-1][1]
+
+        if first_idx > 0:
+            prev_dt, prev_nav = nav_points[first_idx - 1]
+            return prev_dt, prev_nav
+
+        baseline_date = None
+        baseline_nav = None
+        if isinstance(start_nav, dict):
+            baseline_date = InteractiveWebapiBroker._parse_yyyymmdd(start_nav.get("date"))
+            baseline_nav = InteractiveWebapiBroker._safe_float(start_nav.get("val"))
+
+        if baseline_date is not None and baseline_nav is not None:
+            return baseline_date, baseline_nav
+
+        return nav_points[0][0], nav_points[0][1]
+
+    @staticmethod
+    def _parse_yyyymmdd(raw: Any) -> date | None:
+        """Parse IBKR yyyymmdd date values."""
+        if not isinstance(raw, str) or len(raw) != 8:
+            return None
+        try:
+            return datetime.strptime(raw, "%Y%m%d").date()
+        except ValueError:
+            return None
+
+    @staticmethod
+    def _safe_float(value: Any) -> float | None:
+        """Coerce numeric-like value to float."""
+        try:
+            if value is None:
+                return None
+            return float(value)
+        except (TypeError, ValueError):
+            return None
     
     @retry_ibkr_request
     async def get_open_orders(self) -> list[OrderResponse]:

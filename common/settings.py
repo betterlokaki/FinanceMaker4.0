@@ -167,6 +167,56 @@ class CacheConfig(BaseSettings):
     )
 
 
+class EndOfDayReportConfig(BaseSettings):
+    """End-of-day portfolio report email configuration."""
+
+    model_config = SettingsConfigDict(
+        env_prefix="EOD_REPORT_",
+        case_sensitive=False,
+    )
+
+    enabled: bool = Field(
+        default=False,
+        description="Enable end-of-day portfolio email report",
+    )
+    recipient_email: str = Field(
+        default="betterlokaki@gmail.com",
+        description="Recipient email address for the EOD report",
+    )
+    sender_email: str = Field(
+        default="",
+        description="Sender email address used in the EOD report",
+    )
+    smtp_host: str = Field(
+        default="smtp.gmail.com",
+        description="SMTP server host",
+    )
+    smtp_port: int = Field(
+        default=587,
+        description="SMTP server port",
+    )
+    smtp_username: str = Field(
+        default="",
+        description="SMTP username",
+    )
+    smtp_password: str = Field(
+        default="",
+        description="SMTP password or app password",
+    )
+    use_tls: bool = Field(
+        default=True,
+        description="Use STARTTLS for SMTP",
+    )
+    since_month: int = Field(
+        default=4,
+        description="Month used as the cumulative P/L baseline",
+    )
+    since_day: int = Field(
+        default=1,
+        description="Day of month used as the cumulative P/L baseline",
+    )
+
+
 class DemandZoneStrategyConfig(BaseSettings):
     """Demand zone strategy configuration."""
     finviz_url: str = Field(
@@ -283,6 +333,7 @@ class Settings(BaseSettings):
     realtime: RealtimeConfig = Field(default_factory=RealtimeConfig)
     scheduler: SchedulerConfig = Field(default_factory=SchedulerConfig)
     cache: CacheConfig = Field(default_factory=CacheConfig)
+    eod_report: EndOfDayReportConfig = Field(default_factory=EndOfDayReportConfig)
     demand_zone_strategy: DemandZoneStrategyConfig = Field(default_factory=DemandZoneStrategyConfig)
     weekly_consensus_strategy: WeeklyConsensusStrategyConfig = Field(default_factory=WeeklyConsensusStrategyConfig)
     portfolio_allocation: PortfolioAllocationConfig = Field(default_factory=PortfolioAllocationConfig)

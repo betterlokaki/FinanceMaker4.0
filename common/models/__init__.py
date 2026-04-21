@@ -9,6 +9,7 @@ from common.models.period import Period
 from common.models.portfolio import Portfolio
 from common.models.position import Position
 from common.models.pricing_data import PricingData
+from common.models.pnl_summary import PnlSummary
 from common.models.idea_params import IdeaParams
 from common.models.simple_idea import SimpleIdea
 from common.models.scanner_params import ScannerParams
@@ -22,6 +23,7 @@ __all__ = [
     "OrderType",
     "Period",
     "PricingData",
+    "PnlSummary",
     "TimeInForce",
     "OrderRequest",
     "OrderResponse",

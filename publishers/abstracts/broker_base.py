@@ -1,9 +1,11 @@
 """Abstract broker base class for trading operations."""
 from abc import ABC, abstractmethod
+from datetime import date
 
 from common.models.order_request import OrderRequest
 from common.models.order_response import OrderResponse
 from common.models.portfolio import Portfolio
+from common.models.pnl_summary import PnlSummary
 from publishers.abstracts.i_broker import IBroker
 
 
@@ -107,6 +109,18 @@ class BrokerBase(IBroker, ABC):
         """
         portfolio: Portfolio = await self.get_portfolio()
         return portfolio.buying_power
+
+    @abstractmethod
+    async def get_pnl_summary(self, since_date: date) -> PnlSummary:
+        """Get P/L summary for reporting.
+
+        Args:
+            since_date: Baseline date used for cumulative P/L.
+
+        Returns:
+            Summary containing daily P/L and P/L since `since_date`.
+        """
+        pass
 
     @property
     def is_connected(self) -> bool:

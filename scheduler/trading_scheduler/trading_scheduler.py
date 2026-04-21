@@ -8,6 +8,7 @@ from common.cache.abstracts import ITickerCache
 from common.helpers.market_calendar import MarketCalendar
 from publishers.abstracts import IBroker
 from scheduler.strategy_runner import StrategyRunner
+from scheduler.trading_scheduler.end_of_day_email_reporter import EndOfDayEmailReporter
 
 logger: logging.Logger = logging.getLogger(__name__)
 
@@ -29,6 +30,7 @@ class TradingScheduler:
         market_calendar: MarketCalendar,
         ticker_cache: ITickerCache,
         broker: IBroker,
+        end_of_day_reporter: EndOfDayEmailReporter,
     ) -> None:
         """Initialize the trading scheduler.
         
@@ -37,11 +39,13 @@ class TradingScheduler:
             market_calendar: Provides market hours info.
             ticker_cache: Cache for clearing stale ticker data.
             broker: Broker instance for connection and buying power checks.
+            end_of_day_reporter: Sends end-of-day portfolio report emails.
         """
         self._runner: StrategyRunner = strategy_runner
         self._calendar: MarketCalendar = market_calendar
         self._ticker_cache: ITickerCache = ticker_cache
         self._broker: IBroker = broker
+        self._end_of_day_reporter: EndOfDayEmailReporter = end_of_day_reporter
         self._is_running: bool = False
         self._should_stop: bool = False
 
@@ -101,6 +105,7 @@ class TradingScheduler:
         
         logger.info("🔕 After-hours closed!")
         await self._runner.stop_all()
+        await self._end_of_day_reporter.send_report_for_trading_day(trading_day)
         
         # Clear old cache files (keep only today's cache)
         self._ticker_cache.clear_old_cache()

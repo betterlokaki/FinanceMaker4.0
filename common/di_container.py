@@ -31,6 +31,7 @@ from scheduler.abstracts import IScheduler
 from scheduler.demand_zone_scheduler import DemandZoneScheduler
 from scheduler.strategy_runner import StrategyRunner
 from scheduler.trading_scheduler import TradingScheduler
+from scheduler.trading_scheduler.end_of_day_email_reporter import EndOfDayEmailReporter
 from strategy.abstracts import ITradingStrategy
 from strategy.demand_zone_strategy import DemandZoneStrategy
 from strategy.weekly_consensus_strategy import WeeklyDoubleConsensusLiveStrategy
@@ -243,12 +244,19 @@ class Container(containers.DeclarativeContainer):
     )
 
     # Scheduler
+    end_of_day_email_reporter = providers.Singleton(
+        EndOfDayEmailReporter,
+        broker=ibkr_broker,
+        config=providers.Object(settings.eod_report),
+    )
+
     trading_scheduler: providers.Provider[IScheduler] = providers.Singleton(
         TradingScheduler,
         strategy_runner=strategy_runner,
         market_calendar=market_calendar,
         ticker_cache=ticker_cache,
         broker=ibkr_broker,
+        end_of_day_reporter=end_of_day_email_reporter,
     )
 
     demand_zone_scheduler: providers.Provider[IScheduler] = providers.Singleton(

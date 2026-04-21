@@ -1,9 +1,11 @@
 """Broker interface protocol."""
+from datetime import date
 from typing import Protocol
 
 from common.models.order_request import OrderRequest
 from common.models.order_response import OrderResponse
 from common.models.portfolio import Portfolio
+from common.models.pnl_summary import PnlSummary
 
 
 class IBroker(Protocol):
@@ -90,6 +92,17 @@ class IBroker(Protocol):
         
         Returns:
             Available buying power in account currency.
+        """
+        ...
+
+    async def get_pnl_summary(self, since_date: date) -> PnlSummary:
+        """Get P/L summary for reporting.
+
+        Args:
+            since_date: Baseline date used for cumulative P/L.
+
+        Returns:
+            Summary containing daily P/L and P/L since `since_date`.
         """
         ...
 
