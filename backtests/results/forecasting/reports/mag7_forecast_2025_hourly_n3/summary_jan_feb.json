@@ -1,0 +1,17 @@
+{
+  "end": "2026-02-28 00:00:00",
+  "equity_plot_path": "/Users/shaharrozolio/Documents/Code/Projects/Python/FinanceMaker4.0/backtests/results/forecasting/reports/mag7_forecast_2025_hourly_n3/equity_vs_spy.png",
+  "max_drawdown_pct": -0.08153642794750393,
+  "monthlyized_return_pct": -0.01629567281732358,
+  "net_pnl": -22.431942642093986,
+  "net_return_pct": -0.032045632345848556,
+  "outperformance_vs_spy_pct": 0.3131485940258326,
+  "selected_atr_multiplier": 1.0,
+  "selected_min_edge": -0.02,
+  "selected_min_tp_prob": 0.1,
+  "selected_rr_ratio": 4.0,
+  "spy_buy_hold_return_pct": -0.3451942263716812,
+  "start": "2026-01-01 00:00:00",
+  "trade_count": 4,
+  "win_rate": 0.5
+}

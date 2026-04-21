@@ -7,6 +7,8 @@ import asyncio
 import pytest
 from ibind.support.errors import ExternalBrokerError
 
+from common.settings import IBKRConfig
+from publishers.interactive_brokers.interactive_webapi_broker import InteractiveWebapiBroker
 from publishers.interactive_brokers.interactive_webapi_broker import retry_ibkr_request
 
 
@@ -74,3 +76,19 @@ def test_non_ibkr_exception_is_not_retried() -> None:
 
     assert broker.calls == 1
     assert broker.reconnects == 0
+
+
+def test_disconnect_does_not_self_cancel_refresh_task() -> None:
+    async def _run() -> tuple[int, bool]:
+        broker = InteractiveWebapiBroker(IBKRConfig())
+        current_task = asyncio.current_task()
+        assert current_task is not None
+        broker._portfolio_refresh_task = current_task
+
+        await broker.disconnect()
+
+        return current_task.cancelling(), broker._portfolio_refresh_task is current_task
+
+    cancelling_count, task_preserved = asyncio.run(_run())
+    assert cancelling_count == 0
+    assert task_preserved

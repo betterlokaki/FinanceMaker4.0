@@ -228,9 +228,17 @@ class InteractiveWebapiBroker(BrokerBase):
             except Exception as portfolio_error:
                 logger.error("❌ Failed to fetch portfolio after connection: %s", portfolio_error, exc_info=True)
             
-            # Start background portfolio refresh task
-            self._portfolio_refresh_task = asyncio.create_task(self._refresh_portfolio_loop())
-            logger.info("🔄 Portfolio refresh task started (every %d seconds)", self.PORTFOLIO_REFRESH_INTERVAL_SECONDS)
+            # Start background portfolio refresh task once. During reconnects
+            # triggered by this same task, keep the existing loop alive.
+            existing_refresh_task = self._portfolio_refresh_task
+            if existing_refresh_task is None or existing_refresh_task.done():
+                self._portfolio_refresh_task = asyncio.create_task(self._refresh_portfolio_loop())
+                logger.info(
+                    "🔄 Portfolio refresh task started (every %d seconds)",
+                    self.PORTFOLIO_REFRESH_INTERVAL_SECONDS,
+                )
+            else:
+                logger.debug("Portfolio refresh task already running; skipping restart")
             
         except Exception as e:
             self._connected = False
@@ -240,14 +248,23 @@ class InteractiveWebapiBroker(BrokerBase):
     async def disconnect(self) -> None:
         """Disconnect from Interactive Brokers."""
         # Stop portfolio refresh task
-        if self._portfolio_refresh_task is not None:
-            self._portfolio_refresh_task.cancel()
-            try:
-                await self._portfolio_refresh_task
-            except asyncio.CancelledError:
-                pass
-            self._portfolio_refresh_task = None
-            logger.info("🔄 Portfolio refresh task stopped")
+        refresh_task = self._portfolio_refresh_task
+        if refresh_task is not None:
+            current_task = asyncio.current_task()
+            if refresh_task is current_task:
+                logger.debug(
+                    "Disconnect called from portfolio refresh task; skipping self-cancel"
+                )
+            elif refresh_task.done():
+                self._portfolio_refresh_task = None
+            else:
+                refresh_task.cancel()
+                try:
+                    await refresh_task
+                except asyncio.CancelledError:
+                    pass
+                self._portfolio_refresh_task = None
+                logger.info("🔄 Portfolio refresh task stopped")
         
         if self._client is not None:
             self._client.close()

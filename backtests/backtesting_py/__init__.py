@@ -48,6 +48,13 @@ except Exception:  # pragma: no cover - optional when dependency is not installe
     RsiExtremeRRStrategy = None  # type: ignore[assignment]
 
 try:
+    from backtests.backtesting_py.forecast_model_rr_strategy import (
+        ForecastModelRRStrategy,
+    )
+except Exception:  # pragma: no cover - optional when dependency is not installed
+    ForecastModelRRStrategy = None  # type: ignore[assignment]
+
+try:
     from backtests.backtesting_py.grok_sparse_swing_strategy import (
         SparseBacktestResult,
         TradeRecord,
@@ -85,6 +92,7 @@ __all__ = [
     "TDFIAdxRangeCtrConfluenceStrategy",
     "Mag7EmaSlopeRegimeStrategy",
     "RsiExtremeRRStrategy",
+    "ForecastModelRRStrategy",
     "SparseBacktestResult",
     "TradeRecord",
     "SwingSetup",
