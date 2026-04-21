@@ -2,7 +2,7 @@
 from datetime import date, datetime
 
 import pandas as pd
-import yfinance_cache as yf
+import yfinance as yf
 
 from common.helpers.yfinance_cache_manager import init_yfinance_cache
 

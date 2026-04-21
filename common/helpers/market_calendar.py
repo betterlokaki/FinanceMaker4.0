@@ -5,6 +5,7 @@ from zoneinfo import ZoneInfo
 
 import exchange_calendars as xcals
 import pandas as pd
+from common.helpers.yfinance_cache_manager import get_cached_market_session_hours
 
 logger: logging.Logger = logging.getLogger(__name__)
 
@@ -153,15 +154,21 @@ class MarketCalendar:
 
     def get_regular_market_open(self, trading_day: datetime) -> datetime:
         """Get regular market open for the provided trading day."""
-        session = pd.Timestamp(trading_day.date())
-        session_open = self._calendar.session_open(session)
-        return session_open.tz_convert(self._timezone).to_pydatetime()
+        session_open, _ = get_cached_market_session_hours(
+            trading_day=trading_day.date(),
+            exchange="XNYS",
+            timezone="America/New_York",
+        )
+        return session_open
 
     def get_regular_market_close(self, trading_day: datetime) -> datetime:
         """Get regular market close for the provided trading day."""
-        session = pd.Timestamp(trading_day.date())
-        session_close = self._calendar.session_close(session)
-        return session_close.tz_convert(self._timezone).to_pydatetime()
+        _, session_close = get_cached_market_session_hours(
+            trading_day=trading_day.date(),
+            exchange="XNYS",
+            timezone="America/New_York",
+        )
+        return session_close
 
     def get_after_hours_close(self, trading_day: datetime) -> datetime:
         """Get after-hours close time (8:00 PM EST)."""

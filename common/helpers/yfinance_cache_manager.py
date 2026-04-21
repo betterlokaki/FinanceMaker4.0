@@ -1,37 +1,22 @@
-"""Helper utilities for cleaning up :mod:`yfinance_cache` manager locks.
-
-:yfinance_cache uses ``multiprocessing.Manager`` locks that spawn named semaphores
-tracked by :mod:`multiprocessing.resource_tracker`. If the manager is not shut down,
-the semaphores stay registered and trigger the "leaked semaphore" warnings on macOS.
-This module exposes a helper that registers an :mod:`atexit` hook to shut down the
-manager and release those semaphores when the process exits.
-"""
+"""Local cache helpers for yfinance usage and market sessions."""
 
 from __future__ import annotations
 
-import atexit
+import json
 import os
 import time
+from datetime import date, datetime
 from pathlib import Path
 from typing import Final
+from zoneinfo import ZoneInfo
 
-import yfinance_cache.yfc_cache_manager as yfc_cache_manager
-import yfinance_cache.yfc_dat as yfc_dat
+import exchange_calendars as xcals
 
 
 DEFAULT_MAX_CACHE_BYTES: Final[int] = 2 * 1024 * 1024 * 1024  # 2 GiB ceiling
 DEFAULT_MAX_FILE_AGE_DAYS: Final[int] = 30
-_REGISTERED = False
+DEFAULT_MARKET_CACHE_FILENAME: Final[str] = "market_hours_xnys.json"
 _CONFIGURED = False
-
-
-def register_yfinance_cache_manager_cleanup() -> None:
-    """Register an :mod:`atexit` hook to shut down the yfinance_cache manager."""
-    global _REGISTERED
-    if _REGISTERED:
-        return
-    _REGISTERED = True
-    atexit.register(_shutdown_manager)
 
 
 def configure_yfinance_cache(
@@ -52,17 +37,15 @@ def init_yfinance_cache(
     max_cache_bytes: int | None = None,
     max_file_age_days: int = DEFAULT_MAX_FILE_AGE_DAYS,
 ) -> Path:
-    """Configure cache and register cleanup in one call."""
+    """Prepare local cache directory for plain yfinance usage."""
     if not _CONFIGURED:
         configure_yfinance_cache(cache_dir, max_cache_bytes, max_file_age_days)
-    register_yfinance_cache_manager_cleanup()
-    return Path(yfc_cache_manager.GetCacheDirpath())
+    return _resolve_cache_dir(cache_dir)
 
 
 def _resolve_cache_dir(cache_dir: str | Path | None) -> Path:
     override_dir = os.getenv("YFINANCE_CACHE_DIR")
-    target_dir = Path(cache_dir or override_dir or yfc_cache_manager.GetCacheDirpath())
-    yfc_cache_manager.SetCacheDirpath(str(target_dir))
+    target_dir = Path(cache_dir or override_dir or ".cache/yfinance")
     target_dir.mkdir(parents=True, exist_ok=True)
     return target_dir
 
@@ -109,11 +92,49 @@ def _evict_oldest(files: list[tuple[float, Path, int]], total_size: int, max_cac
         size_remaining -= file_size
 
 
-def _shutdown_manager() -> None:
-    """Shutdown the existing :class:`multiprocessing.Manager` used by yfinance_cache."""
-    manager = getattr(yfc_dat, "_manager", None)
-    if manager is None:
-        return
+def get_cached_market_session_hours(
+    trading_day: date,
+    exchange: str = "XNYS",
+    timezone: str = "America/New_York",
+) -> tuple[datetime, datetime]:
+    """Get market open/close from local cache; compute and persist on cache miss."""
+    cache_file = _resolve_cache_dir(None) / DEFAULT_MARKET_CACHE_FILENAME
+    cache = _read_market_hours_cache(cache_file)
+    key = trading_day.isoformat()
 
-    manager.shutdown()
-    setattr(yfc_dat, "_manager", None)
+    if key in cache:
+        cached_entry = cache[key]
+        return (
+            datetime.fromisoformat(cached_entry["open"]),
+            datetime.fromisoformat(cached_entry["close"]),
+        )
+
+    calendar = xcals.get_calendar(exchange)
+    session = _resolve_session_timestamp(calendar, trading_day)
+    tz = ZoneInfo(timezone)
+    session_open = calendar.session_open(session).tz_convert(tz).to_pydatetime()
+    session_close = calendar.session_close(session).tz_convert(tz).to_pydatetime()
+
+    cache[key] = {"open": session_open.isoformat(), "close": session_close.isoformat()}
+    _write_market_hours_cache(cache_file, cache)
+    return session_open, session_close
+
+
+def _resolve_session_timestamp(calendar: xcals.ExchangeCalendar, trading_day: date):
+    for session in calendar.sessions:
+        if session.date() >= trading_day:
+            return session
+    return calendar.sessions[-1]
+
+
+def _read_market_hours_cache(cache_file: Path) -> dict[str, dict[str, str]]:
+    if not cache_file.exists():
+        return {}
+    try:
+        return json.loads(cache_file.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+
+
+def _write_market_hours_cache(cache_file: Path, cache: dict[str, dict[str, str]]) -> None:
+    cache_file.write_text(json.dumps(cache, indent=2), encoding="utf-8")

@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 
 import httpx
 import pandas as pd
-import yfinance_cache as yf
+import yfinance as yf
 
 from common.models.scanner_params import ScannerParams
 from pullers.scanners.finviz.finviz_base import FinvizScanner

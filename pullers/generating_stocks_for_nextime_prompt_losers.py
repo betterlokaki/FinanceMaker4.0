@@ -2,7 +2,7 @@ import json
 from datetime import datetime, timedelta
 
 import requests
-import yfinance_cache as yf
+import yfinance as yf
 from lxml import html
 
 from common.helpers.yfinance_cache_manager import init_yfinance_cache

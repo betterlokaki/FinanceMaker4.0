@@ -1,5 +1,5 @@
 import json
-import yfinance_cache as yf
+import yfinance as yf
 from datetime import datetime, timedelta
 import pandas as pd
 import numpy as np
