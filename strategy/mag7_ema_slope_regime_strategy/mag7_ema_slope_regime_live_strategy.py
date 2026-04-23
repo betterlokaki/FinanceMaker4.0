@@ -61,7 +61,7 @@ class Mag7EmaSlopeRegimeLiveStrategy(RealTimeTradingBase):
         take_profit_pct: float = 0.06,
     ) -> None:
         """Initialize strategy with tuned MAG7 defaults."""
-        super().__init__(realtime_provider)
+        super().__init__(realtime_provider, broker=broker)
         self._market_provider: IMarketProvider = market_provider
         self._broker: IBroker = broker
         self._trade_direction: str = trade_direction
@@ -96,6 +96,7 @@ class Mag7EmaSlopeRegimeLiveStrategy(RealTimeTradingBase):
         await self._bootstrap_hourly_history()
         await self._realtime_provider.subscribe(self._tickers, self.on_tick)
         self._is_initialized = True
+        self._start_end_of_day_report_task()
         logger.info(
             "%s initialized and subscribed to %d tickers",
             self.__class__.__name__,
@@ -392,6 +393,11 @@ class Mag7EmaSlopeRegimeLiveStrategy(RealTimeTradingBase):
                     entry_price=entry_price,
                 )
                 response = await self._broker.place_order(order_request)
+                await self._record_submitted_trade(
+                    order_request=order_request,
+                    order_response=response,
+                    note="signal-entry",
+                )
                 logger.info(
                     "Placed %s bracket for %s | qty=%d entry=%.2f | order_id=%s status=%s",
                     desired_side.value,
@@ -432,7 +438,12 @@ class Mag7EmaSlopeRegimeLiveStrategy(RealTimeTradingBase):
             order_type=OrderType.MARKET,
             time_in_force=TimeInForce.DAY,
         )
-        await self._broker.place_order(request)
+        response = await self._broker.place_order(request)
+        await self._record_submitted_trade(
+            order_request=request,
+            order_response=response,
+            note="flatten",
+        )
         logger.info("Flatten order sent for %s: %s %d", ticker, side.value, quantity)
 
     async def _wait_until_flat_and_order_free(self, ticker: str) -> bool:
