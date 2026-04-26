@@ -24,7 +24,7 @@ logger: logging.Logger = logging.getLogger(__name__)
 NY_TZ: ZoneInfo = ZoneInfo("America/New_York")
 UTC = timezone.utc
 
-
+send_mails: dict[datetime, bool] = {}
 @dataclass(frozen=True)
 class StrategyTradeRecord:
     """Trade submission record for end-of-day reporting."""
@@ -271,8 +271,10 @@ class RealTimeTradingBase(ITradingStrategy, ABC):
         """Poll clock and send EOD report once per trading day."""
         while True:
             try:
-                await self._maybe_send_end_of_day_report()
-                await asyncio.sleep(30)
+                print("Sending EOD report...")
+                if not send_mails.get(datetime.now().date(), False):
+                    await self._maybe_send_end_of_day_report()
+                    send_mails[datetime.now().date()] = True
             except asyncio.CancelledError:
                 raise
             except Exception as exc:
@@ -286,20 +288,15 @@ class RealTimeTradingBase(ITradingStrategy, ABC):
 
     async def _maybe_send_end_of_day_report(self) -> None:
         """Send report when after-hours close has passed."""
-        if self._broker is None:
-            return
-
+        
         now_ny = self._market_calendar.now()
-        if not self._market_calendar.is_trading_day(now_ny):
-            return
+        
 
         trading_day = now_ny.date()
-        if self._last_reported_trading_day == trading_day:
-            return
+
 
         after_hours_close = self._market_calendar.get_after_hours_close(now_ny)
-        if now_ny < after_hours_close:
-            return
+       
 
         if not self._smtp_configured():
             if self._last_smtp_warning_trading_day != trading_day:
@@ -314,7 +311,7 @@ class RealTimeTradingBase(ITradingStrategy, ABC):
         summary = await self._broker.get_pnl_summary(since_date=since_date)
         todays_records = await self._trade_records_for_day(trading_day)
         subject, body = self._build_end_of_day_email(summary, todays_records)
-        await asyncio.to_thread(self._send_email_sync, subject, body)
+        self._send_email(subject, body)
 
         self._last_reported_trading_day = trading_day
         logger.info(
@@ -401,7 +398,7 @@ class RealTimeTradingBase(ITradingStrategy, ABC):
             ]
         )
 
-    def _send_email_sync(self, subject: str, body: str) -> None:
+    def _send_email(self, subject: str, body: str) -> None:
         cfg = settings.eod_report
         sender = cfg.sender_email or cfg.smtp_username
 
