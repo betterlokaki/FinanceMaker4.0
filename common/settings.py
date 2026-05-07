@@ -111,6 +111,30 @@ class IBKRConfig(BaseSettings):
     )
 
 
+class AlpacaConfig(BaseSettings):
+    """Alpaca Trading API configuration."""
+    model_config = SettingsConfigDict(
+        env_prefix="ALPACA_",
+        case_sensitive=False,
+    )
+    api_key: str = Field(default="", description="Alpaca API key")
+    secret_key: str = Field(default="", description="Alpaca secret key")
+    paper: bool = Field(default=True, description="Use Alpaca paper trading")
+    url_override: str = Field(default="", description="Optional Alpaca API URL override")
+    request_retry_attempts: int = Field(
+        default=2,
+        description="Number of reconnect/retry attempts for failed Alpaca requests",
+    )
+    request_retry_delay_seconds: float = Field(
+        default=1.0,
+        description="Delay between Alpaca reconnect/retry attempts (seconds)",
+    )
+    portfolio_refresh_interval_seconds: int = Field(
+        default=300,
+        description="Background portfolio refresh interval in seconds; 0 disables refresh",
+    )
+
+
 class YahooConfig(BaseSettings):
     """Yahoo Finance API configuration."""
     base_url: str = Field(default="https://query1.finance.yahoo.com")
@@ -329,6 +353,7 @@ class Settings(BaseSettings):
     user_agent: UserAgentConfig = Field(default_factory=UserAgentConfig)
     ai_scanner: AIScannerConfig = Field(default_factory=AIScannerConfig)
     ibkr: IBKRConfig = Field(default_factory=IBKRConfig)
+    alpaca: AlpacaConfig = Field(default_factory=AlpacaConfig)
     yahoo: YahooConfig = Field(default_factory=YahooConfig)
     realtime: RealtimeConfig = Field(default_factory=RealtimeConfig)
     scheduler: SchedulerConfig = Field(default_factory=SchedulerConfig)
@@ -341,6 +366,11 @@ class Settings(BaseSettings):
     dynamic_stop_loss: DynamicStopLossConfig = Field(default_factory=DynamicStopLossConfig)
 
     # Application settings
+    broker_provider: str = Field(
+        default="alpaca",
+        pattern="^(alpaca|ibkr)$",
+        description="Broker provider for live strategy runners (alpaca or ibkr)",
+    )
     debug: bool = Field(default=False)
     log_level: str = Field(default="INFO")
 

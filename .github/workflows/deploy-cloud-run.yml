@@ -1,293 +1,236 @@
-name: Deploy to Cloud Run
+name: Deploy MAG7 Alpaca Paper Cloud Run Job
 
 on:
   push:
     branches:
       - dev
-      # - main  # Disabled for now - only dev with paper trading
   pull_request:
     branches:
       - dev
-      # - main  # Disabled for now - only dev with paper trading
+  workflow_dispatch:
 
 env:
-  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-  REGION: ${{ secrets.GCP_REGION }}
-  SERVICE_NAME_DEV: financemaker-dev
-  SERVICE_NAME_PROD: financemaker-prod
+  PYTHON_VERSION: "3.12"
+  ARTIFACT_REPOSITORY: financemaker-repo
+  IMAGE_NAME: mag7-alpaca
+  JOB_NAME: financemaker-mag7-alpaca-paper
+  SCHEDULER_NAME: financemaker-mag7-alpaca-paper-scheduler
+  SCHEDULER_CRON: "0 14 * * 1-5"
+  SCHEDULER_TIME_ZONE: Asia/Jerusalem
+  TASK_TIMEOUT: 33000s
 
 jobs:
-  build-and-test:
+  validate:
+    name: Validate MAG7 Alpaca runner
     runs-on: ubuntu-latest
-    environment: dev
     permissions:
       contents: read
-      id-token: write
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
-      
+          python-version: ${{ env.PYTHON_VERSION }}
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
-      
-      - name: Run tests (if any)
+          pip install -r requirements.txt pytest
+
+      - name: Run Alpaca and MAG7 tests
         run: |
-          # Add test commands here if you have tests
-          echo "No tests configured yet"
-        continue-on-error: true
-      
-      - name: Validate required secrets
+          python -m pytest \
+            test_alpaca_converters.py \
+            test_alpaca_order_request_converter.py \
+            test_alpaca_broker.py \
+            test_run_live_mag7_entrypoint.py
+
+      - name: Compile MAG7 entrypoint
+        env:
+          BROKER_PROVIDER: alpaca
+          ALPACA_API_KEY: dummy
+          ALPACA_SECRET_KEY: dummy
+          PYTHONDONTWRITEBYTECODE: "1"
+        run: python -m py_compile run_live_mag7_ema_slope_regime_strategy.py
+
+      - name: Build MAG7 Docker image
         run: |
-          PROJECT_ID="${{ secrets.GCP_PROJECT_ID }}"
-          REGION="${{ secrets.GCP_REGION }}"
-          
-          if [ -z "$PROJECT_ID" ]; then
-            echo "❌ Error: GCP_PROJECT_ID secret is not set or is empty"
-            echo "Please ensure GCP_PROJECT_ID is set in the 'dev' environment secrets"
-            exit 1
-          fi
-          if [ -z "$REGION" ]; then
-            echo "❌ Error: GCP_REGION secret is not set or is empty"
-            echo "Please ensure GCP_REGION is set in the 'dev' environment secrets"
-            exit 1
-          fi
-          echo "✅ GCP_PROJECT_ID is set (length: ${#PROJECT_ID} chars)"
-          echo "✅ GCP_REGION is set (length: ${#REGION} chars)"
-      
-      - name: Build Docker image
-        id: build-image
+          docker build \
+            -f Dockerfile.mag7-alpaca \
+            -t financemaker-mag7-alpaca:test \
+            .
+
+  deploy:
+    name: Deploy MAG7 Alpaca paper job
+    needs: validate
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/dev')
+    runs-on: ubuntu-latest
+    environment: alpaca-paper
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+      GCP_REGION: ${{ secrets.GCP_REGION }}
+      GCP_WIF_PROVIDER: ${{ secrets.GCP_WIF_PROVIDER }}
+      GCP_SA_EMAIL: ${{ secrets.GCP_SA_EMAIL }}
+      ALPACA_API_KEY_SECRET_NAME: alpaca-paper-api-key
+      ALPACA_SECRET_KEY_SECRET_NAME: alpaca-paper-secret-key
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Validate deployment configuration
         run: |
-          IMAGE_TAG="${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/financemaker-repo/financemaker:${{ github.sha }}"
-          echo "Building image with tag: $IMAGE_TAG"
-          echo "image_tag=$IMAGE_TAG" >> $GITHUB_OUTPUT
-          docker build -t $IMAGE_TAG .
-      
+          set -euo pipefail
+          for name in \
+            GCP_PROJECT_ID \
+            GCP_REGION \
+            GCP_WIF_PROVIDER \
+            GCP_SA_EMAIL
+          do
+            if [ -z "${!name}" ]; then
+              echo "Missing required GitHub secret: ${name}"
+              exit 1
+            fi
+          done
+
       - name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v2
+        uses: google-github-actions/auth@v3
         with:
-          workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
-          service_account: ${{ secrets.GCP_SA_EMAIL }}
-      
+          project_id: ${{ env.GCP_PROJECT_ID }}
+          workload_identity_provider: ${{ env.GCP_WIF_PROVIDER }}
+          service_account: ${{ env.GCP_SA_EMAIL }}
+
       - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v2
-      
+        uses: google-github-actions/setup-gcloud@v3
+
+      - name: Configure Google Cloud project
+        run: gcloud config set project "$GCP_PROJECT_ID"
+
+      - name: Validate GCP Secret Manager secrets
+        run: |
+          set -euo pipefail
+          gcloud secrets describe "$ALPACA_API_KEY_SECRET_NAME" \
+            --project "$GCP_PROJECT_ID" >/dev/null
+          gcloud secrets describe "$ALPACA_SECRET_KEY_SECRET_NAME" \
+            --project "$GCP_PROJECT_ID" >/dev/null
+
+      - name: Ensure Artifact Registry repository
+        run: |
+          set -euo pipefail
+          if gcloud artifacts repositories describe "$ARTIFACT_REPOSITORY" \
+            --location "$GCP_REGION" \
+            --project "$GCP_PROJECT_ID" >/dev/null 2>&1; then
+            echo "Artifact Registry repository exists: $ARTIFACT_REPOSITORY"
+            exit 0
+          fi
+
+          gcloud artifacts repositories create "$ARTIFACT_REPOSITORY" \
+            --repository-format docker \
+            --location "$GCP_REGION" \
+            --project "$GCP_PROJECT_ID" \
+            --description "FinanceMaker Docker images"
+
       - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker "$GCP_REGION-docker.pkg.dev" --quiet
+
+      - name: Build and push MAG7 image
+        id: image
         run: |
-          gcloud auth configure-docker ${{ secrets.GCP_REGION }}-docker.pkg.dev --quiet
-      
-      - name: Push Docker image
+          set -euo pipefail
+          IMAGE_URI="${GCP_REGION}-docker.pkg.dev/${GCP_PROJECT_ID}/${ARTIFACT_REPOSITORY}/${IMAGE_NAME}:${GITHUB_SHA}"
+          echo "image_uri=${IMAGE_URI}" >> "$GITHUB_OUTPUT"
+
+          docker build \
+            -f Dockerfile.mag7-alpaca \
+            -t "$IMAGE_URI" \
+            .
+          docker push "$IMAGE_URI"
+
+      - name: Create or update Cloud Run Job
         run: |
-          docker push ${{ steps.build-image.outputs.image_tag }}
+          set -euo pipefail
+          ENV_VARS="BROKER_PROVIDER=alpaca,ALPACA_PAPER=true,EOD_REPORT_ENABLED=false,PYTHONUNBUFFERED=1,YFINANCE_CACHE_DIR=/tmp/yfinance-cache"
+          SECRET_VARS="ALPACA_API_KEY=${ALPACA_API_KEY_SECRET_NAME}:latest,ALPACA_SECRET_KEY=${ALPACA_SECRET_KEY_SECRET_NAME}:latest"
+          JOB_FLAGS=(
+            --image "${{ steps.image.outputs.image_uri }}"
+            --region "$GCP_REGION"
+            --project "$GCP_PROJECT_ID"
+            --service-account "$GCP_SA_EMAIL"
+            --tasks 1
+            --parallelism 1
+            --max-retries 0
+            --task-timeout "$TASK_TIMEOUT"
+            --cpu 1
+            --memory 2Gi
+            --set-env-vars "$ENV_VARS"
+            --set-secrets "$SECRET_VARS"
+          )
 
-  # deploy-dev:
-  #   needs: build-and-test
-  #   if: github.ref == 'refs/heads/dev' && github.event_name == 'push'
-  #   runs-on: ubuntu-latest
-  #   environment: dev
-  #   permissions:
-  #     contents: read
-  #     id-token: write
-    
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v4
-      
-  #     - name: Authenticate to Google Cloud
-  #       uses: google-github-actions/auth@v2
-  #       with:
-  #         workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
-  #         service_account: ${{ secrets.GCP_SA_EMAIL }}
-      
-  #     - name: Set up Cloud SDK
-  #       uses: google-github-actions/setup-gcloud@v2
-      
-  #     - name: Delete existing SERVICE (if exists) - Services and Jobs share namespace
-  #       run: |
-  #         echo "Checking for existing SERVICE with same name (Services and Jobs share namespace)..."
-  #         if gcloud run services describe ${{ env.SERVICE_NAME_DEV }} \
-  #           --region ${{ secrets.GCP_REGION }} \
-  #           --project ${{ secrets.GCP_PROJECT_ID }} &>/dev/null; then
-  #           echo "⚠️  SERVICE exists with same name! Deleting it (Services and Jobs share namespace)..."
-  #           gcloud run services delete ${{ env.SERVICE_NAME_DEV }} \
-  #             --region ${{ secrets.GCP_REGION }} \
-  #             --project ${{ secrets.GCP_PROJECT_ID }} \
-  #             --quiet
-  #           echo "Waiting for service deletion..."
-  #           sleep 20
-  #           for i in {1..10}; do
-  #             if ! gcloud run services describe ${{ env.SERVICE_NAME_DEV }} \
-  #               --region ${{ secrets.GCP_REGION }} \
-  #               --project ${{ secrets.GCP_PROJECT_ID }} &>/dev/null; then
-  #               echo "Service deleted. Waiting 10 more seconds..."
-  #               sleep 10
-  #               break
-  #             fi
-  #             sleep 5
-  #           done
-  #         else
-  #           echo "No service exists with that name"
-  #         fi
-  #       continue-on-error: true
-      
-  #     - name: Delete existing JOB (if exists)
-  #       run: |
-  #         if gcloud run jobs describe ${{ env.SERVICE_NAME_DEV }} \
-  #           --region ${{ secrets.GCP_REGION }} \
-  #           --project ${{ secrets.GCP_PROJECT_ID }} &>/dev/null; then
-  #           echo "Deleting existing job..."
-  #           gcloud run jobs delete ${{ env.SERVICE_NAME_DEV }} \
-  #             --region ${{ secrets.GCP_REGION }} \
-  #             --project ${{ secrets.GCP_PROJECT_ID }} \
-  #             --quiet
-  #           echo "Waiting for job deletion..."
-  #           sleep 20
-  #           for i in {1..10}; do
-  #             if ! gcloud run jobs describe ${{ env.SERVICE_NAME_DEV }} \
-  #               --region ${{ secrets.GCP_REGION }} \
-  #               --project ${{ secrets.GCP_PROJECT_ID }} &>/dev/null; then
-  #               echo "Job deleted. Waiting 10 more seconds..."
-  #               sleep 10
-  #               break
-  #             fi
-  #             sleep 5
-  #           done
-  #         else
-  #           echo "No job exists with that name"
-  #         fi
-  #       continue-on-error: true
+          if gcloud run jobs describe "$JOB_NAME" \
+            --region "$GCP_REGION" \
+            --project "$GCP_PROJECT_ID" >/dev/null 2>&1; then
+            gcloud run jobs update "$JOB_NAME" "${JOB_FLAGS[@]}" --quiet
+          else
+            gcloud run jobs create "$JOB_NAME" "${JOB_FLAGS[@]}" --quiet
+          fi
 
-  #     - name: Deploy Cloud Run Job (Dev - Paper Trading)
-  #       run: |
-  #         # Create job WITHOUT mounting secrets (secrets are already mounted)
-  #         echo "Creating job (secrets are already mounted, not setting them in CI/CD)..."
-  #         gcloud run jobs create ${{ env.SERVICE_NAME_DEV }} \
-  #           --image ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/financemaker-repo/financemaker:${{ github.sha }} \
-  #           --region ${{ secrets.GCP_REGION }} \
-  #           --project ${{ secrets.GCP_PROJECT_ID }} \
-  #           --service-account ${{ secrets.GCP_SA_EMAIL }} \
-  #           --tasks 1 \
-  #           --max-retries 0 \
-  #           --task-timeout 36000 \
-  #           --set-env-vars "TRADING_ENV=paper,IBKR_DH_PARAM_PATH=/secrets/dh_param,IBKR_ENCRYPTION_KEY_PATH=/secrets/encryption_key,IBKR_SIGNATURE_KEY_PATH=/secrets/signature_key,GROK_API_KEY=${{ secrets.GROK_API_KEY }},GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }},IBKR_ACCESS_TOKEN=${{ secrets.IBKR_ACCESS_TOKEN }},IBKR_ACCESS_TOKEN_SECRET=${{ secrets.IBKR_ACCESS_TOKEN_SECRET }},IBKR_CONSUMER_KEY=${{ secrets.IBKR_CONSUMER_KEY }}"
-          
-  #         echo "✅ Job created successfully (secrets already mounted)"
+      - name: Allow scheduler account to execute Cloud Run Job
+        run: |
+          gcloud run jobs add-iam-policy-binding "$JOB_NAME" \
+            --region "$GCP_REGION" \
+            --project "$GCP_PROJECT_ID" \
+            --member "serviceAccount:${GCP_SA_EMAIL}" \
+            --role roles/run.invoker \
+            --quiet
 
-  #     - name: Delete existing Cloud Scheduler Job (if exists)
-  #       run: |
-  #         SCHEDULER_NAME="${SERVICE_NAME_DEV}-scheduler"
-  #         echo "Checking for existing Cloud Scheduler job: $SCHEDULER_NAME"
-  #         if gcloud scheduler jobs describe $SCHEDULER_NAME \
-  #           --location ${{ secrets.GCP_REGION }} \
-  #           --project ${{ secrets.GCP_PROJECT_ID }} &>/dev/null; then
-  #           echo "Deleting existing scheduler job..."
-  #           gcloud scheduler jobs delete $SCHEDULER_NAME \
-  #             --location ${{ secrets.GCP_REGION }} \
-  #             --project ${{ secrets.GCP_PROJECT_ID }} \
-  #             --quiet
-  #           echo "Waiting for scheduler deletion..."
-  #           sleep 5
-  #         else
-  #           echo "No scheduler job exists with that name"
-  #         fi
-  #       continue-on-error: true
+      - name: Create or update Cloud Scheduler trigger
+        run: |
+          set -euo pipefail
+          JOBS_API_URL="https://run.googleapis.com/v2/projects/${GCP_PROJECT_ID}/locations/${GCP_REGION}/jobs/${JOB_NAME}:run"
+          DESCRIPTION="Start ${JOB_NAME} at 14:00 Israel time Monday-Friday"
 
-  #     - name: Create Cloud Scheduler Job (Dev - Market Hours)
-  #       run: |
-  #         SCHEDULER_NAME="${SERVICE_NAME_DEV}-scheduler"
-          
-  #         # Build the Cloud Run Jobs API endpoint URL
-  #         JOBS_API_URL="https://${{ secrets.GCP_REGION }}-run.googleapis.com/apis/run.googleapis.com/v1/namespaces/${{ secrets.GCP_PROJECT_ID }}/jobs/${{ env.SERVICE_NAME_DEV }}:run"
-          
-  #         echo "Creating Cloud Scheduler job: $SCHEDULER_NAME"
-  #         echo "Schedule: Every minute from 14:00-23:59 Israel time, Monday-Friday"
-  #         echo "Target: $JOBS_API_URL"
-          
-  #         # Create scheduler job: Every minute from 14:00-23:59 Israel time, Monday-Friday
-  #         # Cron: * 14-23 * * 1-5 (every minute, hours 14-23, Mon-Fri) with Asia/Jerusalem timezone
-  #         gcloud scheduler jobs create http $SCHEDULER_NAME \
-  #           --location ${{ secrets.GCP_REGION }} \
-  #           --project ${{ secrets.GCP_PROJECT_ID }} \
-  #           --schedule "* 14-23 * * 1-5" \
-  #           --time-zone "Asia/Jerusalem" \
-  #           --uri "$JOBS_API_URL" \
-  #           --http-method POST \
-  #           --oauth-service-account-email ${{ secrets.GCP_SA_EMAIL }} \
-  #           --description "Trigger financemaker-dev job every minute from 14:00-23:59 Israel time on weekdays (market hours only)" \
-  #           --headers "Content-Type=application/json"
-          
-  #         echo "✅ Cloud Scheduler job created: $SCHEDULER_NAME"
-  #         echo "   Schedule: Every minute from 14:00-23:59 Israel time, Monday-Friday only"
-  #         echo "   Timezone: Asia/Jerusalem (handles DST automatically)"
-
-  #     - name: Execute Job Immediately if Within Market Hours (14:00-23:59 Israel Time)
-  #       run: |
-  #         # Get current time in Israel timezone
-  #         ISRAEL_TIME=$(TZ='Asia/Jerusalem' date '+%H:%M')
-  #         CURRENT_HOUR=$(echo $ISRAEL_TIME | cut -d: -f1)
-  #         CURRENT_MINUTE=$(echo $ISRAEL_TIME | cut -d: -f2)
-          
-  #         echo "Current Israel time: $ISRAEL_TIME"
-          
-  #         # Check if time is between 14:00 and 23:59
-  #         if [ "$CURRENT_HOUR" -ge 14 ] && [ "$CURRENT_HOUR" -le 23 ]; then
-  #           if [ "$CURRENT_HOUR" -eq 23 ] && [ "$CURRENT_MINUTE" -gt 59 ]; then
-  #             echo "⏰ Current time ($ISRAEL_TIME) is after 23:59 - not starting job"
-  #           else
-  #             echo "✅ Current time ($ISRAEL_TIME) is within market hours (14:00-23:59) - starting job immediately"
-  #             EXECUTION_NAME=$(gcloud run jobs execute ${{ env.SERVICE_NAME_DEV }} \
-  #               --region ${{ secrets.GCP_REGION }} \
-  #               --project ${{ secrets.GCP_PROJECT_ID }} \
-  #               --format="value(metadata.name)")
-  #             echo "🚀 Job execution started: $EXECUTION_NAME"
-  #             echo "   View logs: Cloud Run -> Jobs -> ${{ env.SERVICE_NAME_DEV }} -> Executions -> $EXECUTION_NAME"
-  #           fi
-  #         else
-  #           echo "⏰ Current time ($ISRAEL_TIME) is outside market hours (14:00-23:59) - job will start at 14:00 via Cloud Scheduler"
-  #         fi
-
-  # deploy-prod:
-  #   needs: build-and-test
-  #   if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-  #   runs-on: ubuntu-latest
-  #   environment: prod
-  #   permissions:
-  #     contents: read
-  #     id-token: write
-  #   
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v4
-  #     
-  #     - name: Authenticate to Google Cloud
-  #       uses: google-github-actions/auth@v2
-  #       with:
-  #         workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
-  #         service_account: ${{ secrets.GCP_SA_EMAIL }}
-  #     
-  #     - name: Set up Cloud SDK
-  #       uses: google-github-actions/setup-gcloud@v2
-  #     
-  #     - name: Deploy to Cloud Run (Prod - Real Trading)
-  #       run: |
-  #         gcloud run deploy ${{ env.SERVICE_NAME_PROD }} \
-  #           --image ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/financemaker-repo/financemaker:${{ github.sha }} \
-  #           --region ${{ env.REGION }} \
-  #           --platform managed \
-  #           --allow-unauthenticated \
-  #           --cpu 2 \
-  #           --memory 4Gi \
-  #           --timeout 3600 \
-  #           --min-instances 1 \
-  #           --max-instances 1 \
-  #           --concurrency 1 \
-  #           --set-env-vars "TRADING_ENV=real,IBKR_DH_PARAM_PATH=/secrets/dh_param,IBKR_ENCRYPTION_KEY_PATH=/secrets/encryption_key,IBKR_SIGNATURE_KEY_PATH=/secrets/signature_key,GROK_API_KEY=${{ secrets.GROK_API_KEY }},GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }},IBKR_ACCESS_TOKEN=${{ secrets.IBKR_ACCESS_TOKEN }},IBKR_ACCESS_TOKEN_SECRET=${{ secrets.IBKR_ACCESS_TOKEN_SECRET }},IBKR_CONSUMER_KEY=${{ secrets.IBKR_CONSUMER_KEY }}" \
-  #           --update-secrets "/secrets/dh_param=ibkr-real-dh-param:latest,/secrets/encryption_key=ibkr-real-encryption-key:latest,/secrets/signature_key=ibkr-real-signature-key:latest"
-
+          if gcloud scheduler jobs describe "$SCHEDULER_NAME" \
+            --location "$GCP_REGION" \
+            --project "$GCP_PROJECT_ID" >/dev/null 2>&1; then
+            gcloud scheduler jobs update http "$SCHEDULER_NAME" \
+              --location "$GCP_REGION" \
+              --project "$GCP_PROJECT_ID" \
+              --schedule "$SCHEDULER_CRON" \
+              --time-zone "$SCHEDULER_TIME_ZONE" \
+              --uri "$JOBS_API_URL" \
+              --http-method POST \
+              --oauth-service-account-email "$GCP_SA_EMAIL" \
+              --update-headers "Content-Type=application/json" \
+              --message-body "{}" \
+              --attempt-deadline 30s \
+              --max-retry-attempts 0 \
+              --max-retry-duration 0s \
+              --min-backoff 5s \
+              --max-backoff 5s \
+              --max-doublings 0 \
+              --description "$DESCRIPTION"
+          else
+            gcloud scheduler jobs create http "$SCHEDULER_NAME" \
+              --location "$GCP_REGION" \
+              --project "$GCP_PROJECT_ID" \
+              --schedule "$SCHEDULER_CRON" \
+              --time-zone "$SCHEDULER_TIME_ZONE" \
+              --uri "$JOBS_API_URL" \
+              --http-method POST \
+              --oauth-service-account-email "$GCP_SA_EMAIL" \
+              --headers "Content-Type=application/json" \
+              --message-body "{}" \
+              --attempt-deadline 30s \
+              --max-retry-attempts 0 \
+              --max-retry-duration 0s \
+              --min-backoff 5s \
+              --max-backoff 5s \
+              --max-doublings 0 \
+              --description "$DESCRIPTION"
+          fi

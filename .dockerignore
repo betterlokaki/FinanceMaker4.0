@@ -42,6 +42,7 @@ Thumbs.db
 .pytest_cache/
 .coverage
 htmlcov/
+test_*.py
 
 # Logs
 *.log
@@ -51,6 +52,7 @@ logs/
 .env
 .env.local
 .env.*.local
+gha-creds-*.json
 secrets/
 
 # Git
@@ -61,6 +63,7 @@ secrets/
 .github/
 
 # Cache
+.cache/
 cache/
 
 # Documentation
@@ -68,6 +71,8 @@ cache/
 !README.md
 
 # Other
+*.csv
+*.docx
 *.png
 *.jpg
 *.jpeg

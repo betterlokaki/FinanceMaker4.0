@@ -9,6 +9,9 @@ python-dotenv>=1.0.0
 ibind>=0.1.0
 pycryptodome>=3.19.0
 
+# Alpaca
+alpaca-py>=0.43.4
+
 # AI SDKs
 xai-sdk>=0.1.0
 google-genai>=0.2.0

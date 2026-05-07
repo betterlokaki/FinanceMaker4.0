@@ -103,6 +103,7 @@ weekly_consensus_strategy:
   direction_preference: "long"
 
 # Application Settings
+broker_provider: "alpaca"
 debug: false
 log_level: "INFO"
     

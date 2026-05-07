@@ -16,6 +16,7 @@ from gpt.abstracts import IGPTClient
 from gpt.gemini import GeminiClient, GeminiSearchClient
 from gpt.grok import GrokClient
 from publishers.abstracts import IBroker
+from publishers.alpaca import AlpacaBroker
 from publishers.interactive_brokers import InteractiveWebapiBroker
 from pullers.ideas.abstracts import IIdeaPuller
 from pullers.ideas.trading_view_idea_puller import TradingViewIdeaPuller
@@ -123,6 +124,16 @@ class Container(containers.DeclarativeContainer):
     ibkr_broker: providers.Provider[IBroker] = providers.Singleton(
         InteractiveWebapiBroker,
         config=providers.Object(settings.ibkr),
+    )
+    alpaca_broker: providers.Provider[IBroker] = providers.Singleton(
+        AlpacaBroker,
+        config=providers.Object(settings.alpaca),
+    )
+    broker_provider = providers.Object(settings.broker_provider.lower())
+    live_broker: providers.Provider[IBroker] = providers.Selector(
+        broker_provider,
+        alpaca=alpaca_broker,
+        ibkr=ibkr_broker,
     )
 
     # Market Providers

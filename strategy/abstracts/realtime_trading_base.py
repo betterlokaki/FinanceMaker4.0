@@ -271,10 +271,11 @@ class RealTimeTradingBase(ITradingStrategy, ABC):
         """Poll clock and send EOD report once per trading day."""
         while True:
             try:
-                print("Sending EOD report...")
                 if not send_mails.get(datetime.now().date(), False):
+                    logger.info("Sending EOD report...")
                     await self._maybe_send_end_of_day_report()
                     send_mails[datetime.now().date()] = True
+                    return
             except asyncio.CancelledError:
                 raise
             except Exception as exc:
