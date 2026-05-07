@@ -12,7 +12,7 @@ from common.models.order import OrderSide, OrderType, TimeInForce
 from common.models.order_request import OrderRequest
 
 
-def test_mag7_fixed_bracket_maps_to_native_alpaca_bracket() -> None:
+def test_mag7_fixed_bracket_maps_to_native_alpaca_gtc_bracket() -> None:
     request = OrderRequest(
         ticker="AAPL",
         quantity=10,
@@ -21,7 +21,7 @@ def test_mag7_fixed_bracket_maps_to_native_alpaca_bracket() -> None:
         limit_price=100.0,
         stop_loss_price=98.0,
         take_profit_price=106.0,
-        time_in_force=TimeInForce.DAY,
+        time_in_force=TimeInForce.GTC,
         take_profit_rth=True,
         stop_loss_rth=False,
     )
@@ -32,7 +32,7 @@ def test_mag7_fixed_bracket_maps_to_native_alpaca_bracket() -> None:
     assert alpaca_request.symbol == "AAPL"
     assert alpaca_request.qty == 10
     assert alpaca_request.side == AlpacaOrderSide.BUY
-    assert alpaca_request.time_in_force == AlpacaTimeInForce.DAY
+    assert alpaca_request.time_in_force == AlpacaTimeInForce.GTC
     assert alpaca_request.limit_price == 100.0
     assert alpaca_request.order_class == OrderClass.BRACKET
     assert alpaca_request.extended_hours is False

@@ -57,7 +57,7 @@ class Mag7EmaSlopeRegimeLiveStrategy(RealTimeTradingBase):
         ema_period: int = 20,
         slope_len: int = 36,
         band: float = 0.0,
-        stop_loss_pct: float = 0.02,
+        stop_loss_pct: float = 0.03,
         take_profit_pct: float = 0.06,
     ) -> None:
         """Initialize strategy with tuned MAG7 defaults."""
@@ -480,7 +480,7 @@ class Mag7EmaSlopeRegimeLiveStrategy(RealTimeTradingBase):
             limit_price=entry,
             stop_loss_price=stop_price,
             take_profit_price=take_profit_price,
-            time_in_force=TimeInForce.DAY,
+            time_in_force=TimeInForce.GTC,
             buy_limit_rth=True,
             take_profit_rth=True,
             stop_loss_rth=False,

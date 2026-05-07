@@ -133,6 +133,18 @@ class AlpacaConfig(BaseSettings):
         default=300,
         description="Background portfolio refresh interval in seconds; 0 disables refresh",
     )
+    take_profit_pct: float = Field(
+        default=0.06,
+        description="Default Alpaca take-profit percentage (0.06 = 6%)",
+    )
+    stop_loss_pct: float = Field(
+        default=0.03,
+        description="Default Alpaca stop-loss percentage (0.03 = 3%)",
+    )
+    notional_per_trade: float = Field(
+        default=5000.0,
+        description="Default Alpaca notional dollars per trade",
+    )
 
 
 class YahooConfig(BaseSettings):
