@@ -155,7 +155,7 @@ jobs:
       - name: Create or update Cloud Run Job
         run: |
           set -euo pipefail
-          ENV_VARS="BROKER_PROVIDER=alpaca,ALPACA_PAPER=true,EOD_REPORT_ENABLED=false,PYTHONUNBUFFERED=1,YFINANCE_CACHE_DIR=/tmp/yfinance-cache"
+          ENV_VARS="BROKER_PROVIDER=alpaca,ALPACA_PAPER=true,ALPACA_NOTIONAL_PER_TRADE=14000,EOD_REPORT_ENABLED=false,PYTHONUNBUFFERED=1,YFINANCE_CACHE_DIR=/tmp/yfinance-cache"
           SECRET_VARS="ALPACA_API_KEY=${ALPACA_API_KEY_SECRET_NAME}:latest,ALPACA_SECRET_KEY=${ALPACA_SECRET_KEY_SECRET_NAME}:latest"
           JOB_FLAGS=(
             --image "${{ steps.image.outputs.image_uri }}"
