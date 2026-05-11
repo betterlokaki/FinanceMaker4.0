@@ -92,6 +92,24 @@ def test_simple_market_flatten_order_maps_to_market_order() -> None:
     assert alpaca_request.extended_hours is False
 
 
+def test_simple_limit_order_honors_explicit_extended_hours_flag() -> None:
+    request = OrderRequest(
+        ticker="AAPL",
+        quantity=10,
+        side=OrderSide.BUY,
+        order_type=OrderType.LIMIT,
+        limit_price=100.0,
+        time_in_force=TimeInForce.DAY,
+        extended_hours=True,
+        buy_limit_rth=True,
+    )
+
+    alpaca_request = AlpacaOrderRequestConverter.to_alpaca(request)
+
+    assert isinstance(alpaca_request, LimitOrderRequest)
+    assert alpaca_request.extended_hours is True
+
+
 def test_trailing_stop_bracket_is_not_supported() -> None:
     request = OrderRequest(
         ticker="AAPL",

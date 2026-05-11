@@ -28,5 +28,5 @@ class EarningTommrow(FinvizScanner):
         """
         super().__init__(http_client)
         self.BASE_URL: str = (
-            "https://finviz.com/screener.ashx?v=111&f=earningsdate_today%2Csh_avgvol_o1000%2Csh_price_o5%2Cta_sma200_pa&ft=4"
+            "https://finviz.com/screener?v=111&f=earningsdate_todayafter%2Csh_avgvol_o1000%2Csh_price_o5%2Cta_sma200_pa&ft=4"
         )

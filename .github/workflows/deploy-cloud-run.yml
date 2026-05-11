@@ -1,4 +1,4 @@
-name: Deploy MAG7 Alpaca Paper Cloud Run Job
+name: Deploy Alpaca Paper Cloud Run Job
 
 on:
   push:
@@ -21,7 +21,7 @@ env:
 
 jobs:
   validate:
-    name: Validate MAG7 Alpaca runner
+    name: Validate Alpaca strategy runner
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -40,23 +40,25 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt pytest
 
-      - name: Run Alpaca and MAG7 tests
+      - name: Run Alpaca and strategy runner tests
         run: |
           python -m pytest \
             test_alpaca_converters.py \
             test_alpaca_order_request_converter.py \
             test_alpaca_broker.py \
-            test_run_live_mag7_entrypoint.py
+            test_run_live_strategies_menu.py
 
-      - name: Compile MAG7 entrypoint
+      - name: Compile strategy entrypoint
         env:
           BROKER_PROVIDER: alpaca
           ALPACA_API_KEY: dummy
           ALPACA_SECRET_KEY: dummy
+          GROK_API_KEY: dummy
+          GEMINI_API_KEY: dummy
           PYTHONDONTWRITEBYTECODE: "1"
-        run: python -m py_compile run_live_mag7_ema_slope_regime_strategy.py
+        run: python -m py_compile run_live_strategies_menu.py
 
-      - name: Build MAG7 Docker image
+      - name: Build Alpaca Docker image
         run: |
           docker build \
             -f Dockerfile.mag7-alpaca \
@@ -64,7 +66,7 @@ jobs:
             .
 
   deploy:
-    name: Deploy MAG7 Alpaca paper job
+    name: Deploy Alpaca paper job
     needs: validate
     if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/dev')
     runs-on: ubuntu-latest
@@ -79,6 +81,8 @@ jobs:
       GCP_SA_EMAIL: ${{ secrets.GCP_SA_EMAIL }}
       ALPACA_API_KEY_SECRET_NAME: alpaca-paper-api-key
       ALPACA_SECRET_KEY_SECRET_NAME: alpaca-paper-secret-key
+      GROK_API_KEY_SECRET_NAME: GROK_API_KEY
+      GEMINI_API_KEY_SECRET_NAME: GEMINI_API_KEY
 
     steps:
       - name: Checkout code
@@ -119,6 +123,10 @@ jobs:
             --project "$GCP_PROJECT_ID" >/dev/null
           gcloud secrets describe "$ALPACA_SECRET_KEY_SECRET_NAME" \
             --project "$GCP_PROJECT_ID" >/dev/null
+          gcloud secrets describe "$GROK_API_KEY_SECRET_NAME" \
+            --project "$GCP_PROJECT_ID" >/dev/null
+          gcloud secrets describe "$GEMINI_API_KEY_SECRET_NAME" \
+            --project "$GCP_PROJECT_ID" >/dev/null
 
       - name: Ensure Artifact Registry repository
         run: |
@@ -139,7 +147,7 @@ jobs:
       - name: Configure Docker for Artifact Registry
         run: gcloud auth configure-docker "$GCP_REGION-docker.pkg.dev" --quiet
 
-      - name: Build and push MAG7 image
+      - name: Build and push Alpaca image
         id: image
         run: |
           set -euo pipefail
@@ -156,7 +164,7 @@ jobs:
         run: |
           set -euo pipefail
           ENV_VARS="BROKER_PROVIDER=alpaca,ALPACA_PAPER=true,ALPACA_NOTIONAL_PER_TRADE=14000,EOD_REPORT_ENABLED=false,PYTHONUNBUFFERED=1,YFINANCE_CACHE_DIR=/tmp/yfinance-cache"
-          SECRET_VARS="ALPACA_API_KEY=${ALPACA_API_KEY_SECRET_NAME}:latest,ALPACA_SECRET_KEY=${ALPACA_SECRET_KEY_SECRET_NAME}:latest"
+          SECRET_VARS="ALPACA_API_KEY=${ALPACA_API_KEY_SECRET_NAME}:latest,ALPACA_SECRET_KEY=${ALPACA_SECRET_KEY_SECRET_NAME}:latest,GROK_API_KEY=${GROK_API_KEY_SECRET_NAME}:latest,GEMINI_API_KEY=${GEMINI_API_KEY_SECRET_NAME}:latest"
           JOB_FLAGS=(
             --image "${{ steps.image.outputs.image_uri }}"
             --region "$GCP_REGION"

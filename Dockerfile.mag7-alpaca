@@ -1,4 +1,4 @@
-# FinanceMaker MAG7 Alpaca paper runner
+# FinanceMaker Alpaca paper strategy runner
 FROM python:3.12-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -19,4 +19,4 @@ RUN python -m pip install --upgrade pip \
 
 COPY . .
 
-CMD ["python", "run_live_mag7_ema_slope_regime_strategy.py"]
+CMD ["python", "run_live_strategies_menu.py"]

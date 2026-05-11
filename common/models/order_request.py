@@ -26,6 +26,7 @@ class OrderRequest:
         trailing_stop_type: Trailing type — "%" for percentage or "amt" for
             dollar amount. Defaults to "%" when trailing_stop_amt is set.
         time_in_force: How long the order remains active.
+        extended_hours: Whether a simple broker order may execute outside RTH.
         buy_limit_rth: Whether buy limit order executes only during RTH (None = use default).
         stop_loss_rth: Whether stop loss order executes only during RTH (None = use default).
         take_profit_rth: Whether take profit order executes only during RTH (None = use default).
@@ -41,6 +42,7 @@ class OrderRequest:
     trailing_stop_amt: Optional[float] = None
     trailing_stop_type: Optional[str] = None
     time_in_force: TimeInForce = TimeInForce.DAY
+    extended_hours: Optional[bool] = None
     buy_limit_rth: Optional[bool] = None
     stop_loss_rth: Optional[bool] = None
     take_profit_rth: Optional[bool] = None

@@ -142,7 +142,7 @@ class AlpacaConfig(BaseSettings):
         description="Default Alpaca stop-loss percentage (0.03 = 3%)",
     )
     notional_per_trade: float = Field(
-        default=5000.0,
+        default=14000.0,
         description="Default Alpaca notional dollars per trade",
     )
 

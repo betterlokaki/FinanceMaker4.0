@@ -194,12 +194,12 @@ class Container(containers.DeclarativeContainer):
         EarningStrategy,
         realtime_provider=yahoo_realtime_provider,
         earnings_scanner=earning_tomorrow_ai_scanner,
-        broker=ibkr_broker,
+        broker=alpaca_broker,
         ai_scanner_config=providers.Object(settings.ai_scanner),
         ticker_cache=ticker_cache,
         portfolio_allocation_config=providers.Object(settings.portfolio_allocation),
         order_params_config=providers.Object(settings.order_params),
-        dynamic_stop_loss_manager=dynamic_stop_loss_manager,
+        notional_per_trade=providers.Object(settings.alpaca.notional_per_trade),
     )
 
     demand_zone_strategy: providers.Provider[ITradingStrategy] = providers.Singleton(

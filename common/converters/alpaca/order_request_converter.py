@@ -200,6 +200,8 @@ class AlpacaOrderRequestConverter:
     def _simple_extended_hours(order_request: OrderRequest) -> bool:
         if order_request.order_type != OrderType.LIMIT:
             return False
+        if order_request.extended_hours is not None:
+            return order_request.extended_hours
         return order_request.buy_limit_rth is False
 
     @staticmethod

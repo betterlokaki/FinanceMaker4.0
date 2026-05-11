@@ -1,10 +1,11 @@
 """Interactive Brokers Web API broker implementation."""
 import asyncio
 from datetime import date, datetime, timezone
+from decimal import Decimal
 from functools import wraps
 import logging
 from typing import Any, Awaitable, Callable, TypeVar, cast
-
+import pandas
 from ibind import IbkrClient, QuestionType
 from ibind.oauth.oauth1a import OAuth1aConfig
 from ibind.support.errors import ExternalBrokerError
@@ -816,3 +817,46 @@ class InteractiveWebapiBroker(BrokerBase):
             Account ID if connected, None otherwise.
         """
         return self._account_id
+    async def _get_relized_money(self, start_date: date, end_date: date) -> float:
+        await self._ensure_connected()
+    
+        CONIDS = [28812380]  # AAPL, TSLA etc — put every traded conid here
+
+        total = 0.0
+        # trades = self._client.get("iserver/account/trades", params={
+        #         "acctId": self._account_id
+        #     }).data
+
+        # conids = {
+        #     str(t["conid"])
+        #     for t in trades
+        #     if t.get("conid")
+        # }
+        # print(conids)
+        for conid in CONIDS:
+
+            r = self._client.transaction_history(
+                account_ids=self._account_id,
+                conids=[conid],
+
+                currency="USD",
+
+                days=730,
+
+            ).data
+
+            rpnl = r.get("rpnl", {})
+
+            amt = Decimal(str(rpnl.get("amt", "0")))
+
+            total += float(amt)
+
+            print("CONID", conid, "REALIZED:", amt)
+
+            for row in rpnl.get("data", []):
+
+                print(row["date"], row["acctid"], row["conid"], row["cur"], row["amt"])
+
+        print("TOTAL REALIZED PNL 2Y:", total)
+        return 0.0
+        
