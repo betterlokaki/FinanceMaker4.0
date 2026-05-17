@@ -5,12 +5,13 @@ Uses the native google-genai SDK for:
 - Code execution tool for data analysis
 """
 import asyncio
+from collections.abc import Iterable
+import importlib.metadata
 import logging
-from typing import Final
+from typing import Any, Final
 
 import httpx
 from google import genai
-from google.genai import types
 
 from common.settings import settings
 from gpt.abstracts.gpt_base import GPTBase
@@ -30,6 +31,70 @@ SYSTEM_PROMPT: Final[str] = ( "You are a financial stock analyst. When you analy
 DEEP_RESEARCH_AGENT: Final[str] = "deep-research-pro-preview-12-2025"
 POLL_INTERVAL_SECONDS: Final[int] = 10
 MAX_RESEARCH_TIME_MINUTES: Final[int] = 60
+
+
+def _get_field(value: object, field_name: str) -> Any:
+    """Read a field from SDK objects, pydantic models, or plain dicts."""
+    if isinstance(value, dict):
+        return value.get(field_name)
+
+    field_value = getattr(value, field_name, None)
+    if field_value is not None:
+        return field_value
+
+    model_dump = getattr(value, "model_dump", None)
+    if callable(model_dump):
+        try:
+            dumped = model_dump()
+        except Exception:
+            return None
+        if isinstance(dumped, dict):
+            return dumped.get(field_name)
+
+    return None
+
+
+def _as_iterable(value: Any) -> Iterable[Any]:
+    if isinstance(value, Iterable) and not isinstance(value, (str, bytes, dict)):
+        return value
+    return ()
+
+
+def _extract_text_items(content_items: Any) -> list[str]:
+    if isinstance(content_items, dict):
+        text = _get_field(content_items, "text")
+        return [str(text)] if text else []
+
+    texts: list[str] = []
+    for item in _as_iterable(content_items):
+        text = _get_field(item, "text")
+        if text:
+            texts.append(str(text))
+    return texts
+
+
+def _extract_interaction_text(interaction: object) -> str:
+    """Extract completed Deep Research text across old and new interaction schemas."""
+    steps = _get_field(interaction, "steps")
+    for step in reversed(list(_as_iterable(steps))):
+        texts = _extract_text_items(_get_field(step, "content"))
+        if texts:
+            return "\n".join(texts)
+
+    outputs = _get_field(interaction, "outputs")
+    texts = _extract_text_items(outputs)
+    return "\n".join(texts)
+
+
+def _interaction_field_names(interaction: object) -> list[str]:
+    if isinstance(interaction, dict):
+        return sorted(interaction.keys())
+
+    model_fields = getattr(interaction, "model_fields", None)
+    if isinstance(model_fields, dict):
+        return sorted(model_fields.keys())
+
+    return [name for name in dir(interaction) if not name.startswith("_")]
 
 
 class GeminiClient(GPTBase):
@@ -77,23 +142,30 @@ class GeminiClient(GPTBase):
         # Combine system prompt with user prompt
         full_input = f"{SYSTEM_PROMPT}\n\n{prompt}"
         
-        logger.info("Starting Deep Research Agent task...")
+        try:
+            google_genai_version = importlib.metadata.version("google-genai")
+        except importlib.metadata.PackageNotFoundError:
+            google_genai_version = "unknown"
+
+        logger.info(
+            "Starting Deep Research Agent task with google-genai %s...",
+            google_genai_version,
+        )
         logger.debug(f"Input prompt: {prompt[:200]}...")
         
         loop = asyncio.get_event_loop()
         
         # Create interaction with Deep Research Agent
         try:
-            interaction =self._client.interactions.create(  # type: ignore[attr-defined]
-                    input=full_input,
-                    agent=DEEP_RESEARCH_AGENT,
-                    background=True,
-                    tools=[
-                        {"type": "code_execution"}
-                    ],
-                )
-            
-            
+            interaction = self._client.interactions.create(  # type: ignore[attr-defined]
+                input=full_input,
+                agent=DEEP_RESEARCH_AGENT,
+                background=True,
+                tools=[
+                    {"type": "code_execution"}
+                ],
+            )
+
             interaction_id = interaction.id  # type: ignore[attr-defined]
             logger.info(f"Deep Research task started: {interaction_id}")
             logger.info("Research in progress (this may take several minutes)...")
@@ -113,21 +185,23 @@ class GeminiClient(GPTBase):
                     lambda: self._client.interactions.get(interaction_id)  # type: ignore[attr-defined]
                 )
                 
-                status = interaction.status  # type: ignore[attr-defined]
+                status = _get_field(interaction, "status")
                 logger.debug(f"Interaction status: {status} (poll {poll_count + 1}/{max_polls})")
                 
                 if status == "completed":
-                    outputs = interaction.outputs  # type: ignore[attr-defined]
-                    if outputs and len(outputs) > 0:  # type: ignore[arg-type]
-                        result_text: str = str(outputs[-1].text)  # type: ignore[attr-defined]
+                    result_text = _extract_interaction_text(interaction)
+                    if result_text:
                         logger.info(f"Deep Research completed: {len(result_text)} chars")
                         return result_text
-                    else:
-                        logger.warning("Interaction completed but no outputs found")
-                        return ""
+
+                    logger.warning(
+                        "Interaction completed but no text output found; available fields: %s",
+                        _interaction_field_names(interaction),
+                    )
+                    return ""
                         
                 elif status == "failed":
-                    error_msg = getattr(interaction, 'error', 'Unknown error')  # type: ignore[attr-defined]
+                    error_msg = _get_field(interaction, "error") or "Unknown error"
                     logger.error(f"Deep Research failed: {error_msg}")
                     raise Exception(f"Deep Research task failed: {error_msg}")
                 
@@ -145,4 +219,3 @@ class GeminiClient(GPTBase):
             f"Deep Research task timed out after {MAX_RESEARCH_TIME_MINUTES} minutes. "
             f"Interaction ID: {interaction_id}"
         )
-
