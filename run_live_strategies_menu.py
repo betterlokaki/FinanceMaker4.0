@@ -88,6 +88,7 @@ def _create_earnings_strategy(context: LiveStrategyContext) -> ITradingStrategy:
         realtime_provider=context.realtime_provider,
         earnings_scanner=context.earnings_scanner,
         broker=context.broker,
+        market_provider=context.market_provider,
         ai_scanner_config=context.ai_scanner_config,
         ticker_cache=context.ticker_cache,
         portfolio_allocation_config=context.portfolio_allocation_config,

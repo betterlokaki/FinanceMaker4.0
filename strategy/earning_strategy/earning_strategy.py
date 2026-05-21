@@ -1,6 +1,6 @@
 """Earnings-based trading strategy using AI consensus."""
 import logging
-from datetime import date, datetime, time
+from datetime import date, datetime, time, timezone
 
 from zoneinfo import ZoneInfo
 
@@ -19,6 +19,7 @@ from dynamic_stop_loss.interfaces.i_dynamic_stop_loss_manager import (
     IDynamicStopLossManager,
 )
 from publishers.abstracts.i_broker import IBroker
+from pullers.market.abstracts import IMarketProvider
 from pullers.realtime.abstracts.i_realtime_provider import IRealtimeProvider
 from pullers.scanners.ai_scanners.earning_tommrow_ai import EarningTomorrowAI
 from strategy.abstracts.realtime_trading_base import RealTimeTradingBase
@@ -26,10 +27,10 @@ from strategy.abstracts.realtime_trading_base import RealTimeTradingBase
 logger: logging.Logger = logging.getLogger(__name__)
 
 NY_TZ: ZoneInfo = ZoneInfo("America/New_York")
+MARKET_OPEN_TIME: time = time(9, 30)  # 9:30 AM NY
 MARKET_WARMUP_TIME: time = time(9, 35)  # 9:35 AM NY (market open + 5 min)
 
 # Strategy constants
-ENTRY_OFFSET_PCT: float = 0.01  # 1% below candle low
 STOP_LOSS_PCT: float = 0.04  # Synthetic 4% stop trigger
 TAKE_PROFIT_PCT: float = 0.08  # 8% above entry
 MIN_QUANTITY: int = 1  # Minimum shares per order
@@ -39,11 +40,11 @@ class EarningStrategy(RealTimeTradingBase):
     """Strategy that trades earnings stocks using AI consensus.
     
     Workflow:
-    1. Runs EarningTomorrowAI scanner TWICE for AI consensus
+    1. Runs EarningTomorrowAI scanner for the configured AI consensus passes
     2. Subscribes to real-time price updates for those tickers
-    3. Waits until 9:35 AM NY time (5 min after market open)
-    4. On FIRST 5-min candle per ticker:
-       - Entry = candle LOW - 1%
+    3. Builds the real 9:30-9:35 AM NY first RTH candle per ticker
+    4. After that candle closes:
+       - Entry = candle LOW
        - Take Profit = entry + 8%
        - Places plain extended-hours LIMIT BUY via Alpaca
     5. On each tick after fill:
@@ -57,6 +58,7 @@ class EarningStrategy(RealTimeTradingBase):
         realtime_provider: IRealtimeProvider,
         earnings_scanner: EarningTomorrowAI,
         broker: IBroker,
+        market_provider: IMarketProvider,
         ai_scanner_config: AIScannerConfig,
         ticker_cache: ITickerCache,
         portfolio_allocation_config: PortfolioAllocationConfig,
@@ -70,6 +72,7 @@ class EarningStrategy(RealTimeTradingBase):
             realtime_provider: Real-time market data provider.
             earnings_scanner: EarningTomorrowAI scanner (concrete, run twice).
             broker: Broker interface for placing orders.
+            market_provider: Historical market provider used to recover missed entry candles.
             ai_scanner_config: AI scanner configuration with scan_passes.
             ticker_cache: Cache for storing/loading tickers across restarts.
             portfolio_allocation_config: Portfolio allocation configuration.
@@ -80,6 +83,7 @@ class EarningStrategy(RealTimeTradingBase):
         super().__init__(realtime_provider, broker=broker)
         self._earnings_scanner: EarningTomorrowAI = earnings_scanner
         self._broker: IBroker = broker
+        self._market_provider: IMarketProvider = market_provider
         self._ai_scanner_config: AIScannerConfig = ai_scanner_config
         self._ticker_cache: ITickerCache = ticker_cache
         self._portfolio_allocation_config: PortfolioAllocationConfig = portfolio_allocation_config
@@ -90,6 +94,10 @@ class EarningStrategy(RealTimeTradingBase):
         self._entry_prices: dict[str, float] = {}
         self._take_profit_order_ids: dict[str, str] = {}
         self._stop_triggered: set[str] = set()
+        self._exit_monitoring_tickers: set[str] = set()
+        self._entry_candle_states: dict[tuple[str, date], dict[str, object]] = {}
+        self._entry_candles_processed: set[tuple[str, date]] = set()
+        self._entry_window_missed: set[tuple[str, date]] = set()
         self._notional_per_trade: float = max(0.0, float(notional_per_trade))
         self._total_tickers: int = 0  # Total number of tickers to trade
 
@@ -99,7 +107,7 @@ class EarningStrategy(RealTimeTradingBase):
         Checks cache first to avoid expensive AI calls on process restart.
         Saves results to cache for future use.
         """
-        today: date = date.today()
+        today: date = datetime.now(NY_TZ).date()
         
         # Check cache first
         cached_tickers: list[str] | None = self._ticker_cache.load_tickers(today)
@@ -117,17 +125,47 @@ class EarningStrategy(RealTimeTradingBase):
             # Save to cache for future restarts
             self._ticker_cache.save_tickers(result, today)
         
+        recovery_tickers = await self._load_recovery_tickers()
+        if recovery_tickers:
+            result = sorted({*result, *recovery_tickers})
+            logger.info(
+                "🛡️ Added %d ticker(s) for synthetic stop monitoring after restart: %s",
+                len(recovery_tickers),
+                recovery_tickers,
+            )
+
         self._total_tickers = len(result)
         logger.info(
             "💰 Earnings max notional per trade: $%.2f",
             self._notional_per_trade,
         )
-        p = self._broker.portfolio.open_orders
-        self._orders_placed = {order.ticker.upper() for order in p}
         return result
 
+    async def _load_recovery_tickers(self) -> list[str]:
+        """Load symbols that must stay subscribed for synthetic stop protection."""
+        try:
+            portfolio = await self._broker.get_portfolio()
+        except Exception as exc:
+            logger.warning("Could not refresh portfolio for earnings restart recovery: %s", exc)
+            portfolio = self._broker.portfolio
+
+        self._orders_placed = {
+            order.ticker.upper()
+            for order in portfolio.open_orders
+            if order.is_active
+        }
+        tickers: set[str] = {
+            position.ticker.upper()
+            for position in portfolio.positions
+            if position.quantity > 0
+        }
+        tickers.update(self._orders_placed)
+        self._orders_placed.update(tickers)
+        self._exit_monitoring_tickers.update(tickers)
+        return sorted(tickers)
+
     async def _run_ai_scanner(self) -> list[str]:
-        """Run AI consensus scanner for multiple passes.
+        """Run AI consensus scanner for configured passes.
         
         Returns:
             Combined unique tickers from all scan passes.
@@ -138,7 +176,7 @@ class EarningStrategy(RealTimeTradingBase):
         )
         
         combined: set[str] = set()
-        scan_passes: int = 1
+        scan_passes: int = max(1, self._ai_scanner_config.scan_passes)
         
         for pass_num in range(1, scan_passes + 1):
             logger.info("Running earnings scanner - pass %d/%d...", pass_num, scan_passes)
@@ -195,7 +233,7 @@ class EarningStrategy(RealTimeTradingBase):
 
         # Alpaca extended-hours equities orders must be plain limit orders.
         # Take-profit and synthetic stop exits are submitted after fill.
-        entry_price: float = round(candle.low * (1 - ENTRY_OFFSET_PCT), 2)
+        entry_price: float = round(candle.low, 2)
 
         # Cap entry size by configured notional and current buying power.
         quantity: int = await self._calculate_quantity(entry_price)
@@ -209,7 +247,7 @@ class EarningStrategy(RealTimeTradingBase):
             return
         
         logger.info(
-            "📊 %s order: Entry=%.2f (LOW-1%%), SyntheticSL=%.1f%%, TP=%.1f%%, Qty=%d ($%.2f)",
+            "📊 %s order: Entry=%.2f (first 5-min LOW), SyntheticSL=%.1f%%, TP=%.1f%%, Qty=%d ($%.2f)",
             ticker,
             entry_price,
             STOP_LOSS_PCT * 100,
@@ -238,6 +276,7 @@ class EarningStrategy(RealTimeTradingBase):
         
         # Mark ticker as having an order placed
         self._orders_placed.add(ticker)
+        self._exit_monitoring_tickers.add(ticker)
         self._entry_prices[ticker] = entry_price
         
         logger.info(
@@ -248,10 +287,134 @@ class EarningStrategy(RealTimeTradingBase):
         )
 
     async def on_tick(self, data: PricingData) -> None:
-        """Handle tick, synthetic exits, and entry candle evaluation."""
+        """Handle tick, synthetic exits, and first RTH entry candle evaluation."""
         await self._sync_position_exits(data)
-        await super().on_tick(data)
-        await self.on_candle(data.id, CandleStick(open=data.price, high=data.price, low=data.price, close=data.price, volume=data.last_size, time=data.time, period=Period.MINUTE))
+        await self._process_entry_candle_tick(data)
+
+    async def _process_entry_candle_tick(self, data: PricingData) -> None:
+        """Build and submit once from the real 9:30-9:35 NY candle."""
+        ticker = data.id.upper()
+        tick_time_ny = self._to_ny_time(data.time)
+        trading_day = tick_time_ny.date()
+        key = (ticker, trading_day)
+
+        if key in self._entry_candles_processed:
+            return
+
+        tick_time = tick_time_ny.time()
+        if tick_time < MARKET_OPEN_TIME:
+            return
+
+        if tick_time < MARKET_WARMUP_TIME:
+            self._update_entry_candle_state(key, data)
+            return
+
+        state = self._entry_candle_states.pop(key, None)
+        if state is None:
+            candle = await self._load_first_rth_candle(ticker, trading_day)
+            if candle is None:
+                if key not in self._entry_window_missed:
+                    self._entry_window_missed.add(key)
+                    self._entry_candles_processed.add(key)
+                    logger.warning(
+                        "Skipping %s entry for %s - could not load first 5-minute RTH candle",
+                        ticker,
+                        trading_day,
+                    )
+                return
+
+            self._entry_candles_processed.add(key)
+            await self.on_candle(ticker, candle)
+            return
+
+        self._entry_candles_processed.add(key)
+        await self.on_candle(ticker, self._finalize_entry_candle_state(state))
+
+    async def _load_first_rth_candle(
+        self,
+        ticker: str,
+        trading_day: date,
+    ) -> CandleStick | None:
+        start_ny = datetime.combine(trading_day, MARKET_OPEN_TIME, tzinfo=NY_TZ)
+        end_ny = datetime.combine(trading_day, MARKET_WARMUP_TIME, tzinfo=NY_TZ)
+        start_utc = start_ny.astimezone(timezone.utc)
+        end_utc = end_ny.astimezone(timezone.utc)
+
+        try:
+            df = await self._market_provider.get_prices(
+                ticker=ticker,
+                start_time=start_utc,
+                end_time=end_utc,
+                period=Period.MINUTE,
+            )
+        except Exception as exc:
+            logger.warning("Could not load first RTH candle for %s on %s: %s", ticker, trading_day, exc)
+            return None
+
+        if df.empty:
+            return None
+
+        index_ny = df.index.tz_convert(NY_TZ) if df.index.tz is not None else df.index.tz_localize(timezone.utc).tz_convert(NY_TZ)
+        window = df[(index_ny.time >= MARKET_OPEN_TIME) & (index_ny.time < MARKET_WARMUP_TIME)]
+        if window.empty:
+            return None
+
+        return CandleStick(
+            open=float(window.iloc[0]["open"]),
+            high=float(window["high"].max()),
+            low=float(window["low"].min()),
+            close=float(window.iloc[-1]["close"]),
+            volume=int(window["volume"].sum()),
+            time=start_utc,
+            period=Period.MINUTE,
+        )
+
+    def _update_entry_candle_state(
+        self,
+        key: tuple[str, date],
+        data: PricingData,
+    ) -> None:
+        state = self._entry_candle_states.get(key)
+        if state is None:
+            self._entry_candle_states[key] = {
+                "open": data.price,
+                "high": data.price,
+                "low": data.price,
+                "close": data.price,
+                "volume": data.last_size,
+                "start_time": self._ensure_utc(data.time),
+            }
+            return
+
+        state["high"] = max(float(state["high"]), data.price)
+        state["low"] = min(float(state["low"]), data.price)
+        state["close"] = data.price
+        state["volume"] = int(state["volume"]) + data.last_size
+
+    def _finalize_entry_candle_state(self, state: dict[str, object]) -> CandleStick:
+        start_time = state["start_time"]
+        if not isinstance(start_time, datetime):
+            raise TypeError("entry candle start_time must be a datetime")
+
+        return CandleStick(
+            open=float(state["open"]),
+            high=float(state["high"]),
+            low=float(state["low"]),
+            close=float(state["close"]),
+            volume=int(state["volume"]),
+            time=start_time,
+            period=Period.MINUTE,
+        )
+
+    @staticmethod
+    def _to_ny_time(timestamp: datetime) -> datetime:
+        return EarningStrategy._ensure_utc(timestamp).astimezone(NY_TZ)
+
+    @staticmethod
+    def _ensure_utc(timestamp: datetime) -> datetime:
+        if timestamp.tzinfo is None:
+            return timestamp.replace(tzinfo=timezone.utc)
+        return timestamp.astimezone(timezone.utc)
 
     async def shutdown(self) -> None:
         """Shutdown strategy state."""
@@ -297,6 +460,7 @@ class EarningStrategy(RealTimeTradingBase):
 
         position = portfolio.get_position(ticker)
         if position is None or position.quantity <= 0:
+            await self._unsubscribe_if_monitoring_done(ticker, portfolio)
             return
 
         entry_price = self._resolve_entry_price(ticker, position)
@@ -417,6 +581,30 @@ class EarningStrategy(RealTimeTradingBase):
             stop_limit_price,
             quantity,
         )
+        self._exit_monitoring_tickers.discard(ticker)
+        await self._safe_unsubscribe([ticker])
+
+    async def _unsubscribe_if_monitoring_done(
+        self,
+        ticker: str,
+        portfolio: Portfolio,
+    ) -> None:
+        ticker = ticker.upper()
+        if ticker not in self._exit_monitoring_tickers:
+            return
+        if portfolio.has_position(ticker) or portfolio.has_open_order(ticker):
+            return
+
+        self._exit_monitoring_tickers.discard(ticker)
+        self._take_profit_order_ids.pop(ticker, None)
+        await self._safe_unsubscribe([ticker])
+
+    async def _safe_unsubscribe(self, tickers: list[str]) -> None:
+        try:
+            await self._realtime_provider.unsubscribe(tickers)
+            logger.info("Unsubscribed from %s after earnings protection completed", tickers)
+        except Exception as exc:
+            logger.warning("Failed unsubscribing from %s: %s", tickers, exc)
 
     async def _cancel_take_profit_order(self, ticker: str, portfolio: Portfolio) -> None:
         orders = portfolio.open_orders

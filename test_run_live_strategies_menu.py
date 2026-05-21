@@ -45,6 +45,7 @@ def test_create_live_strategies_shares_broker_and_realtime_provider() -> None:
     assert isinstance(strategies[1], EarningStrategy)
     assert strategies[0]._broker is broker
     assert strategies[1]._broker is broker
+    assert strategies[1]._market_provider is market_provider
     assert strategies[0]._realtime_provider is realtime_provider
     assert strategies[1]._realtime_provider is realtime_provider
     assert strategies[0]._notional_per_trade == strategies[1]._notional_per_trade
