@@ -162,6 +162,8 @@ class EarningStrategy(RealTimeTradingBase):
         tickers.update(self._orders_placed)
         self._orders_placed.update(tickers)
         self._exit_monitoring_tickers.update(tickers)
+        # await self._bootstrap_hourly_history()
+        await self._realtime_provider.subscribe(self._tickers, self.on_tick)
         return sorted(tickers)
 
     async def _run_ai_scanner(self) -> list[str]:
@@ -218,6 +220,7 @@ class EarningStrategy(RealTimeTradingBase):
         ticker = ticker.upper()
 
         # Check for duplicate - only trade first candle per ticker
+        
         logger.info(
             "🕯️ %s 5-min candle: O=%.2f H=%.2f L=%.2f C=%.2f V=%d",
             ticker,
