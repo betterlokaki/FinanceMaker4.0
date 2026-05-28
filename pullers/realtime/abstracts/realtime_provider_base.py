@@ -1,5 +1,6 @@
 """Abstract base class for real-time market data providers."""
 import asyncio
+import logging
 from abc import ABC, abstractmethod
 
 from common.models.pricing_data import PricingData
@@ -7,6 +8,8 @@ from pullers.realtime.abstracts.i_realtime_provider import (
     IRealtimeProvider,
     TickCallback,
 )
+
+logger = logging.getLogger(__name__)
 
 
 class RealtimeProviderBase(IRealtimeProvider, ABC):
@@ -90,10 +93,24 @@ class RealtimeProviderBase(IRealtimeProvider, ABC):
                 return
             callbacks_copy: list[TickCallback] = list(callbacks)
         
-        await asyncio.gather(
+        results = await asyncio.gather(
             *(callback(data) for callback in callbacks_copy),
             return_exceptions=True,
         )
+        for callback, result in zip(callbacks_copy, results):
+            if isinstance(result, asyncio.CancelledError):
+                raise result
+            if isinstance(result, Exception):
+                logger.error(
+                    "Realtime callback %s failed for %s",
+                    self._callback_name(callback),
+                    ticker,
+                    exc_info=(type(result), result, result.__traceback__),
+                )
+
+    @staticmethod
+    def _callback_name(callback: TickCallback) -> str:
+        return getattr(callback, "__qualname__", repr(callback))
 
     @abstractmethod
     async def _connect(self) -> None:

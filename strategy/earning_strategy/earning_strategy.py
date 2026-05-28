@@ -1,6 +1,6 @@
 """Earnings-based trading strategy using AI consensus."""
 import logging
-from datetime import date, datetime, time, timezone
+from datetime import date, datetime, time, timedelta, timezone
 
 from zoneinfo import ZoneInfo
 
@@ -34,6 +34,7 @@ MARKET_WARMUP_TIME: time = time(9, 35)  # 9:35 AM NY (market open + 5 min)
 STOP_LOSS_PCT: float = 0.04  # Synthetic 4% stop trigger
 TAKE_PROFIT_PCT: float = 0.08  # 8% above entry
 MIN_QUANTITY: int = 1  # Minimum shares per order
+ENTRY_CANDLE_RETRY_SECONDS: float = 30.0
 
 
 class EarningStrategy(RealTimeTradingBase):
@@ -98,6 +99,8 @@ class EarningStrategy(RealTimeTradingBase):
         self._entry_candle_states: dict[tuple[str, date], dict[str, object]] = {}
         self._entry_candles_processed: set[tuple[str, date]] = set()
         self._entry_window_missed: set[tuple[str, date]] = set()
+        self._entry_candle_retry_after: dict[tuple[str, date], datetime] = {}
+        self._seen_tick_tickers: set[str] = set()
         self._notional_per_trade: float = max(0.0, float(notional_per_trade))
         self._total_tickers: int = 0  # Total number of tickers to trade
 
@@ -134,6 +137,7 @@ class EarningStrategy(RealTimeTradingBase):
                 recovery_tickers,
             )
 
+        result = self._normalize_tickers(result)
         self._total_tickers = len(result)
         logger.info(
             "💰 Earnings max notional per trade: $%.2f",
@@ -162,9 +166,13 @@ class EarningStrategy(RealTimeTradingBase):
         tickers.update(self._orders_placed)
         self._orders_placed.update(tickers)
         self._exit_monitoring_tickers.update(tickers)
-        # await self._bootstrap_hourly_history()
-        await self._realtime_provider.subscribe(self._tickers, self.on_tick)
         return sorted(tickers)
+
+    @staticmethod
+    def _normalize_tickers(tickers: list[str]) -> list[str]:
+        return sorted(
+            {ticker.strip().upper() for ticker in tickers if ticker and ticker.strip()}
+        )
 
     async def _run_ai_scanner(self) -> list[str]:
         """Run AI consensus scanner for configured passes.
@@ -291,6 +299,15 @@ class EarningStrategy(RealTimeTradingBase):
 
     async def on_tick(self, data: PricingData) -> None:
         """Handle tick, synthetic exits, and first RTH entry candle evaluation."""
+        ticker = data.id.upper()
+        if ticker not in self._seen_tick_tickers:
+            self._seen_tick_tickers.add(ticker)
+            logger.info(
+                "Received first earnings tick for %s at %s price %.2f",
+                ticker,
+                data.time,
+                data.price,
+            )
         await self._sync_position_exits(data)
         await self._process_entry_candle_tick(data)
 
@@ -312,24 +329,32 @@ class EarningStrategy(RealTimeTradingBase):
             self._update_entry_candle_state(key, data)
             return
 
+        retry_after = self._entry_candle_retry_after.get(key)
+        if retry_after is not None and datetime.now(timezone.utc) < retry_after:
+            return
+
         state = self._entry_candle_states.pop(key, None)
         if state is None:
             candle = await self._load_first_rth_candle(ticker, trading_day)
             if candle is None:
+                self._entry_candle_retry_after[key] = datetime.now(timezone.utc) + timedelta(
+                    seconds=ENTRY_CANDLE_RETRY_SECONDS,
+                )
                 if key not in self._entry_window_missed:
                     self._entry_window_missed.add(key)
-                    self._entry_candles_processed.add(key)
                     logger.warning(
-                        "Skipping %s entry for %s - could not load first 5-minute RTH candle",
+                        "Could not load first 5-minute RTH candle for %s on %s; will retry",
                         ticker,
                         trading_day,
                     )
                 return
 
+            self._entry_candle_retry_after.pop(key, None)
             self._entry_candles_processed.add(key)
             await self.on_candle(ticker, candle)
             return
 
+        self._entry_candle_retry_after.pop(key, None)
         self._entry_candles_processed.add(key)
         await self.on_candle(ticker, self._finalize_entry_candle_state(state))
 
@@ -423,6 +448,8 @@ class EarningStrategy(RealTimeTradingBase):
         """Shutdown strategy state."""
         if self._dynamic_stop_loss_manager is not None:
             await self._dynamic_stop_loss_manager.shutdown()
+        self._entry_candle_retry_after.clear()
+        self._seen_tick_tickers.clear()
         await super().shutdown()
 
     async def _calculate_quantity(self, entry_price: float) -> int:
@@ -455,6 +482,15 @@ class EarningStrategy(RealTimeTradingBase):
 
     async def _sync_position_exits(self, data: PricingData) -> None:
         ticker = data.id.upper()
+        if (
+            ticker not in self._exit_monitoring_tickers
+            and ticker not in self._orders_placed
+            and ticker not in self._entry_prices
+            and not self._broker.portfolio.has_position(ticker)
+            and not self._broker.portfolio.has_open_order(ticker)
+        ):
+            return
+
         try:
             portfolio = await self._broker.get_portfolio()
         except Exception as exc:

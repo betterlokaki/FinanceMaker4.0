@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import asyncio
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from typing import Any
 from zoneinfo import ZoneInfo
 
@@ -19,7 +19,7 @@ from common.models.portfolio import Portfolio
 from common.models.position import Position
 from common.models.pricing_data import PricingData
 from common.models.scanner_params import ScannerParams
-from common.settings import AIScannerConfig, OrderParamsConfig, PortfolioAllocationConfig
+from common.settings import AIScannerConfig, OrderParamsConfig, PortfolioAllocationConfig, settings
 from strategy.earning_strategy.earning_strategy import EarningStrategy
 
 NY_TZ = ZoneInfo("America/New_York")
@@ -303,6 +303,66 @@ def test_earnings_load_tickers_adds_existing_positions_and_orders_for_restart_mo
         assert tickers == ["AAPL", "MSFT", "NVDA"]
         assert strategy._orders_placed == {"MSFT", "NVDA"}
         assert strategy._exit_monitoring_tickers == {"MSFT", "NVDA"}
+
+    asyncio.run(_run())
+
+
+def test_earnings_load_tickers_does_not_subscribe_before_initialize_assigns_tickers() -> None:
+    async def _run() -> None:
+        broker = FakeBroker()
+        strategy = _strategy(broker)
+
+        tickers = await strategy.load_tickers()
+
+        assert tickers == ["AAPL"]
+        assert strategy._realtime_provider.subscriptions == []  # type: ignore[attr-defined]
+
+    asyncio.run(_run())
+
+
+def test_earnings_initialize_subscribes_loaded_tickers_once() -> None:
+    async def _run() -> None:
+        previous_eod_enabled = settings.eod_report.enabled
+        settings.eod_report.enabled = False
+        try:
+            broker = FakeBroker()
+            strategy = _strategy(broker)
+
+            await strategy.initialize()
+
+            assert strategy._realtime_provider.subscriptions == [  # type: ignore[attr-defined]
+                (["AAPL"], strategy.on_tick)
+            ]
+        finally:
+            settings.eod_report.enabled = previous_eod_enabled
+
+    asyncio.run(_run())
+
+
+def test_earnings_retries_when_first_rth_candle_is_temporarily_unavailable() -> None:
+    async def _run() -> None:
+        broker = FakeBroker()
+        market_provider = FakeMarketProvider()
+        strategy = _strategy(broker, market_provider=market_provider)
+
+        tick = _tick_at(100.0, datetime(2026, 1, 2, 9, 36, tzinfo=NY_TZ))
+        await strategy.on_tick(tick)
+
+        key = ("AAPL", datetime(2026, 1, 2, tzinfo=NY_TZ).date())
+        assert broker.submitted == []
+        assert key not in strategy._entry_candles_processed
+        assert key in strategy._entry_candle_retry_after
+
+        market_provider.prices = _first_rth_prices()
+        strategy._entry_candle_retry_after[key] = datetime.now(timezone.utc) - timedelta(
+            seconds=1,
+        )
+
+        await strategy.on_tick(tick)
+
+        assert len(broker.submitted) == 1
+        assert broker.submitted[0].limit_price == 98.5
+        assert key in strategy._entry_candles_processed
 
     asyncio.run(_run())
 
