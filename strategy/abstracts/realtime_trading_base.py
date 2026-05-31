@@ -209,7 +209,7 @@ class RealTimeTradingBase(ITradingStrategy, ABC):
         await self._stop_end_of_day_report_task()
         
         if self._tickers:
-            await self._realtime_provider.unsubscribe(self._tickers)
+            await self._realtime_provider.unsubscribe(self._tickers, self.on_tick)
         
         self._tickers = []
         self._is_initialized = False

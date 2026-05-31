@@ -37,7 +37,7 @@ logger = logging.getLogger(__name__)
 
 
 class LiveStrategySelection(str, Enum):
-    """Strategies supported by the shared Alpaca live menu."""
+    """Strategies supported by the shared live runner."""
 
     MAG7 = "mag7"
     EARNINGS = "earnings"
@@ -63,7 +63,7 @@ StrategyFactory = Callable[[LiveStrategyContext], ITradingStrategy]
 
 @dataclass(frozen=True)
 class LiveStrategySpec:
-    """Menu and factory metadata for one live strategy."""
+    """Menu, scheduler, and factory metadata for one live strategy."""
 
     key: LiveStrategySelection
     menu_choice: str
@@ -139,7 +139,7 @@ def create_live_strategies(
     portfolio_allocation_config: PortfolioAllocationConfig,
     order_params_config: OrderParamsConfig,
 ) -> list[ITradingStrategy]:
-    """Create selected strategies with one shared broker and realtime provider."""
+    """Create selected live strategies with one shared broker and realtime provider."""
     context = LiveStrategyContext(
         broker=broker,
         realtime_provider=realtime_provider,
@@ -208,7 +208,7 @@ async def run_selected_strategies(selection: LiveStrategySelection) -> None:
     """Run selected live strategies until Ctrl+C or process termination."""
     from common.di_container import container
 
-    broker = container.alpaca_broker()
+    broker = container.live_broker()
     realtime_provider = container.yahoo_realtime_provider()
     market_provider = container.yahoo_market_provider()
     earnings_scanner = container.earning_tomorrow_ai_scanner()
@@ -237,7 +237,7 @@ async def run_selected_strategies(selection: LiveStrategySelection) -> None:
     try:
         await broker.connect()
         logger.info(
-            "Connected to Alpaca. Starting %d strategy instance(s): %s",
+            "Connected to live broker. Starting %d strategy instance(s): %s",
             len(strategies),
             ", ".join(type(strategy).__name__ for strategy in strategies),
         )
@@ -247,9 +247,16 @@ async def run_selected_strategies(selection: LiveStrategySelection) -> None:
             logger.error("No selected strategies initialized successfully. Exiting.")
             return
 
-        subscribed_tickers = _collect_strategy_tickers(started_strategies)
+        subscribed_tickers = sorted(
+            str(ticker).upper()
+            for ticker in getattr(
+                realtime_provider,
+                "subscribed_tickers",
+                _collect_strategy_tickers(started_strategies),
+            )
+        )
         logger.info(
-            "Shared Yahoo realtime provider is subscribed to %d unique ticker(s): %s",
+            "Shared Yahoo realtime provider has %d subscribed ticker(s): %s",
             len(subscribed_tickers),
             subscribed_tickers,
         )
@@ -270,7 +277,7 @@ async def run_selected_strategies(selection: LiveStrategySelection) -> None:
         except Exception as exc:
             logger.warning("Broker disconnect error: %s", exc)
         await http_client.aclose()
-        logger.info("Shared Alpaca live runner shutdown complete")
+        logger.info("Shared live strategy runner shutdown complete")
 
 
 def _collect_strategy_tickers(strategies: Sequence[ITradingStrategy]) -> list[str]:

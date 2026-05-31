@@ -36,6 +36,7 @@ from scheduler.trading_scheduler.end_of_day_email_reporter import EndOfDayEmailR
 from strategy.abstracts import ITradingStrategy
 from strategy.demand_zone_strategy import DemandZoneStrategy
 from strategy.weekly_consensus_strategy import WeeklyDoubleConsensusLiveStrategy
+from run_live_strategies_menu import LiveStrategySelection, create_live_strategies
 from dynamic_stop_loss import (
     DynamicStopLossManager,
     IDynamicStopLossManager,
@@ -194,7 +195,7 @@ class Container(containers.DeclarativeContainer):
         EarningStrategy,
         realtime_provider=yahoo_realtime_provider,
         earnings_scanner=earning_tomorrow_ai_scanner,
-        broker=alpaca_broker,
+        broker=live_broker,
         market_provider=yahoo_market_provider,
         ai_scanner_config=providers.Object(settings.ai_scanner),
         ticker_cache=ticker_cache,
@@ -234,10 +235,18 @@ class Container(containers.DeclarativeContainer):
         direction_preference=providers.Object(settings.weekly_consensus_strategy.direction_preference),
     )
 
-    # Strategy list for scheduler
-    strategies: providers.Provider[list[ITradingStrategy]] = providers.List(
-        earning_strategy,
-        # demand_zone_strategy,
+    # Shared live strategy list for menu-free scheduled runs.
+    strategies: providers.Provider[list[ITradingStrategy]] = providers.Callable(
+        create_live_strategies,
+        selection=providers.Object(LiveStrategySelection.BOTH),
+        broker=live_broker,
+        realtime_provider=yahoo_realtime_provider,
+        market_provider=yahoo_market_provider,
+        earnings_scanner=earning_tomorrow_ai_scanner,
+        ticker_cache=ticker_cache,
+        ai_scanner_config=providers.Object(settings.ai_scanner),
+        portfolio_allocation_config=providers.Object(settings.portfolio_allocation),
+        order_params_config=providers.Object(settings.order_params),
     )
 
     # Market Calendar
@@ -258,7 +267,7 @@ class Container(containers.DeclarativeContainer):
     # Scheduler
     end_of_day_email_reporter = providers.Singleton(
         EndOfDayEmailReporter,
-        broker=ibkr_broker,
+        broker=live_broker,
         config=providers.Object(settings.eod_report),
     )
 
@@ -267,7 +276,7 @@ class Container(containers.DeclarativeContainer):
         strategy_runner=strategy_runner,
         market_calendar=market_calendar,
         ticker_cache=ticker_cache,
-        broker=ibkr_broker,
+        broker=live_broker,
         end_of_day_reporter=end_of_day_email_reporter,
     )
 

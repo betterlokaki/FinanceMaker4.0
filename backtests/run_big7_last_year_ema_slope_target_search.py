@@ -1110,7 +1110,7 @@ def main(argv: list[str] | None = None) -> int:
         )
     else:
         print(f"Target {target_return_pct:.2f}% => MISS (best={best_return:+.2f}%).")
-    return 0
+    return 2
 
 
 if __name__ == "__main__":

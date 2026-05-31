@@ -23,7 +23,7 @@ logger: logging.Logger = logging.getLogger(__name__)
 async def main() -> None:
     """Main entry point for Trading Scheduler.
     
-    Runs multiple trading strategies (earning_strategy and demand_zone_strategy)
+    Runs configured live trading strategies (MAG7 and earnings by default)
     during market hours. The scheduler:
     1. Waits for pre-market open (4:00 AM EST)
     2. Starts all strategies

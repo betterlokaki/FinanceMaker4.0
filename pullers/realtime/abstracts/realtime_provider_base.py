@@ -47,6 +47,7 @@ class RealtimeProviderBase(IRealtimeProvider, ABC):
             on_tick: Async callback invoked for each tick update.
         """
         new_tickers: list[str] = []
+        registered_tickers: list[str] = []
         
         async with self._lock:
             for ticker in tickers:
@@ -55,26 +56,76 @@ class RealtimeProviderBase(IRealtimeProvider, ABC):
                     self._subscriptions[ticker_upper] = set()
                     new_tickers.append(ticker_upper)
                 self._subscriptions[ticker_upper].add(on_tick)
+                registered_tickers.append(ticker_upper)
+
+            callback_counts = {
+                ticker: len(self._subscriptions[ticker])
+                for ticker in registered_tickers
+            }
+
+        if registered_tickers:
+            logger.info(
+                "Registered realtime callback %s for %d ticker(s): %s | callback counts: %s",
+                self._callback_name(on_tick),
+                len(registered_tickers),
+                registered_tickers,
+                callback_counts,
+            )
         
         if new_tickers:
             await self._send_subscribe_message(new_tickers)
 
-    async def unsubscribe(self, tickers: list[str]) -> None:
+    async def unsubscribe(
+        self,
+        tickers: list[str],
+        on_tick: TickCallback | None = None,
+    ) -> None:
         """Unsubscribe from real-time updates for tickers.
         
         Args:
             tickers: List of ticker symbols to unsubscribe from.
+            on_tick: Optional callback to remove. If omitted, removes all
+                callbacks for each ticker.
         """
         removed_tickers: list[str] = []
+        updated_tickers: list[str] = []
         
         async with self._lock:
             for ticker in tickers:
                 ticker_upper: str = ticker.upper()
-                if ticker_upper in self._subscriptions:
+                callbacks = self._subscriptions.get(ticker_upper)
+                if not callbacks:
+                    continue
+
+                if on_tick is None:
                     del self._subscriptions[ticker_upper]
                     removed_tickers.append(ticker_upper)
+                    continue
+
+                callbacks.discard(on_tick)
+                if callbacks:
+                    updated_tickers.append(ticker_upper)
+                else:
+                    del self._subscriptions[ticker_upper]
+                    removed_tickers.append(ticker_upper)
+
+        if updated_tickers:
+            logger.info(
+                "Removed realtime callback %s from %d ticker(s); provider subscription kept: %s",
+                self._callback_name(on_tick),
+                len(updated_tickers),
+                updated_tickers,
+            )
         
         if removed_tickers:
+            if on_tick is None:
+                logger.info("Removed all realtime callbacks for %s", removed_tickers)
+            else:
+                logger.info(
+                    "Removed final realtime callback %s for %s",
+                    self._callback_name(on_tick),
+                    removed_tickers,
+                )
             await self._send_unsubscribe_message(removed_tickers)
 
     async def _dispatch_tick(self, data: PricingData) -> None:

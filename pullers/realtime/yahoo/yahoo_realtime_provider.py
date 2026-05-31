@@ -82,7 +82,7 @@ class YahooRealtimeProvider(RealtimeProviderBase):
         try:
             message: dict[str, list[str]] = {"subscribe": tickers}
             await self._websocket.send(json.dumps(message))
-            logger.debug("Subscribed to tickers: %s", tickers)
+            logger.info("Yahoo subscribe message sent for %d ticker(s): %s", len(tickers), tickers)
         except (ConnectionClosedOK, ConnectionClosedError, ConnectionClosed) as e:
             # Connection closed - reconnect will handle resubscription to all tickers
             logger.warning("Connection closed while subscribing to %s: %s, reconnecting...", tickers, e)

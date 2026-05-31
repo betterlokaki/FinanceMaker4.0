@@ -18,7 +18,7 @@ class _DummyRealtimeProvider:
     async def subscribe(self, tickers, callback):  # noqa: ANN001
         return None
 
-    async def unsubscribe(self, tickers):  # noqa: ANN001
+    async def unsubscribe(self, tickers, callback=None):  # noqa: ANN001
         return None
 
 

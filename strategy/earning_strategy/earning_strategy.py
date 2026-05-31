@@ -147,11 +147,7 @@ class EarningStrategy(RealTimeTradingBase):
 
     async def _load_recovery_tickers(self) -> list[str]:
         """Load symbols that must stay subscribed for synthetic stop protection."""
-        try:
-            portfolio = await self._broker.get_portfolio()
-        except Exception as exc:
-            logger.warning("Could not refresh portfolio for earnings restart recovery: %s", exc)
-            portfolio = self._broker.portfolio
+        portfolio = self._broker.portfolio
 
         self._orders_placed = {
             order.ticker.upper()
@@ -300,14 +296,14 @@ class EarningStrategy(RealTimeTradingBase):
     async def on_tick(self, data: PricingData) -> None:
         """Handle tick, synthetic exits, and first RTH entry candle evaluation."""
         ticker = data.id.upper()
+        logger.info(
+            "Earnings tick for %s at %s price %.2f",
+            ticker,
+            data.time,
+            data.price,
+        )
         if ticker not in self._seen_tick_tickers:
             self._seen_tick_tickers.add(ticker)
-            logger.info(
-                "Received first earnings tick for %s at %s price %.2f",
-                ticker,
-                data.time,
-                data.price,
-            )
         await self._sync_position_exits(data)
         await self._process_entry_candle_tick(data)
 
@@ -640,7 +636,7 @@ class EarningStrategy(RealTimeTradingBase):
 
     async def _safe_unsubscribe(self, tickers: list[str]) -> None:
         try:
-            await self._realtime_provider.unsubscribe(tickers)
+            await self._realtime_provider.unsubscribe(tickers, self.on_tick)
             logger.info("Unsubscribed from %s after earnings protection completed", tickers)
         except Exception as exc:
             logger.warning("Failed unsubscribing from %s: %s", tickers, exc)

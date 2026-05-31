@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import asyncio
 from datetime import datetime, timedelta, timezone
+import logging
 from typing import Any
 from zoneinfo import ZoneInfo
 
@@ -23,6 +24,7 @@ from common.settings import AIScannerConfig, OrderParamsConfig, PortfolioAllocat
 from strategy.earning_strategy.earning_strategy import EarningStrategy
 
 NY_TZ = ZoneInfo("America/New_York")
+EARNINGS_LOGGER_NAME = "strategy.earning_strategy.earning_strategy"
 
 
 class FakeRealtimeProvider:
@@ -33,7 +35,7 @@ class FakeRealtimeProvider:
     async def subscribe(self, tickers: list[str], on_tick: Any) -> None:
         self.subscriptions.append((tickers, on_tick))
 
-    async def unsubscribe(self, tickers: list[str]) -> None:
+    async def unsubscribe(self, tickers: list[str], _on_tick: Any | None = None) -> None:
         self.unsubscribed.extend(tickers)
 
     async def disconnect(self) -> None:
@@ -77,6 +79,7 @@ class FakeBroker:
         self.submitted: list[OrderRequest] = []
         self.cancelled_order_ids: list[str] = []
         self._order_sequence = 0
+        self.portfolio_refreshes = 0
 
     @property
     def is_connected(self) -> bool:
@@ -140,6 +143,7 @@ class FakeBroker:
         raise ValueError(order_id)
 
     async def get_portfolio(self) -> Portfolio:
+        self.portfolio_refreshes += 1
         return self.portfolio
 
     async def get_open_orders(self) -> list[OrderResponse]:
@@ -279,6 +283,40 @@ def test_earnings_on_tick_loads_missed_first_rth_candle_from_market_provider() -
     asyncio.run(_run())
 
 
+def test_earnings_on_tick_logs_price_before_processing(caplog: Any) -> None:
+    async def _run() -> None:
+        broker = FakeBroker()
+        strategy = _strategy(broker)
+        events: list[tuple[str, bool]] = []
+
+        def tick_log_seen() -> bool:
+            return any(
+                record.name == EARNINGS_LOGGER_NAME
+                and "Earnings tick for AAPL" in record.message
+                and "price 123.45" in record.message
+                for record in caplog.records
+            )
+
+        async def fake_sync_position_exits(_data: PricingData) -> None:
+            events.append(("sync", tick_log_seen()))
+
+        async def fake_process_entry_candle_tick(_data: PricingData) -> None:
+            events.append(("process", tick_log_seen()))
+
+        strategy._sync_position_exits = fake_sync_position_exits  # type: ignore[method-assign]
+        strategy._process_entry_candle_tick = fake_process_entry_candle_tick  # type: ignore[method-assign]
+
+        with caplog.at_level(logging.INFO, logger=EARNINGS_LOGGER_NAME):
+            await strategy.on_tick(
+                _tick_at(123.45, datetime(2026, 1, 2, 9, 31, tzinfo=NY_TZ))
+            )
+
+        assert tick_log_seen()
+        assert events == [("sync", True), ("process", True)]
+
+    asyncio.run(_run())
+
+
 def test_earnings_load_tickers_adds_existing_positions_and_orders_for_restart_monitoring() -> None:
     async def _run() -> None:
         broker = FakeBroker()
@@ -315,6 +353,7 @@ def test_earnings_load_tickers_does_not_subscribe_before_initialize_assigns_tick
         tickers = await strategy.load_tickers()
 
         assert tickers == ["AAPL"]
+        assert broker.portfolio_refreshes == 0
         assert strategy._realtime_provider.subscriptions == []  # type: ignore[attr-defined]
 
     asyncio.run(_run())

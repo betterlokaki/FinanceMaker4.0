@@ -29,11 +29,17 @@ class IRealtimeProvider(Protocol):
         """
         ...
 
-    async def unsubscribe(self, tickers: list[str]) -> None:
+    async def unsubscribe(
+        self,
+        tickers: list[str],
+        on_tick: TickCallback | None = None,
+    ) -> None:
         """Unsubscribe from real-time updates for tickers.
         
         Args:
             tickers: List of ticker symbols to unsubscribe from.
+            on_tick: Optional callback to remove. If omitted, removes all
+                callbacks for each ticker.
         """
         ...
 

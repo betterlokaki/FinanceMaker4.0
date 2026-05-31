@@ -210,7 +210,7 @@ class WeeklyDoubleConsensusLiveStrategy(RealTimeTradingBase):
 
     async def _safe_unsubscribe(self, tickers: list[str]) -> None:
         try:
-            await self._realtime_provider.unsubscribe(tickers)
+            await self._realtime_provider.unsubscribe(tickers, self.on_tick)
         except Exception as exc:
             logger.debug("Unsubscribe failed for %s: %s", tickers, exc)
 

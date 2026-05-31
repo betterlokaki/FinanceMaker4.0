@@ -1,6 +1,6 @@
 # Codex Notes: Adding A New Live Strategy
 
-Use `run_live_strategies_menu.py` as the shared live runner. Do not create a new one-off live menu unless the strategy needs a genuinely different broker or realtime lifecycle.
+Use `run_live_strategies_menu.py` as the shared live strategy factory. Both the menu and `run_scheduler.py` consume `create_live_strategies()`, so do not create a new one-off runner unless the strategy needs a genuinely different broker or realtime lifecycle.
 
 ## Current Runner Contract
 
@@ -11,7 +11,7 @@ Use `run_live_strategies_menu.py` as the shared live runner. Do not create a new
 - If no selected strategy initializes successfully, the runner exits cleanly.
 - Live trade size is controlled by `ALPACA_NOTIONAL_PER_TRADE`, defaulting to `14000`.
 
-## Add A Strategy To The Menu
+## Add A Strategy To The Shared Live Factory
 
 1. Implement the strategy as an `ITradingStrategy`.
    - It must expose `initialize()`, `on_tick()`, `shutdown()`, and `is_initialized`.
@@ -20,7 +20,7 @@ Use `run_live_strategies_menu.py` as the shared live runner. Do not create a new
 
 2. Import the strategy in `run_live_strategies_menu.py`.
 
-3. If the strategy needs a dependency that is not already in `LiveStrategyContext`, add it there and wire it once in `run_selected_strategies()`.
+3. If the strategy needs a dependency that is not already in `LiveStrategyContext`, add it there and wire it once in `run_live_strategies_menu.py` and the `common.di_container.Container.strategies` provider.
 
 4. Add a factory function next to the existing factories:
 
@@ -33,7 +33,7 @@ def _create_new_strategy(context: LiveStrategyContext) -> ITradingStrategy:
     )
 ```
 
-5. Add the strategy enum value and one `LiveStrategySpec`:
+5. Add the strategy enum value and one `LiveStrategySpec` in `run_live_strategies_menu.py`:
 
 ```python
 class LiveStrategySelection(str, Enum):
@@ -57,7 +57,7 @@ STRATEGY_SPECS: tuple[LiveStrategySpec, ...] = (
 
 6. Bump `BOTH_MENU_CHOICE` and `EXIT_MENU_CHOICE` after adding a new numbered option.
 
-7. Add or update tests in `test_run_live_strategies_menu.py`.
+7. Add or update tests in `test_run_live_strategies_menu.py`, `test_scheduler_live_strategy_wiring.py`, and the relevant integration test.
    - Verify the new selection creates the strategy.
    - Verify it receives the shared broker and realtime provider.
    - Keep `test_initialize_live_strategies_continues_after_one_failure()` passing.

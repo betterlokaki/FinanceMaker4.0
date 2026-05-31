@@ -98,7 +98,7 @@ class DemandZoneStrategy(RealTimeTradingBase):
             tickers = [tickers]
         
         try:
-            await self._realtime_provider.unsubscribe(tickers)
+            await self._realtime_provider.unsubscribe(tickers, self.on_tick)
         except Exception as e:
             # Connection errors are handled in the provider, but catch any other exceptions
             logger.debug("Error unsubscribing from %s (non-critical): %s", tickers, e)
