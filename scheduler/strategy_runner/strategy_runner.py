@@ -37,9 +37,10 @@ class StrategyRunner:
         """Initialize all strategies with retry logic."""
         self._active = []
         self._failures = {}
-        
+
         for idx, strategy in enumerate(self._strategies):
-            await self._start_strategy(idx, strategy)
+                await self._start_strategy(idx, strategy)
+        logger.info("🚀 All strategies started")
 
     async def stop_all(self) -> None:
         """Shutdown all active strategies."""

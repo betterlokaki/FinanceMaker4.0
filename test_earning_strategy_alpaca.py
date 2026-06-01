@@ -317,10 +317,13 @@ def test_earnings_on_tick_logs_price_before_processing(caplog: Any) -> None:
     asyncio.run(_run())
 
 
-def test_earnings_load_tickers_adds_existing_positions_and_orders_for_restart_monitoring() -> None:
+def test_earnings_load_tickers_recovers_existing_exposure_only_for_earnings_tickers() -> None:
     async def _run() -> None:
         broker = FakeBroker()
-        broker.portfolio.positions = [Position(ticker="MSFT", quantity=5, average_cost=200.0)]
+        broker.portfolio.positions = [
+            Position(ticker="AAPL", quantity=5, average_cost=200.0),
+            Position(ticker="MSFT", quantity=5, average_cost=200.0),
+        ]
         broker.portfolio.open_orders = [
             OrderResponse(
                 order_id="entry-1",
@@ -338,9 +341,9 @@ def test_earnings_load_tickers_adds_existing_positions_and_orders_for_restart_mo
 
         tickers = await strategy.load_tickers()
 
-        assert tickers == ["AAPL", "MSFT", "NVDA"]
-        assert strategy._orders_placed == {"MSFT", "NVDA"}
-        assert strategy._exit_monitoring_tickers == {"MSFT", "NVDA"}
+        assert tickers == ["AAPL"]
+        assert strategy._orders_placed == {"AAPL"}
+        assert strategy._exit_monitoring_tickers == {"AAPL"}
 
     asyncio.run(_run())
 

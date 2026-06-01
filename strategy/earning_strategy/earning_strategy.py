@@ -128,7 +128,7 @@ class EarningStrategy(RealTimeTradingBase):
             # Save to cache for future restarts
             self._ticker_cache.save_tickers(result, today)
         
-        recovery_tickers = await self._load_recovery_tickers()
+        recovery_tickers = await self._load_recovery_tickers(set(result))
         if recovery_tickers:
             result = sorted({*result, *recovery_tickers})
             logger.info(
@@ -145,19 +145,20 @@ class EarningStrategy(RealTimeTradingBase):
         )
         return result
 
-    async def _load_recovery_tickers(self) -> list[str]:
+    async def _load_recovery_tickers(self, candidate_tickers: set[str]) -> list[str]:
         """Load symbols that must stay subscribed for synthetic stop protection."""
         portfolio = self._broker.portfolio
+        candidates = {ticker.upper() for ticker in candidate_tickers}
 
         self._orders_placed = {
             order.ticker.upper()
             for order in portfolio.open_orders
-            if order.is_active
+            if order.is_active and order.ticker.upper() in candidates
         }
         tickers: set[str] = {
             position.ticker.upper()
             for position in portfolio.positions
-            if position.quantity > 0
+            if position.quantity > 0 and position.ticker.upper() in candidates
         }
         tickers.update(self._orders_placed)
         self._orders_placed.update(tickers)
@@ -269,6 +270,8 @@ class EarningStrategy(RealTimeTradingBase):
             side=OrderSide.BUY,
             order_type=OrderType.LIMIT,
             limit_price=entry_price,
+            stop_price=entry_price * (1 - STOP_LOSS_PCT),
+            take_profit_price=entry_price * (1 + TAKE_PROFIT_PCT),
             time_in_force=TimeInForce.DAY,
             extended_hours=True,
             buy_limit_rth=False,

@@ -104,6 +104,8 @@ class RealTimeTradingBase(ITradingStrategy, ABC):
             logger.warning("No tickers loaded for %s", self.__class__.__name__)
             self._is_initialized = True
             return
+
+        await self._before_subscribe()
         
         logger.info("Loaded %d tickers: %s", len(self._tickers), self._tickers)
         
@@ -116,6 +118,10 @@ class RealTimeTradingBase(ITradingStrategy, ABC):
             self.__class__.__name__,
             len(self._tickers),
         )
+
+    async def _before_subscribe(self) -> None:
+        """Hook for subclasses to prepare state after ticker loading."""
+        return None
 
     @abstractmethod
     async def load_tickers(self) -> list[str]:

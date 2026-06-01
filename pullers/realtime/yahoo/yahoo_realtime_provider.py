@@ -46,6 +46,7 @@ class YahooRealtimeProvider(RealtimeProviderBase):
         self._decoder: PricingDataDecoder = PricingDataDecoder()
         self._reconnect_count: int = 0
         self._should_reconnect: bool = True
+        self._wire_lock: asyncio.Lock = asyncio.Lock()
 
     async def _connect(self) -> None:
         """Establish WebSocket connection to Yahoo Finance."""
@@ -70,27 +71,39 @@ class YahooRealtimeProvider(RealtimeProviderBase):
         Args:
             tickers: Tickers to subscribe to.
         """
-        if not self._is_connected:
-            await self._connect()
-            self._start_listener()
-        
-        if self._websocket is None:
-            logger.warning("Cannot subscribe to %s: websocket is None", tickers)
-            return
-        
-        # Try to send subscribe message - handle connection errors
-        try:
-            message: dict[str, list[str]] = {"subscribe": tickers}
-            await self._websocket.send(json.dumps(message))
-            logger.info("Yahoo subscribe message sent for %d ticker(s): %s", len(tickers), tickers)
-        except (ConnectionClosedOK, ConnectionClosedError, ConnectionClosed) as e:
-            # Connection closed - reconnect will handle resubscription to all tickers
-            logger.warning("Connection closed while subscribing to %s: %s, reconnecting...", tickers, e)
-            self._is_connected = False
-            # Don't retry here - let _reconnect() handle resubscribing to all tickers
+        reconnect_needed = False
+
+        async with self._wire_lock:
+            if not self._is_connected:
+                await self._connect()
+                self._start_listener()
+
+            if self._websocket is None:
+                logger.warning("Cannot subscribe to %s: websocket is None", tickers)
+                return
+
+            try:
+                all_tickers = await self._current_subscription_tickers()
+                message: dict[str, list[str]] = {"subscribe": all_tickers}
+                await self._websocket.send(json.dumps(message))
+                logger.info(
+                    "Yahoo subscribe message sent for %d ticker(s): %s",
+                    len(all_tickers),
+                    all_tickers,
+                )
+            except (ConnectionClosedOK, ConnectionClosedError, ConnectionClosed) as e:
+                logger.warning(
+                    "Connection closed while subscribing to %s: %s, reconnecting...",
+                    tickers,
+                    e,
+                )
+                self._is_connected = False
+                reconnect_needed = True
+            except Exception as e:
+                logger.error("Error subscribing to %s: %s", tickers, e)
+
+        if reconnect_needed:
             await self._handle_reconnect()
-        except Exception as e:
-            logger.error("Error subscribing to %s: %s", tickers, e)
 
     async def _send_unsubscribe_message(self, tickers: list[str]) -> None:
         """Send unsubscription message to Yahoo Finance.
@@ -98,27 +111,32 @@ class YahooRealtimeProvider(RealtimeProviderBase):
         Args:
             tickers: Tickers to unsubscribe from.
         """
-        if self._websocket is None or not self._is_connected:
-            logger.debug("Cannot unsubscribe from %s: websocket not connected", tickers)
-            return
-        
-        # Try to send unsubscribe message - handle connection errors
-        try:
-            message: dict[str, list[str]] = {"unsubscribe": tickers}
-            await self._websocket.send(json.dumps(message))
-            logger.debug("Unsubscribed from tickers: %s", tickers)
-        except (ConnectionClosedOK, ConnectionClosedError, ConnectionClosed) as e:
-            # Connection already closed - this is fine, just log and continue
-            logger.debug("Cannot unsubscribe from %s: websocket connection closed (%s)", tickers, e)
-            self._is_connected = False
-            # If there are still other subscriptions, trigger reconnect to resubscribe
-            remaining_tickers = self.subscribed_tickers
-            if remaining_tickers:
-                logger.info("Connection closed during unsubscribe, will reconnect and resubscribe to %d tickers", len(remaining_tickers))
-                await self._handle_reconnect()
-        except Exception as e:
-            # Other errors - log but don't crash
-            logger.warning("Error unsubscribing from %s: %s", tickers, e)
+        reconnect_needed = False
+
+        async with self._wire_lock:
+            if self._websocket is None or not self._is_connected:
+                logger.debug("Cannot unsubscribe from %s: websocket not connected", tickers)
+                return
+
+            try:
+                message: dict[str, list[str]] = {"unsubscribe": tickers}
+                await self._websocket.send(json.dumps(message))
+                logger.debug("Unsubscribed from tickers: %s", tickers)
+            except (ConnectionClosedOK, ConnectionClosedError, ConnectionClosed) as e:
+                logger.debug("Cannot unsubscribe from %s: websocket connection closed (%s)", tickers, e)
+                self._is_connected = False
+                remaining_tickers = await self._current_subscription_tickers()
+                if remaining_tickers:
+                    logger.info(
+                        "Connection closed during unsubscribe, will reconnect and resubscribe to %d tickers",
+                        len(remaining_tickers),
+                    )
+                    reconnect_needed = True
+            except Exception as e:
+                logger.warning("Error unsubscribing from %s: %s", tickers, e)
+
+        if reconnect_needed:
+            await self._handle_reconnect()
 
     def _start_listener(self) -> None:
         """Start the background listener task."""
@@ -143,6 +161,10 @@ class YahooRealtimeProvider(RealtimeProviderBase):
         # Create new listener task
         self._listener_task = asyncio.create_task(self._listen())
 
+    async def _current_subscription_tickers(self) -> list[str]:
+        async with self._lock:
+            return sorted(self._subscriptions.keys())
+
     async def _listen(self) -> None:
         """Listen for incoming messages and dispatch to callbacks."""
         while self._should_reconnect:
@@ -166,6 +188,11 @@ class YahooRealtimeProvider(RealtimeProviderBase):
             
         async for raw_message in self._websocket:
             await self._process_message(raw_message)
+
+        if self._should_reconnect:
+            logger.warning("Yahoo WebSocket receive loop ended; reconnecting")
+            self._is_connected = False
+            await self._handle_reconnect()
 
     async def _process_message(self, raw_message: str | bytes) -> None:
         """Process a single WebSocket message.

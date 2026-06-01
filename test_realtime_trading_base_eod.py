@@ -30,10 +30,51 @@ class _DummyStrategy(RealTimeTradingBase):
         return None
 
 
+class _RecordingRealtimeProvider:
+    def __init__(self) -> None:
+        self.subscribed_tickers: list[str] = []
+
+    async def subscribe(self, tickers, callback):  # noqa: ANN001
+        self.subscribed_tickers = list(tickers)
+
+    async def unsubscribe(self, tickers, callback=None):  # noqa: ANN001
+        return None
+
+
+class _HookStrategy(RealTimeTradingBase):
+    def __init__(self, realtime_provider: _RecordingRealtimeProvider) -> None:
+        super().__init__(realtime_provider)
+        self.events: list[tuple[str, list[str]]] = []
+
+    async def load_tickers(self) -> list[str]:
+        return ["aapl"]
+
+    async def _before_subscribe(self) -> None:
+        self.events.append(("before_subscribe", self._tickers.copy()))
+        self._tickers = [ticker.upper() for ticker in self._tickers]
+
+    async def on_candle(self, ticker: str, candle: CandleStick) -> None:  # noqa: ARG002
+        return None
+
+
 def test_resolve_since_date_for_current_year() -> None:
     strategy = _DummyStrategy(_DummyRealtimeProvider())
     resolved = strategy._resolve_since_date(date(2026, 4, 23))
     assert resolved == date(2026, 4, 1)
+
+
+def test_initialize_runs_pre_subscribe_hook_before_registering_callback() -> None:
+    async def _run() -> None:
+        provider = _RecordingRealtimeProvider()
+        strategy = _HookStrategy(provider)
+
+        await strategy.initialize()
+
+        assert strategy.events == [("before_subscribe", ["aapl"])]
+        assert provider.subscribed_tickers == ["AAPL"]
+        assert strategy.is_initialized is True
+
+    asyncio.run(_run())
 
 
 def test_resolve_since_date_rolls_back_if_before_april() -> None:

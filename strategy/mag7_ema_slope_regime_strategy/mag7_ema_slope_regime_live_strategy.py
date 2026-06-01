@@ -79,29 +79,14 @@ class Mag7EmaSlopeRegimeLiveStrategy(RealTimeTradingBase):
         self._order_locks: dict[str, asyncio.Lock] = {}
         self._in_flight_transitions: set[str] = set()
 
-    async def initialize(self) -> None:
-        """Initialize strategy and preload hourly history before subscribing."""
-        logger.info("Initializing %s...", self.__class__.__name__)
-        self._tickers = await self.load_tickers()
-        if not self._tickers:
-            logger.warning("No tickers loaded for %s", self.__class__.__name__)
-            self._is_initialized = True
-            return
-
+    async def _before_subscribe(self) -> None:
+        """Preload hourly history before realtime callbacks are registered."""
         self._tickers = [ticker.upper() for ticker in self._tickers]
         self._close_history = {ticker: [] for ticker in self._tickers}
         self._hourly_states.clear()
         self._in_flight_transitions.clear()
 
         await self._bootstrap_hourly_history()
-        await self._realtime_provider.subscribe(self._tickers, self.on_tick)
-        self._is_initialized = True
-        self._start_end_of_day_report_task()
-        logger.info(
-            "%s initialized and subscribed to %d tickers",
-            self.__class__.__name__,
-            len(self._tickers),
-        )
 
     async def load_tickers(self) -> list[str]:
         """Return fixed MAG7 ticker universe."""
