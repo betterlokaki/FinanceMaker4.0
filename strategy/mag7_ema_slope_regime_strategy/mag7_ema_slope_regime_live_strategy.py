@@ -41,6 +41,7 @@ class Mag7EmaSlopeRegimeLiveStrategy(RealTimeTradingBase):
         "META",
         "TSLA",
         "GOOGL",
+        "AMD"
     )
     HISTORY_LOOKBACK_DAYS: int = 60
     MAX_HISTORY_BARS: int = 600
