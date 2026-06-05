@@ -1,6 +1,7 @@
 """Unit tests for Alpaca response and portfolio conversion."""
 from __future__ import annotations
 
+from datetime import datetime, timezone
 from types import SimpleNamespace
 
 from common.converters.alpaca import (
@@ -25,6 +26,7 @@ def test_order_response_converter_maps_status_and_fields() -> None:
         time_in_force="day",
         created_at=None,
         updated_at=None,
+        filled_at=datetime(2026, 4, 23, 15, 0, tzinfo=timezone.utc),
     )
 
     response = AlpacaOrderResponseConverter.from_alpaca(order)
@@ -39,6 +41,7 @@ def test_order_response_converter_maps_status_and_fields() -> None:
     assert response.limit_price == 101.25
     assert response.average_fill_price == 101.0
     assert response.time_in_force == TimeInForce.DAY
+    assert response.filled_at == datetime(2026, 4, 23, 15, 0, tzinfo=timezone.utc)
 
 
 def test_flatten_orders_includes_nested_bracket_legs() -> None:

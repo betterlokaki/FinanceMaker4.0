@@ -1,0 +1,3239 @@
+{
+  "trading_day": "2026-06-01",
+  "generated_at_utc": "2026-06-02T17:53:25.634607+00:00",
+  "broker_metadata": {
+    "provider": "AlpacaBroker",
+    "is_connected": true
+  },
+  "pnl": {
+    "as_of_date": "2026-06-02",
+    "since_date": "2026-06-01",
+    "currency": "USD",
+    "daily_pnl": -699.0599999999977,
+    "pnl_since_date": -699.0599999999977,
+    "baseline_date": "2026-06-02",
+    "baseline_nav": 103592.94,
+    "current_nav": 102893.88,
+    "realized_trade_pnl_from_paired_fills": -324.48,
+    "open_position_unrealized_pnl": 285.46
+  },
+  "portfolio": {
+    "cash_balance": 158195.11,
+    "total_market_value": 83378.43,
+    "total_equity": 102886.97,
+    "buying_power": 286942.68,
+    "unrealized_pnl": 285.464971,
+    "realized_pnl": 0.0,
+    "position_count": 6,
+    "positions": [
+      {
+        "ticker": "AAPL",
+        "quantity": -45,
+        "average_cost": 306.71,
+        "current_price": 314.96,
+        "market_value": -14173.2,
+        "unrealized_pnl": -371.25,
+        "realized_pnl": null,
+        "is_long": false,
+        "is_short": true,
+        "cost_basis": 13801.949999999999,
+        "unrealized_pnl_percent": -2.689837305598122
+      },
+      {
+        "ticker": "AMZN",
+        "quantity": -53,
+        "average_cost": 263.14,
+        "current_price": 258.045,
+        "market_value": -13676.385,
+        "unrealized_pnl": 270.035,
+        "realized_pnl": null,
+        "is_long": false,
+        "is_short": true,
+        "cost_basis": 13946.42,
+        "unrealized_pnl_percent": 1.9362316637531356
+      },
+      {
+        "ticker": "GOOGL",
+        "quantity": -37,
+        "average_cost": 375.33,
+        "current_price": 368.085,
+        "market_value": -13619.145,
+        "unrealized_pnl": 268.065,
+        "realized_pnl": null,
+        "is_long": false,
+        "is_short": true,
+        "cost_basis": 13887.21,
+        "unrealized_pnl_percent": 1.9303013348253537
+      },
+      {
+        "ticker": "META",
+        "quantity": -23,
+        "average_cost": 606.81,
+        "current_price": 605.885,
+        "market_value": -13935.355,
+        "unrealized_pnl": 21.275,
+        "realized_pnl": null,
+        "is_long": false,
+        "is_short": true,
+        "cost_basis": 13956.63,
+        "unrealized_pnl_percent": 0.15243651225259966
+      },
+      {
+        "ticker": "NVDA",
+        "quantity": 63,
+        "average_cost": 220.349683,
+        "current_price": 222.78,
+        "market_value": 14035.14,
+        "unrealized_pnl": 153.109971,
+        "realized_pnl": null,
+        "is_long": true,
+        "is_short": false,
+        "cost_basis": 13882.030029,
+        "unrealized_pnl_percent": 1.1029364630399763
+      },
+      {
+        "ticker": "TSLA",
+        "quantity": -33,
+        "average_cost": 420.71,
+        "current_price": 422.4,
+        "market_value": -13939.2,
+        "unrealized_pnl": -55.77,
+        "realized_pnl": null,
+        "is_long": false,
+        "is_short": true,
+        "cost_basis": 13883.429999999998,
+        "unrealized_pnl_percent": -0.4017018849088446
+      }
+    ],
+    "open_orders": [
+      {
+        "order_id": "a59ae26c-c0dc-4f4e-bcb8-f908ddb31c31",
+        "ticker": "AMZN",
+        "quantity": 53,
+        "filled_quantity": 0,
+        "remaining_quantity": 53,
+        "side": "BUY",
+        "order_type": "LIMIT",
+        "status": "SUBMITTED",
+        "limit_price": 247.35,
+        "stop_price": null,
+        "average_fill_price": null,
+        "time_in_force": "GTC",
+        "created_at": "2026-06-02T11:03:07.678395+00:00",
+        "updated_at": "2026-06-02T11:03:07.693419+00:00",
+        "filled_at": null
+      },
+      {
+        "order_id": "f01ac719-f6fa-41d8-8280-81d494dcd232",
+        "ticker": "AMZN",
+        "quantity": 53,
+        "filled_quantity": 0,
+        "remaining_quantity": 53,
+        "side": "BUY",
+        "order_type": "STOP",
+        "status": "PENDING",
+        "limit_price": null,
+        "stop_price": 271.03,
+        "average_fill_price": null,
+        "time_in_force": "GTC",
+        "created_at": "2026-06-02T11:03:07.678395+00:00",
+        "updated_at": "2026-06-02T11:03:07.687293+00:00",
+        "filled_at": null
+      },
+      {
+        "order_id": "f5561bea-73e6-4054-9afa-67e0672e3848",
+        "ticker": "META",
+        "quantity": 23,
+        "filled_quantity": 0,
+        "remaining_quantity": 23,
+        "side": "BUY",
+        "order_type": "LIMIT",
+        "status": "SUBMITTED",
+        "limit_price": 570.4,
+        "stop_price": null,
+        "average_fill_price": null,
+        "time_in_force": "GTC",
+        "created_at": "2026-06-01T18:40:20.479057+00:00",
+        "updated_at": "2026-06-01T18:40:20.512672+00:00",
+        "filled_at": null
+      },
+      {
+        "order_id": "bb09580c-69fe-4e7a-90c3-1e3a27025cb2",
+        "ticker": "META",
+        "quantity": 23,
+        "filled_quantity": 0,
+        "remaining_quantity": 23,
+        "side": "BUY",
+        "order_type": "STOP",
+        "status": "PENDING",
+        "limit_price": null,
+        "stop_price": 625.01,
+        "average_fill_price": null,
+        "time_in_force": "GTC",
+        "created_at": "2026-06-01T18:40:20.479057+00:00",
+        "updated_at": "2026-06-01T18:40:20.479933+00:00",
+        "filled_at": null
+      },
+      {
+        "order_id": "f875ae72-cebb-45e7-83c6-164121a44c35",
+        "ticker": "TSLA",
+        "quantity": 33,
+        "filled_quantity": 0,
+        "remaining_quantity": 33,
+        "side": "BUY",
+        "order_type": "LIMIT",
+        "status": "SUBMITTED",
+        "limit_price": 395.47,
+        "stop_price": null,
+        "average_fill_price": null,
+        "time_in_force": "GTC",
+        "created_at": "2026-06-01T16:58:26.710707+00:00",
+        "updated_at": "2026-06-01T16:58:26.730449+00:00",
+        "filled_at": null
+      },
+      {
+        "order_id": "d9bbd235-a057-4948-94df-bbac8a3b992c",
+        "ticker": "TSLA",
+        "quantity": 33,
+        "filled_quantity": 0,
+        "remaining_quantity": 33,
+        "side": "BUY",
+        "order_type": "STOP",
+        "status": "PENDING",
+        "limit_price": null,
+        "stop_price": 433.33,
+        "average_fill_price": null,
+        "time_in_force": "GTC",
+        "created_at": "2026-06-01T16:58:26.710707+00:00",
+        "updated_at": "2026-06-01T16:58:26.711709+00:00",
+        "filled_at": null
+      },
+      {
+        "order_id": "78763b83-120f-4e84-9c31-87c15127ed50",
+        "ticker": "NVDA",
+        "quantity": 63,
+        "filled_quantity": 0,
+        "remaining_quantity": 63,
+        "side": "SELL",
+        "order_type": "LIMIT",
+        "status": "SUBMITTED",
+        "limit_price": 233.57,
+        "stop_price": null,
+        "average_fill_price": null,
+        "time_in_force": "GTC",
+        "created_at": "2026-06-01T16:18:06.806098+00:00",
+        "updated_at": "2026-06-01T16:18:06.848575+00:00",
+        "filled_at": null
+      },
+      {
+        "order_id": "697109ad-b911-405a-9dee-bf1024abfc07",
+        "ticker": "NVDA",
+        "quantity": 63,
+        "filled_quantity": 0,
+        "remaining_quantity": 63,
+        "side": "SELL",
+        "order_type": "STOP",
+        "status": "PENDING",
+        "limit_price": null,
+        "stop_price": 213.74,
+        "average_fill_price": null,
+        "time_in_force": "GTC",
+        "created_at": "2026-06-01T16:18:06.806098+00:00",
+        "updated_at": "2026-06-01T16:18:06.830765+00:00",
+        "filled_at": null
+      },
+      {
+        "order_id": "e9ecc999-f808-423b-9485-1c55e7b60bc1",
+        "ticker": "GOOGL",
+        "quantity": 37,
+        "filled_quantity": 0,
+        "remaining_quantity": 37,
+        "side": "BUY",
+        "order_type": "LIMIT",
+        "status": "SUBMITTED",
+        "limit_price": 352.81,
+        "stop_price": null,
+        "average_fill_price": null,
+        "time_in_force": "GTC",
+        "created_at": "2026-06-01T16:18:04.525253+00:00",
+        "updated_at": "2026-06-01T16:18:04.538782+00:00",
+        "filled_at": null
+      },
+      {
+        "order_id": "4b7b9db6-faed-4ee1-b74a-2e73c802709e",
+        "ticker": "GOOGL",
+        "quantity": 37,
+        "filled_quantity": 0,
+        "remaining_quantity": 37,
+        "side": "BUY",
+        "order_type": "STOP",
+        "status": "PENDING",
+        "limit_price": null,
+        "stop_price": 386.59,
+        "average_fill_price": null,
+        "time_in_force": "GTC",
+        "created_at": "2026-06-01T16:18:04.525253+00:00",
+        "updated_at": "2026-06-01T16:18:04.526013+00:00",
+        "filled_at": null
+      },
+      {
+        "order_id": "81a43bd9-e663-42fa-8383-dfb236eb49c3",
+        "ticker": "AAPL",
+        "quantity": 45,
+        "filled_quantity": 0,
+        "remaining_quantity": 45,
+        "side": "BUY",
+        "order_type": "LIMIT",
+        "status": "SUBMITTED",
+        "limit_price": 288.31,
+        "stop_price": null,
+        "average_fill_price": null,
+        "time_in_force": "GTC",
+        "created_at": "2026-06-01T16:18:03.603579+00:00",
+        "updated_at": "2026-06-01T16:18:03.617417+00:00",
+        "filled_at": null
+      },
+      {
+        "order_id": "f4e32b4e-2dd2-43a9-b38a-29a826488077",
+        "ticker": "AAPL",
+        "quantity": 45,
+        "filled_quantity": 0,
+        "remaining_quantity": 45,
+        "side": "BUY",
+        "order_type": "STOP",
+        "status": "PENDING",
+        "limit_price": null,
+        "stop_price": 315.91,
+        "average_fill_price": null,
+        "time_in_force": "GTC",
+        "created_at": "2026-06-01T16:18:03.603579+00:00",
+        "updated_at": "2026-06-01T16:18:03.610496+00:00",
+        "filled_at": null
+      }
+    ]
+  },
+  "open_orders": [
+    {
+      "order_id": "a59ae26c-c0dc-4f4e-bcb8-f908ddb31c31",
+      "ticker": "AMZN",
+      "quantity": 53,
+      "filled_quantity": 0,
+      "remaining_quantity": 53,
+      "side": "BUY",
+      "order_type": "LIMIT",
+      "status": "SUBMITTED",
+      "limit_price": 247.35,
+      "stop_price": null,
+      "average_fill_price": null,
+      "time_in_force": "GTC",
+      "created_at": "2026-06-02T11:03:07.678395+00:00",
+      "updated_at": "2026-06-02T11:03:07.693419+00:00",
+      "filled_at": null
+    },
+    {
+      "order_id": "f01ac719-f6fa-41d8-8280-81d494dcd232",
+      "ticker": "AMZN",
+      "quantity": 53,
+      "filled_quantity": 0,
+      "remaining_quantity": 53,
+      "side": "BUY",
+      "order_type": "STOP",
+      "status": "PENDING",
+      "limit_price": null,
+      "stop_price": 271.03,
+      "average_fill_price": null,
+      "time_in_force": "GTC",
+      "created_at": "2026-06-02T11:03:07.678395+00:00",
+      "updated_at": "2026-06-02T11:03:07.687293+00:00",
+      "filled_at": null
+    },
+    {
+      "order_id": "f5561bea-73e6-4054-9afa-67e0672e3848",
+      "ticker": "META",
+      "quantity": 23,
+      "filled_quantity": 0,
+      "remaining_quantity": 23,
+      "side": "BUY",
+      "order_type": "LIMIT",
+      "status": "SUBMITTED",
+      "limit_price": 570.4,
+      "stop_price": null,
+      "average_fill_price": null,
+      "time_in_force": "GTC",
+      "created_at": "2026-06-01T18:40:20.479057+00:00",
+      "updated_at": "2026-06-01T18:40:20.512672+00:00",
+      "filled_at": null
+    },
+    {
+      "order_id": "bb09580c-69fe-4e7a-90c3-1e3a27025cb2",
+      "ticker": "META",
+      "quantity": 23,
+      "filled_quantity": 0,
+      "remaining_quantity": 23,
+      "side": "BUY",
+      "order_type": "STOP",
+      "status": "PENDING",
+      "limit_price": null,
+      "stop_price": 625.01,
+      "average_fill_price": null,
+      "time_in_force": "GTC",
+      "created_at": "2026-06-01T18:40:20.479057+00:00",
+      "updated_at": "2026-06-01T18:40:20.479933+00:00",
+      "filled_at": null
+    },
+    {
+      "order_id": "f875ae72-cebb-45e7-83c6-164121a44c35",
+      "ticker": "TSLA",
+      "quantity": 33,
+      "filled_quantity": 0,
+      "remaining_quantity": 33,
+      "side": "BUY",
+      "order_type": "LIMIT",
+      "status": "SUBMITTED",
+      "limit_price": 395.47,
+      "stop_price": null,
+      "average_fill_price": null,
+      "time_in_force": "GTC",
+      "created_at": "2026-06-01T16:58:26.710707+00:00",
+      "updated_at": "2026-06-01T16:58:26.730449+00:00",
+      "filled_at": null
+    },
+    {
+      "order_id": "d9bbd235-a057-4948-94df-bbac8a3b992c",
+      "ticker": "TSLA",
+      "quantity": 33,
+      "filled_quantity": 0,
+      "remaining_quantity": 33,
+      "side": "BUY",
+      "order_type": "STOP",
+      "status": "PENDING",
+      "limit_price": null,
+      "stop_price": 433.33,
+      "average_fill_price": null,
+      "time_in_force": "GTC",
+      "created_at": "2026-06-01T16:58:26.710707+00:00",
+      "updated_at": "2026-06-01T16:58:26.711709+00:00",
+      "filled_at": null
+    },
+    {
+      "order_id": "78763b83-120f-4e84-9c31-87c15127ed50",
+      "ticker": "NVDA",
+      "quantity": 63,
+      "filled_quantity": 0,
+      "remaining_quantity": 63,
+      "side": "SELL",
+      "order_type": "LIMIT",
+      "status": "SUBMITTED",
+      "limit_price": 233.57,
+      "stop_price": null,
+      "average_fill_price": null,
+      "time_in_force": "GTC",
+      "created_at": "2026-06-01T16:18:06.806098+00:00",
+      "updated_at": "2026-06-01T16:18:06.848575+00:00",
+      "filled_at": null
+    },
+    {
+      "order_id": "697109ad-b911-405a-9dee-bf1024abfc07",
+      "ticker": "NVDA",
+      "quantity": 63,
+      "filled_quantity": 0,
+      "remaining_quantity": 63,
+      "side": "SELL",
+      "order_type": "STOP",
+      "status": "PENDING",
+      "limit_price": null,
+      "stop_price": 213.74,
+      "average_fill_price": null,
+      "time_in_force": "GTC",
+      "created_at": "2026-06-01T16:18:06.806098+00:00",
+      "updated_at": "2026-06-01T16:18:06.830765+00:00",
+      "filled_at": null
+    },
+    {
+      "order_id": "e9ecc999-f808-423b-9485-1c55e7b60bc1",
+      "ticker": "GOOGL",
+      "quantity": 37,
+      "filled_quantity": 0,
+      "remaining_quantity": 37,
+      "side": "BUY",
+      "order_type": "LIMIT",
+      "status": "SUBMITTED",
+      "limit_price": 352.81,
+      "stop_price": null,
+      "average_fill_price": null,
+      "time_in_force": "GTC",
+      "created_at": "2026-06-01T16:18:04.525253+00:00",
+      "updated_at": "2026-06-01T16:18:04.538782+00:00",
+      "filled_at": null
+    },
+    {
+      "order_id": "4b7b9db6-faed-4ee1-b74a-2e73c802709e",
+      "ticker": "GOOGL",
+      "quantity": 37,
+      "filled_quantity": 0,
+      "remaining_quantity": 37,
+      "side": "BUY",
+      "order_type": "STOP",
+      "status": "PENDING",
+      "limit_price": null,
+      "stop_price": 386.59,
+      "average_fill_price": null,
+      "time_in_force": "GTC",
+      "created_at": "2026-06-01T16:18:04.525253+00:00",
+      "updated_at": "2026-06-01T16:18:04.526013+00:00",
+      "filled_at": null
+    },
+    {
+      "order_id": "81a43bd9-e663-42fa-8383-dfb236eb49c3",
+      "ticker": "AAPL",
+      "quantity": 45,
+      "filled_quantity": 0,
+      "remaining_quantity": 45,
+      "side": "BUY",
+      "order_type": "LIMIT",
+      "status": "SUBMITTED",
+      "limit_price": 288.31,
+      "stop_price": null,
+      "average_fill_price": null,
+      "time_in_force": "GTC",
+      "created_at": "2026-06-01T16:18:03.603579+00:00",
+      "updated_at": "2026-06-01T16:18:03.617417+00:00",
+      "filled_at": null
+    },
+    {
+      "order_id": "f4e32b4e-2dd2-43a9-b38a-29a826488077",
+      "ticker": "AAPL",
+      "quantity": 45,
+      "filled_quantity": 0,
+      "remaining_quantity": 45,
+      "side": "BUY",
+      "order_type": "STOP",
+      "status": "PENDING",
+      "limit_price": null,
+      "stop_price": 315.91,
+      "average_fill_price": null,
+      "time_in_force": "GTC",
+      "created_at": "2026-06-01T16:18:03.603579+00:00",
+      "updated_at": "2026-06-01T16:18:03.610496+00:00",
+      "filled_at": null
+    }
+  ],
+  "filled_orders": [
+    {
+      "order_id": "d65188a0-375d-468f-8270-13e7ad4c26f5",
+      "ticker": "MSFT",
+      "quantity": 30,
+      "filled_quantity": 30,
+      "remaining_quantity": 0,
+      "side": "BUY",
+      "order_type": "LIMIT",
+      "status": "FILLED",
+      "limit_price": 459.55,
+      "stop_price": null,
+      "average_fill_price": 459.522,
+      "time_in_force": "GTC",
+      "created_at": "2026-06-01T16:09:43.466543+00:00",
+      "updated_at": "2026-06-01T16:09:59.695048+00:00",
+      "filled_at": "2026-06-01T16:09:59.692710+00:00"
+    },
+    {
+      "order_id": "71b415fd-0777-4e7c-a9a4-71db03b59b08",
+      "ticker": "AMZN",
+      "quantity": 53,
+      "filled_quantity": 53,
+      "remaining_quantity": 0,
+      "side": "SELL",
+      "order_type": "LIMIT",
+      "status": "FILLED",
+      "limit_price": 263.14,
+      "stop_price": null,
+      "average_fill_price": 263.14,
+      "time_in_force": "GTC",
+      "created_at": "2026-06-01T16:09:57.161538+00:00",
+      "updated_at": "2026-06-01T18:57:59.377766+00:00",
+      "filled_at": "2026-06-01T18:57:59.369710+00:00"
+    },
+    {
+      "order_id": "797b3ca4-e2cc-4c41-92c7-6000bfeccde6",
+      "ticker": "AAPL",
+      "quantity": 46,
+      "filled_quantity": 46,
+      "remaining_quantity": 0,
+      "side": "SELL",
+      "order_type": "MARKET",
+      "status": "FILLED",
+      "limit_price": null,
+      "stop_price": null,
+      "average_fill_price": 306.71,
+      "time_in_force": "DAY",
+      "created_at": "2026-06-01T16:10:01.794127+00:00",
+      "updated_at": "2026-06-01T16:10:02.321361+00:00",
+      "filled_at": "2026-06-01T16:10:02.319547+00:00"
+    },
+    {
+      "order_id": "584fa490-9269-4edb-bb8c-2fe563ea248b",
+      "ticker": "AAPL",
+      "quantity": 45,
+      "filled_quantity": 45,
+      "remaining_quantity": 0,
+      "side": "SELL",
+      "order_type": "LIMIT",
+      "status": "FILLED",
+      "limit_price": 306.7,
+      "stop_price": null,
+      "average_fill_price": 306.71,
+      "time_in_force": "GTC",
+      "created_at": "2026-06-01T16:10:04.128955+00:00",
+      "updated_at": "2026-06-01T16:10:04.826382+00:00",
+      "filled_at": "2026-06-01T16:10:04.824628+00:00"
+    },
+    {
+      "order_id": "15ceee5c-7cd5-41a4-9aa6-98e7d6f2942f",
+      "ticker": "NVDA",
+      "quantity": 63,
+      "filled_quantity": 63,
+      "remaining_quantity": 0,
+      "side": "BUY",
+      "order_type": "LIMIT",
+      "status": "FILLED",
+      "limit_price": 220.43,
+      "stop_price": null,
+      "average_fill_price": 220.349683,
+      "time_in_force": "GTC",
+      "created_at": "2026-06-01T16:10:07.511761+00:00",
+      "updated_at": "2026-06-01T16:10:10.099311+00:00",
+      "filled_at": "2026-06-01T16:10:10.097545+00:00"
+    },
+    {
+      "order_id": "899633dc-0fe8-40bf-bd69-0d5fa29c8d53",
+      "ticker": "TSLA",
+      "quantity": 33,
+      "filled_quantity": 33,
+      "remaining_quantity": 0,
+      "side": "SELL",
+      "order_type": "LIMIT",
+      "status": "FILLED",
+      "limit_price": 420.71,
+      "stop_price": null,
+      "average_fill_price": 420.71,
+      "time_in_force": "GTC",
+      "created_at": "2026-06-01T16:10:10.908786+00:00",
+      "updated_at": "2026-06-01T16:53:11.256427+00:00",
+      "filled_at": "2026-06-01T16:53:11.254150+00:00"
+    },
+    {
+      "order_id": "7e348cf3-766a-42f3-8ddd-c04d7d22aa7b",
+      "ticker": "GOOGL",
+      "quantity": 37,
+      "filled_quantity": 37,
+      "remaining_quantity": 0,
+      "side": "SELL",
+      "order_type": "LIMIT",
+      "status": "FILLED",
+      "limit_price": 375.16,
+      "stop_price": null,
+      "average_fill_price": 375.33,
+      "time_in_force": "GTC",
+      "created_at": "2026-06-01T16:10:14.417617+00:00",
+      "updated_at": "2026-06-01T16:10:18.691458+00:00",
+      "filled_at": "2026-06-01T16:10:18.689782+00:00"
+    },
+    {
+      "order_id": "fd083bae-991a-4791-8c4f-daac590465b2",
+      "ticker": "MSFT",
+      "quantity": 30,
+      "filled_quantity": 30,
+      "remaining_quantity": 0,
+      "side": "SELL",
+      "order_type": "STOP",
+      "status": "FILLED",
+      "limit_price": null,
+      "stop_price": 445.74,
+      "average_fill_price": 448.706,
+      "time_in_force": "GTC",
+      "created_at": "2026-06-01T16:18:05.678862+00:00",
+      "updated_at": "2026-06-02T13:36:31.994097+00:00",
+      "filled_at": "2026-06-02T13:36:31.992200+00:00"
+    },
+    {
+      "order_id": "238eeb72-0e24-4522-8995-6ab8fc1ff0c7",
+      "ticker": "META",
+      "quantity": 23,
+      "filled_quantity": 23,
+      "remaining_quantity": 0,
+      "side": "SELL",
+      "order_type": "LIMIT",
+      "status": "FILLED",
+      "limit_price": 606.81,
+      "stop_price": null,
+      "average_fill_price": 606.81,
+      "time_in_force": "GTC",
+      "created_at": "2026-06-01T18:39:24.379980+00:00",
+      "updated_at": "2026-06-01T18:39:46.996498+00:00",
+      "filled_at": "2026-06-01T18:39:46.994550+00:00"
+    }
+  ],
+  "all_orders": [
+    {
+      "order_id": "d65188a0-375d-468f-8270-13e7ad4c26f5",
+      "ticker": "MSFT",
+      "quantity": 30,
+      "filled_quantity": 30,
+      "remaining_quantity": 0,
+      "side": "BUY",
+      "order_type": "LIMIT",
+      "status": "FILLED",
+      "limit_price": 459.55,
+      "stop_price": null,
+      "average_fill_price": 459.522,
+      "time_in_force": "GTC",
+      "created_at": "2026-06-01T16:09:43.466543+00:00",
+      "updated_at": "2026-06-01T16:09:59.695048+00:00",
+      "filled_at": "2026-06-01T16:09:59.692710+00:00"
+    },
+    {
+      "order_id": "d9bbcb3d-5bb9-4b12-8b52-2a72c3d9af9f",
+      "ticker": "MSFT",
+      "quantity": 30,
+      "filled_quantity": 0,
+      "remaining_quantity": 30,
+      "side": "SELL",
+      "order_type": "LIMIT",
+      "status": "CANCELLED",
+      "limit_price": 487.12,
+      "stop_price": null,
+      "average_fill_price": null,
+      "time_in_force": "GTC",
+      "created_at": "2026-06-01T16:09:43.466543+00:00",
+      "updated_at": "2026-06-01T16:18:05.526975+00:00",
+      "filled_at": null
+    },
+    {
+      "order_id": "b931038f-5024-4d56-9456-1b8d574d4f95",
+      "ticker": "MSFT",
+      "quantity": 30,
+      "filled_quantity": 0,
+      "remaining_quantity": 30,
+      "side": "SELL",
+      "order_type": "STOP",
+      "status": "CANCELLED",
+      "limit_price": null,
+      "stop_price": 445.76,
+      "average_fill_price": null,
+      "time_in_force": "GTC",
+      "created_at": "2026-06-01T16:09:43.466543+00:00",
+      "updated_at": "2026-06-01T16:18:05.522133+00:00",
+      "filled_at": null
+    },
+    {
+      "order_id": "71b415fd-0777-4e7c-a9a4-71db03b59b08",
+      "ticker": "AMZN",
+      "quantity": 53,
+      "filled_quantity": 53,
+      "remaining_quantity": 0,
+      "side": "SELL",
+      "order_type": "LIMIT",
+      "status": "FILLED",
+      "limit_price": 263.14,
+      "stop_price": null,
+      "average_fill_price": 263.14,
+      "time_in_force": "GTC",
+      "created_at": "2026-06-01T16:09:57.161538+00:00",
+      "updated_at": "2026-06-01T18:57:59.377766+00:00",
+      "filled_at": "2026-06-01T18:57:59.369710+00:00"
+    },
+    {
+      "order_id": "6655ee1b-de49-4e8b-8031-de4e96e01bab",
+      "ticker": "AMZN",
+      "quantity": 53,
+      "filled_quantity": 0,
+      "remaining_quantity": 53,
+      "side": "BUY",
+      "order_type": "LIMIT",
+      "status": "CANCELLED",
+      "limit_price": 247.35,
+      "stop_price": null,
+      "average_fill_price": null,
+      "time_in_force": "GTC",
+      "created_at": "2026-06-01T16:09:57.161538+00:00",
+      "updated_at": "2026-06-02T11:03:07.651788+00:00",
+      "filled_at": null
+    },
+    {
+      "order_id": "c0f9e1cf-edbb-4cbe-8280-43f821058866",
+      "ticker": "AMZN",
+      "quantity": 53,
+      "filled_quantity": 0,
+      "remaining_quantity": 53,
+      "side": "BUY",
+      "order_type": "STOP",
+      "status": "CANCELLED",
+      "limit_price": null,
+      "stop_price": 271.03,
+      "average_fill_price": null,
+      "time_in_force": "GTC",
+      "created_at": "2026-06-01T16:09:57.161538+00:00",
+      "updated_at": "2026-06-02T11:03:07.644656+00:00",
+      "filled_at": null
+    },
+    {
+      "order_id": "797b3ca4-e2cc-4c41-92c7-6000bfeccde6",
+      "ticker": "AAPL",
+      "quantity": 46,
+      "filled_quantity": 46,
+      "remaining_quantity": 0,
+      "side": "SELL",
+      "order_type": "MARKET",
+      "status": "FILLED",
+      "limit_price": null,
+      "stop_price": null,
+      "average_fill_price": 306.71,
+      "time_in_force": "DAY",
+      "created_at": "2026-06-01T16:10:01.794127+00:00",
+      "updated_at": "2026-06-01T16:10:02.321361+00:00",
+      "filled_at": "2026-06-01T16:10:02.319547+00:00"
+    },
+    {
+      "order_id": "584fa490-9269-4edb-bb8c-2fe563ea248b",
+      "ticker": "AAPL",
+      "quantity": 45,
+      "filled_quantity": 45,
+      "remaining_quantity": 0,
+      "side": "SELL",
+      "order_type": "LIMIT",
+      "status": "FILLED",
+      "limit_price": 306.7,
+      "stop_price": null,
+      "average_fill_price": 306.71,
+      "time_in_force": "GTC",
+      "created_at": "2026-06-01T16:10:04.128955+00:00",
+      "updated_at": "2026-06-01T16:10:04.826382+00:00",
+      "filled_at": "2026-06-01T16:10:04.824628+00:00"
+    },
+    {
+      "order_id": "8e4c41ca-fc0f-4127-8a7d-60b51fa915f9",
+      "ticker": "AAPL",
+      "quantity": 45,
+      "filled_quantity": 0,
+      "remaining_quantity": 45,
+      "side": "BUY",
+      "order_type": "LIMIT",
+      "status": "CANCELLED",
+      "limit_price": 288.3,
+      "stop_price": null,
+      "average_fill_price": null,
+      "time_in_force": "GTC",
+      "created_at": "2026-06-01T16:10:04.128955+00:00",
+      "updated_at": "2026-06-01T16:18:03.486702+00:00",
+      "filled_at": null
+    },
+    {
+      "order_id": "50c8d31a-2f7f-423e-bf9e-255090743a80",
+      "ticker": "AAPL",
+      "quantity": 45,
+      "filled_quantity": 0,
+      "remaining_quantity": 45,
+      "side": "BUY",
+      "order_type": "STOP",
+      "status": "CANCELLED",
+      "limit_price": null,
+      "stop_price": 315.9,
+      "average_fill_price": null,
+      "time_in_force": "GTC",
+      "created_at": "2026-06-01T16:10:04.128955+00:00",
+      "updated_at": "2026-06-01T16:18:03.442710+00:00",
+      "filled_at": null
+    },
+    {
+      "order_id": "15ceee5c-7cd5-41a4-9aa6-98e7d6f2942f",
+      "ticker": "NVDA",
+      "quantity": 63,
+      "filled_quantity": 63,
+      "remaining_quantity": 0,
+      "side": "BUY",
+      "order_type": "LIMIT",
+      "status": "FILLED",
+      "limit_price": 220.43,
+      "stop_price": null,
+      "average_fill_price": 220.349683,
+      "time_in_force": "GTC",
+      "created_at": "2026-06-01T16:10:07.511761+00:00",
+      "updated_at": "2026-06-01T16:10:10.099311+00:00",
+      "filled_at": "2026-06-01T16:10:10.097545+00:00"
+    },
+    {
+      "order_id": "46225486-8732-446c-992c-ded660054303",
+      "ticker": "NVDA",
+      "quantity": 63,
+      "filled_quantity": 0,
+      "remaining_quantity": 63,
+      "side": "SELL",
+      "order_type": "LIMIT",
+      "status": "CANCELLED",
+      "limit_price": 233.66,
+      "stop_price": null,
+      "average_fill_price": null,
+      "time_in_force": "GTC",
+      "created_at": "2026-06-01T16:10:07.511761+00:00",
+      "updated_at": "2026-06-01T16:18:06.618946+00:00",
+      "filled_at": null
+    },
+    {
+      "order_id": "1972074a-d093-4995-8679-3605fa1e38a3",
+      "ticker": "NVDA",
+      "quantity": 63,
+      "filled_quantity": 0,
+      "remaining_quantity": 63,
+      "side": "SELL",
+      "order_type": "STOP",
+      "status": "CANCELLED",
+      "limit_price": null,
+      "stop_price": 213.82,
+      "average_fill_price": null,
+      "time_in_force": "GTC",
+      "created_at": "2026-06-01T16:10:07.511761+00:00",
+      "updated_at": "2026-06-01T16:18:06.610674+00:00",
+      "filled_at": null
+    },
+    {
+      "order_id": "899633dc-0fe8-40bf-bd69-0d5fa29c8d53",
+      "ticker": "TSLA",
+      "quantity": 33,
+      "filled_quantity": 33,
+      "remaining_quantity": 0,
+      "side": "SELL",
+      "order_type": "LIMIT",
+      "status": "FILLED",
+      "limit_price": 420.71,
+      "stop_price": null,
+      "average_fill_price": 420.71,
+      "time_in_force": "GTC",
+      "created_at": "2026-06-01T16:10:10.908786+00:00",
+      "updated_at": "2026-06-01T16:53:11.256427+00:00",
+      "filled_at": "2026-06-01T16:53:11.254150+00:00"
+    },
+    {
+      "order_id": "5ec88f63-c377-48ef-bbea-402428debe1a",
+      "ticker": "TSLA",
+      "quantity": 33,
+      "filled_quantity": 0,
+      "remaining_quantity": 33,
+      "side": "BUY",
+      "order_type": "LIMIT",
+      "status": "CANCELLED",
+      "limit_price": 395.47,
+      "stop_price": null,
+      "average_fill_price": null,
+      "time_in_force": "GTC",
+      "created_at": "2026-06-01T16:10:10.908786+00:00",
+      "updated_at": "2026-06-01T16:58:26.547600+00:00",
+      "filled_at": null
+    },
+    {
+      "order_id": "77d36937-2188-4a4c-9589-3c8d028856d8",
+      "ticker": "TSLA",
+      "quantity": 33,
+      "filled_quantity": 0,
+      "remaining_quantity": 33,
+      "side": "BUY",
+      "order_type": "STOP",
+      "status": "CANCELLED",
+      "limit_price": null,
+      "stop_price": 433.33,
+      "average_fill_price": null,
+      "time_in_force": "GTC",
+      "created_at": "2026-06-01T16:10:10.908786+00:00",
+      "updated_at": "2026-06-01T16:58:26.541140+00:00",
+      "filled_at": null
+    },
+    {
+      "order_id": "7e348cf3-766a-42f3-8ddd-c04d7d22aa7b",
+      "ticker": "GOOGL",
+      "quantity": 37,
+      "filled_quantity": 37,
+      "remaining_quantity": 0,
+      "side": "SELL",
+      "order_type": "LIMIT",
+      "status": "FILLED",
+      "limit_price": 375.16,
+      "stop_price": null,
+      "average_fill_price": 375.33,
+      "time_in_force": "GTC",
+      "created_at": "2026-06-01T16:10:14.417617+00:00",
+      "updated_at": "2026-06-01T16:10:18.691458+00:00",
+      "filled_at": "2026-06-01T16:10:18.689782+00:00"
+    },
+    {
+      "order_id": "fb964fa0-f330-4593-8f7d-4f21449c4121",
+      "ticker": "GOOGL",
+      "quantity": 37,
+      "filled_quantity": 0,
+      "remaining_quantity": 37,
+      "side": "BUY",
+      "order_type": "LIMIT",
+      "status": "CANCELLED",
+      "limit_price": 352.65,
+      "stop_price": null,
+      "average_fill_price": null,
+      "time_in_force": "GTC",
+      "created_at": "2026-06-01T16:10:14.417617+00:00",
+      "updated_at": "2026-06-01T16:18:04.361621+00:00",
+      "filled_at": null
+    },
+    {
+      "order_id": "cdc68a5f-c03d-44ed-ba7c-18907099acb0",
+      "ticker": "GOOGL",
+      "quantity": 37,
+      "filled_quantity": 0,
+      "remaining_quantity": 37,
+      "side": "BUY",
+      "order_type": "STOP",
+      "status": "CANCELLED",
+      "limit_price": null,
+      "stop_price": 386.41,
+      "average_fill_price": null,
+      "time_in_force": "GTC",
+      "created_at": "2026-06-01T16:10:14.417617+00:00",
+      "updated_at": "2026-06-01T16:18:04.356843+00:00",
+      "filled_at": null
+    },
+    {
+      "order_id": "81a43bd9-e663-42fa-8383-dfb236eb49c3",
+      "ticker": "AAPL",
+      "quantity": 45,
+      "filled_quantity": 0,
+      "remaining_quantity": 45,
+      "side": "BUY",
+      "order_type": "LIMIT",
+      "status": "SUBMITTED",
+      "limit_price": 288.31,
+      "stop_price": null,
+      "average_fill_price": null,
+      "time_in_force": "GTC",
+      "created_at": "2026-06-01T16:18:03.603579+00:00",
+      "updated_at": "2026-06-01T16:18:03.617417+00:00",
+      "filled_at": null
+    },
+    {
+      "order_id": "f4e32b4e-2dd2-43a9-b38a-29a826488077",
+      "ticker": "AAPL",
+      "quantity": 45,
+      "filled_quantity": 0,
+      "remaining_quantity": 45,
+      "side": "BUY",
+      "order_type": "STOP",
+      "status": "PENDING",
+      "limit_price": null,
+      "stop_price": 315.91,
+      "average_fill_price": null,
+      "time_in_force": "GTC",
+      "created_at": "2026-06-01T16:18:03.603579+00:00",
+      "updated_at": "2026-06-01T16:18:03.610496+00:00",
+      "filled_at": null
+    },
+    {
+      "order_id": "e9ecc999-f808-423b-9485-1c55e7b60bc1",
+      "ticker": "GOOGL",
+      "quantity": 37,
+      "filled_quantity": 0,
+      "remaining_quantity": 37,
+      "side": "BUY",
+      "order_type": "LIMIT",
+      "status": "SUBMITTED",
+      "limit_price": 352.81,
+      "stop_price": null,
+      "average_fill_price": null,
+      "time_in_force": "GTC",
+      "created_at": "2026-06-01T16:18:04.525253+00:00",
+      "updated_at": "2026-06-01T16:18:04.538782+00:00",
+      "filled_at": null
+    },
+    {
+      "order_id": "4b7b9db6-faed-4ee1-b74a-2e73c802709e",
+      "ticker": "GOOGL",
+      "quantity": 37,
+      "filled_quantity": 0,
+      "remaining_quantity": 37,
+      "side": "BUY",
+      "order_type": "STOP",
+      "status": "PENDING",
+      "limit_price": null,
+      "stop_price": 386.59,
+      "average_fill_price": null,
+      "time_in_force": "GTC",
+      "created_at": "2026-06-01T16:18:04.525253+00:00",
+      "updated_at": "2026-06-01T16:18:04.526013+00:00",
+      "filled_at": null
+    },
+    {
+      "order_id": "1a98af98-55c6-4465-a726-139ff7779b4f",
+      "ticker": "MSFT",
+      "quantity": 30,
+      "filled_quantity": 0,
+      "remaining_quantity": 30,
+      "side": "SELL",
+      "order_type": "LIMIT",
+      "status": "CANCELLED",
+      "limit_price": 487.09,
+      "stop_price": null,
+      "average_fill_price": null,
+      "time_in_force": "GTC",
+      "created_at": "2026-06-01T16:18:05.678862+00:00",
+      "updated_at": "2026-06-02T13:30:30.742729+00:00",
+      "filled_at": null
+    },
+    {
+      "order_id": "fd083bae-991a-4791-8c4f-daac590465b2",
+      "ticker": "MSFT",
+      "quantity": 30,
+      "filled_quantity": 30,
+      "remaining_quantity": 0,
+      "side": "SELL",
+      "order_type": "STOP",
+      "status": "FILLED",
+      "limit_price": null,
+      "stop_price": 445.74,
+      "average_fill_price": 448.706,
+      "time_in_force": "GTC",
+      "created_at": "2026-06-01T16:18:05.678862+00:00",
+      "updated_at": "2026-06-02T13:36:31.994097+00:00",
+      "filled_at": "2026-06-02T13:36:31.992200+00:00"
+    },
+    {
+      "order_id": "78763b83-120f-4e84-9c31-87c15127ed50",
+      "ticker": "NVDA",
+      "quantity": 63,
+      "filled_quantity": 0,
+      "remaining_quantity": 63,
+      "side": "SELL",
+      "order_type": "LIMIT",
+      "status": "SUBMITTED",
+      "limit_price": 233.57,
+      "stop_price": null,
+      "average_fill_price": null,
+      "time_in_force": "GTC",
+      "created_at": "2026-06-01T16:18:06.806098+00:00",
+      "updated_at": "2026-06-01T16:18:06.848575+00:00",
+      "filled_at": null
+    },
+    {
+      "order_id": "697109ad-b911-405a-9dee-bf1024abfc07",
+      "ticker": "NVDA",
+      "quantity": 63,
+      "filled_quantity": 0,
+      "remaining_quantity": 63,
+      "side": "SELL",
+      "order_type": "STOP",
+      "status": "PENDING",
+      "limit_price": null,
+      "stop_price": 213.74,
+      "average_fill_price": null,
+      "time_in_force": "GTC",
+      "created_at": "2026-06-01T16:18:06.806098+00:00",
+      "updated_at": "2026-06-01T16:18:06.830765+00:00",
+      "filled_at": null
+    },
+    {
+      "order_id": "f875ae72-cebb-45e7-83c6-164121a44c35",
+      "ticker": "TSLA",
+      "quantity": 33,
+      "filled_quantity": 0,
+      "remaining_quantity": 33,
+      "side": "BUY",
+      "order_type": "LIMIT",
+      "status": "SUBMITTED",
+      "limit_price": 395.47,
+      "stop_price": null,
+      "average_fill_price": null,
+      "time_in_force": "GTC",
+      "created_at": "2026-06-01T16:58:26.710707+00:00",
+      "updated_at": "2026-06-01T16:58:26.730449+00:00",
+      "filled_at": null
+    },
+    {
+      "order_id": "d9bbd235-a057-4948-94df-bbac8a3b992c",
+      "ticker": "TSLA",
+      "quantity": 33,
+      "filled_quantity": 0,
+      "remaining_quantity": 33,
+      "side": "BUY",
+      "order_type": "STOP",
+      "status": "PENDING",
+      "limit_price": null,
+      "stop_price": 433.33,
+      "average_fill_price": null,
+      "time_in_force": "GTC",
+      "created_at": "2026-06-01T16:58:26.710707+00:00",
+      "updated_at": "2026-06-01T16:58:26.711709+00:00",
+      "filled_at": null
+    },
+    {
+      "order_id": "238eeb72-0e24-4522-8995-6ab8fc1ff0c7",
+      "ticker": "META",
+      "quantity": 23,
+      "filled_quantity": 23,
+      "remaining_quantity": 0,
+      "side": "SELL",
+      "order_type": "LIMIT",
+      "status": "FILLED",
+      "limit_price": 606.81,
+      "stop_price": null,
+      "average_fill_price": 606.81,
+      "time_in_force": "GTC",
+      "created_at": "2026-06-01T18:39:24.379980+00:00",
+      "updated_at": "2026-06-01T18:39:46.996498+00:00",
+      "filled_at": "2026-06-01T18:39:46.994550+00:00"
+    },
+    {
+      "order_id": "743a1557-47c0-4195-a1c3-4458ab9fc70d",
+      "ticker": "META",
+      "quantity": 23,
+      "filled_quantity": 0,
+      "remaining_quantity": 23,
+      "side": "BUY",
+      "order_type": "LIMIT",
+      "status": "CANCELLED",
+      "limit_price": 570.4,
+      "stop_price": null,
+      "average_fill_price": null,
+      "time_in_force": "GTC",
+      "created_at": "2026-06-01T18:39:24.379980+00:00",
+      "updated_at": "2026-06-01T18:40:20.318524+00:00",
+      "filled_at": null
+    },
+    {
+      "order_id": "b21ee56b-12e6-4e00-aa01-de4d22fe95f5",
+      "ticker": "META",
+      "quantity": 23,
+      "filled_quantity": 0,
+      "remaining_quantity": 23,
+      "side": "BUY",
+      "order_type": "STOP",
+      "status": "CANCELLED",
+      "limit_price": null,
+      "stop_price": 625.01,
+      "average_fill_price": null,
+      "time_in_force": "GTC",
+      "created_at": "2026-06-01T18:39:24.379980+00:00",
+      "updated_at": "2026-06-01T18:40:20.313797+00:00",
+      "filled_at": null
+    },
+    {
+      "order_id": "f5561bea-73e6-4054-9afa-67e0672e3848",
+      "ticker": "META",
+      "quantity": 23,
+      "filled_quantity": 0,
+      "remaining_quantity": 23,
+      "side": "BUY",
+      "order_type": "LIMIT",
+      "status": "SUBMITTED",
+      "limit_price": 570.4,
+      "stop_price": null,
+      "average_fill_price": null,
+      "time_in_force": "GTC",
+      "created_at": "2026-06-01T18:40:20.479057+00:00",
+      "updated_at": "2026-06-01T18:40:20.512672+00:00",
+      "filled_at": null
+    },
+    {
+      "order_id": "bb09580c-69fe-4e7a-90c3-1e3a27025cb2",
+      "ticker": "META",
+      "quantity": 23,
+      "filled_quantity": 0,
+      "remaining_quantity": 23,
+      "side": "BUY",
+      "order_type": "STOP",
+      "status": "PENDING",
+      "limit_price": null,
+      "stop_price": 625.01,
+      "average_fill_price": null,
+      "time_in_force": "GTC",
+      "created_at": "2026-06-01T18:40:20.479057+00:00",
+      "updated_at": "2026-06-01T18:40:20.479933+00:00",
+      "filled_at": null
+    }
+  ],
+  "successful_trades": [],
+  "unsuccessful_trades": [
+    {
+      "ticker": "MSFT",
+      "direction": "long",
+      "quantity": 30,
+      "entry_order_id": "d65188a0-375d-468f-8270-13e7ad4c26f5",
+      "exit_order_id": "fd083bae-991a-4791-8c4f-daac590465b2",
+      "entry_price": 459.522,
+      "exit_price": 448.706,
+      "opened_at": "2026-06-01T16:09:59.692710+00:00",
+      "closed_at": "2026-06-02T13:36:31.992200+00:00",
+      "realized_pnl": -324.48,
+      "realized_pnl_percent": -2.35,
+      "result": "unsuccessful"
+    }
+  ],
+  "open_position_outcomes": [
+    {
+      "ticker": "AAPL",
+      "quantity": -45,
+      "average_cost": 306.71,
+      "current_price": 314.96,
+      "market_value": -14173.2,
+      "unrealized_pnl": -371.25,
+      "realized_pnl": null,
+      "is_long": false,
+      "is_short": true,
+      "cost_basis": 13801.949999999999,
+      "unrealized_pnl_percent": -2.689837305598122,
+      "result": "unsuccessful"
+    },
+    {
+      "ticker": "AMZN",
+      "quantity": -53,
+      "average_cost": 263.14,
+      "current_price": 258.045,
+      "market_value": -13676.385,
+      "unrealized_pnl": 270.035,
+      "realized_pnl": null,
+      "is_long": false,
+      "is_short": true,
+      "cost_basis": 13946.42,
+      "unrealized_pnl_percent": 1.9362316637531356,
+      "result": "successful"
+    },
+    {
+      "ticker": "GOOGL",
+      "quantity": -37,
+      "average_cost": 375.33,
+      "current_price": 368.085,
+      "market_value": -13619.145,
+      "unrealized_pnl": 268.065,
+      "realized_pnl": null,
+      "is_long": false,
+      "is_short": true,
+      "cost_basis": 13887.21,
+      "unrealized_pnl_percent": 1.9303013348253537,
+      "result": "successful"
+    },
+    {
+      "ticker": "META",
+      "quantity": -23,
+      "average_cost": 606.81,
+      "current_price": 605.885,
+      "market_value": -13935.355,
+      "unrealized_pnl": 21.275,
+      "realized_pnl": null,
+      "is_long": false,
+      "is_short": true,
+      "cost_basis": 13956.63,
+      "unrealized_pnl_percent": 0.15243651225259966,
+      "result": "successful"
+    },
+    {
+      "ticker": "NVDA",
+      "quantity": 63,
+      "average_cost": 220.349683,
+      "current_price": 222.78,
+      "market_value": 14035.14,
+      "unrealized_pnl": 153.109971,
+      "realized_pnl": null,
+      "is_long": true,
+      "is_short": false,
+      "cost_basis": 13882.030029,
+      "unrealized_pnl_percent": 1.1029364630399763,
+      "result": "successful"
+    },
+    {
+      "ticker": "TSLA",
+      "quantity": -33,
+      "average_cost": 420.71,
+      "current_price": 422.4,
+      "market_value": -13939.2,
+      "unrealized_pnl": -55.77,
+      "realized_pnl": null,
+      "is_long": false,
+      "is_short": true,
+      "cost_basis": 13883.429999999998,
+      "unrealized_pnl_percent": -0.4017018849088446,
+      "result": "unsuccessful"
+    }
+  ],
+  "unpaired_filled_orders": [
+    {
+      "reason": "not_closed_within_report_day",
+      "ticker": "AAPL",
+      "side": "SELL",
+      "remaining_quantity": 46,
+      "average_fill_price": 306.71,
+      "order_id": "797b3ca4-e2cc-4c41-92c7-6000bfeccde6",
+      "opened_at": "2026-06-01T16:10:02.319547+00:00"
+    },
+    {
+      "reason": "not_closed_within_report_day",
+      "ticker": "AAPL",
+      "side": "SELL",
+      "remaining_quantity": 45,
+      "average_fill_price": 306.71,
+      "order_id": "584fa490-9269-4edb-bb8c-2fe563ea248b",
+      "opened_at": "2026-06-01T16:10:04.824628+00:00"
+    },
+    {
+      "reason": "not_closed_within_report_day",
+      "ticker": "NVDA",
+      "side": "BUY",
+      "remaining_quantity": 63,
+      "average_fill_price": 220.349683,
+      "order_id": "15ceee5c-7cd5-41a4-9aa6-98e7d6f2942f",
+      "opened_at": "2026-06-01T16:10:10.097545+00:00"
+    },
+    {
+      "reason": "not_closed_within_report_day",
+      "ticker": "GOOGL",
+      "side": "SELL",
+      "remaining_quantity": 37,
+      "average_fill_price": 375.33,
+      "order_id": "7e348cf3-766a-42f3-8ddd-c04d7d22aa7b",
+      "opened_at": "2026-06-01T16:10:18.689782+00:00"
+    },
+    {
+      "reason": "not_closed_within_report_day",
+      "ticker": "TSLA",
+      "side": "SELL",
+      "remaining_quantity": 33,
+      "average_fill_price": 420.71,
+      "order_id": "899633dc-0fe8-40bf-bd69-0d5fa29c8d53",
+      "opened_at": "2026-06-01T16:53:11.254150+00:00"
+    },
+    {
+      "reason": "not_closed_within_report_day",
+      "ticker": "META",
+      "side": "SELL",
+      "remaining_quantity": 23,
+      "average_fill_price": 606.81,
+      "order_id": "238eeb72-0e24-4522-8995-6ab8fc1ff0c7",
+      "opened_at": "2026-06-01T18:39:46.994550+00:00"
+    },
+    {
+      "reason": "not_closed_within_report_day",
+      "ticker": "AMZN",
+      "side": "SELL",
+      "remaining_quantity": 53,
+      "average_fill_price": 263.14,
+      "order_id": "71b415fd-0777-4e7c-a9a4-71db03b59b08",
+      "opened_at": "2026-06-01T18:57:59.369710+00:00"
+    }
+  ],
+  "trade_outcome_summary": {
+    "closed_trade_count": 1,
+    "successful_trade_count": 0,
+    "unsuccessful_trade_count": 1,
+    "unpaired_filled_order_count": 7,
+    "realized_trade_pnl": -324.48,
+    "open_position_unrealized_pnl": 285.46
+  },
+  "strategies_observed": {
+    "running_today_inference": [
+      "mag7",
+      "earnings"
+    ],
+    "mag7": {
+      "label": "MAG7 EMA Slope Regime",
+      "configured_tickers": [
+        "AAPL",
+        "AMD",
+        "AMZN",
+        "GOOGL",
+        "META",
+        "MSFT",
+        "NVDA",
+        "TSLA"
+      ],
+      "observed_tickers": [
+        "AAPL",
+        "AMZN",
+        "GOOGL",
+        "META",
+        "MSFT",
+        "NVDA",
+        "TSLA"
+      ],
+      "evidence": [
+        "broker_activity"
+      ]
+    },
+    "earnings": {
+      "label": "Earnings Strategy",
+      "cached_scanner_tickers": [
+        "PLTR"
+      ],
+      "observed_tickers": [
+        "PLTR"
+      ],
+      "broker_activity_tickers": [],
+      "evidence": [
+        "ticker_cache"
+      ]
+    }
+  },
+  "relevant_tickers": [
+    "AAPL",
+    "AMZN",
+    "GOOGL",
+    "META",
+    "MSFT",
+    "NVDA",
+    "PLTR",
+    "TSLA"
+  ],
+  "market_data": {
+    "description": "Actual report-date candlestick data. hourly_session covers 4:00-20:00 New York time; first_rth_minutes covers 9:30-9:35 New York time.",
+    "candles_by_ticker": {
+      "AAPL": {
+        "hourly_session": [
+          {
+            "time": "2026-06-01T08:00:00+00:00",
+            "open": 310.21,
+            "high": 310.488,
+            "low": 309.6,
+            "close": 310.08,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T09:00:00+00:00",
+            "open": 310.07,
+            "high": 310.49,
+            "low": 309.71,
+            "close": 309.84,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T10:00:00+00:00",
+            "open": 309.826,
+            "high": 310.3288,
+            "low": 309.24,
+            "close": 309.4395,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T11:00:00+00:00",
+            "open": 309.44,
+            "high": 312.06,
+            "low": 309.0,
+            "close": 310.0,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T12:00:00+00:00",
+            "open": 310.02,
+            "high": 310.65,
+            "low": 309.5097,
+            "close": 310.374,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T13:00:00+00:00",
+            "open": 310.3012,
+            "high": 311.6,
+            "low": 309.0,
+            "close": 309.37,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T13:30:00+00:00",
+            "open": 309.5350036621094,
+            "high": 310.92999267578125,
+            "low": 307.79998779296875,
+            "close": 307.8399963378906,
+            "volume": 10175199,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T14:30:00+00:00",
+            "open": 307.80999755859375,
+            "high": 308.4700012207031,
+            "low": 306.29998779296875,
+            "close": 306.5751037597656,
+            "volume": 5691006,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T15:30:00+00:00",
+            "open": 306.55999755859375,
+            "high": 307.260009765625,
+            "low": 305.489990234375,
+            "close": 305.7200012207031,
+            "volume": 4171810,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T16:30:00+00:00",
+            "open": 305.739990234375,
+            "high": 306.5299987792969,
+            "low": 305.0299987792969,
+            "close": 306.4700012207031,
+            "volume": 3705835,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T17:30:00+00:00",
+            "open": 306.5199890136719,
+            "high": 308.3999938964844,
+            "low": 306.30999755859375,
+            "close": 307.8699951171875,
+            "volume": 3768496,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T18:30:00+00:00",
+            "open": 307.864990234375,
+            "high": 308.32501220703125,
+            "low": 307.3299865722656,
+            "close": 307.42999267578125,
+            "volume": 3948458,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T19:30:00+00:00",
+            "open": 307.43499755859375,
+            "high": 308.0400085449219,
+            "low": 305.909912109375,
+            "close": 306.32000732421875,
+            "volume": 5261936,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T20:00:00+00:00",
+            "open": 306.31,
+            "high": 306.8,
+            "low": 306.0,
+            "close": 306.62,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T21:00:00+00:00",
+            "open": 306.7267,
+            "high": 314.7232,
+            "low": 289.7849,
+            "close": 306.29,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T22:00:00+00:00",
+            "open": 306.3,
+            "high": 306.31,
+            "low": 305.43,
+            "close": 305.6123,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T23:00:00+00:00",
+            "open": 305.64,
+            "high": 306.18,
+            "low": 305.18,
+            "close": 305.3988,
+            "volume": 0,
+            "period": "hour"
+          }
+        ],
+        "first_rth_minutes": [
+          {
+            "time": "2026-06-01T13:30:00+00:00",
+            "open": 309.5350036621094,
+            "high": 309.8999938964844,
+            "low": 308.5,
+            "close": 309.7799987792969,
+            "volume": 0,
+            "period": "minute"
+          },
+          {
+            "time": "2026-06-01T13:31:00+00:00",
+            "open": 309.69000244140625,
+            "high": 310.67999267578125,
+            "low": 309.3599853515625,
+            "close": 310.05499267578125,
+            "volume": 375498,
+            "period": "minute"
+          },
+          {
+            "time": "2026-06-01T13:32:00+00:00",
+            "open": 310.0000915527344,
+            "high": 310.0000915527344,
+            "low": 309.18499755859375,
+            "close": 309.260009765625,
+            "volume": 277473,
+            "period": "minute"
+          },
+          {
+            "time": "2026-06-01T13:33:00+00:00",
+            "open": 309.2799987792969,
+            "high": 310.3699951171875,
+            "low": 308.7300109863281,
+            "close": 310.2049865722656,
+            "volume": 244709,
+            "period": "minute"
+          },
+          {
+            "time": "2026-06-01T13:34:00+00:00",
+            "open": 310.20111083984375,
+            "high": 310.56500244140625,
+            "low": 309.8999938964844,
+            "close": 310.0299987792969,
+            "volume": 173861,
+            "period": "minute"
+          }
+        ]
+      },
+      "AMZN": {
+        "hourly_session": [
+          {
+            "time": "2026-06-01T08:00:00+00:00",
+            "open": 270.1512,
+            "high": 270.5088,
+            "low": 269.7,
+            "close": 269.91,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T09:00:00+00:00",
+            "open": 269.91,
+            "high": 270.2897,
+            "low": 268.72,
+            "close": 269.18,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T10:00:00+00:00",
+            "open": 268.9319,
+            "high": 269.5288,
+            "low": 268.21,
+            "close": 269.0,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T11:00:00+00:00",
+            "open": 269.12,
+            "high": 270.64,
+            "low": 268.01,
+            "close": 269.0844,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T12:00:00+00:00",
+            "open": 268.9,
+            "high": 269.2,
+            "low": 268.0,
+            "close": 268.4304,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T13:00:00+00:00",
+            "open": 268.53,
+            "high": 270.64,
+            "low": 265.67,
+            "close": 266.14,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T13:30:00+00:00",
+            "open": 266.2900085449219,
+            "high": 266.6300048828125,
+            "low": 262.30999755859375,
+            "close": 264.260009765625,
+            "volume": 12292922,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T14:30:00+00:00",
+            "open": 264.260009765625,
+            "high": 264.75,
+            "low": 262.75,
+            "close": 264.0498962402344,
+            "volume": 5899992,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T15:30:00+00:00",
+            "open": 264.0400085449219,
+            "high": 264.95001220703125,
+            "low": 261.5,
+            "close": 262.6899108886719,
+            "volume": 6461516,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T16:30:00+00:00",
+            "open": 262.7250061035156,
+            "high": 263.1300048828125,
+            "low": 260.70001220703125,
+            "close": 261.8699951171875,
+            "volume": 5258392,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T17:30:00+00:00",
+            "open": 261.8699951171875,
+            "high": 262.8500061035156,
+            "low": 261.32000732421875,
+            "close": 262.3500061035156,
+            "volume": 4873343,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T18:30:00+00:00",
+            "open": 262.3550109863281,
+            "high": 264.1600036621094,
+            "low": 262.32000732421875,
+            "close": 263.6499938964844,
+            "volume": 5143781,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T19:30:00+00:00",
+            "open": 263.6499938964844,
+            "high": 263.7300109863281,
+            "low": 261.0,
+            "close": 261.239990234375,
+            "volume": 6116509,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T20:00:00+00:00",
+            "open": 261.4,
+            "high": 271.85,
+            "low": 246.5713,
+            "close": 259.95,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T21:00:00+00:00",
+            "open": 259.7798,
+            "high": 261.26,
+            "low": 243.4802,
+            "close": 259.55,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T22:00:00+00:00",
+            "open": 259.55,
+            "high": 261.26,
+            "low": 258.22,
+            "close": 258.9986,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T23:00:00+00:00",
+            "open": 258.99,
+            "high": 259.65,
+            "low": 258.8,
+            "close": 259.64,
+            "volume": 0,
+            "period": "hour"
+          }
+        ],
+        "first_rth_minutes": [
+          {
+            "time": "2026-06-01T13:30:00+00:00",
+            "open": 266.2900085449219,
+            "high": 266.6300048828125,
+            "low": 263.05999755859375,
+            "close": 263.6882019042969,
+            "volume": 0,
+            "period": "minute"
+          },
+          {
+            "time": "2026-06-01T13:31:00+00:00",
+            "open": 263.55999755859375,
+            "high": 264.6679992675781,
+            "low": 263.3500061035156,
+            "close": 264.1650085449219,
+            "volume": 295082,
+            "period": "minute"
+          },
+          {
+            "time": "2026-06-01T13:32:00+00:00",
+            "open": 264.1650085449219,
+            "high": 264.6199951171875,
+            "low": 263.82000732421875,
+            "close": 264.3599853515625,
+            "volume": 244839,
+            "period": "minute"
+          },
+          {
+            "time": "2026-06-01T13:33:00+00:00",
+            "open": 264.3900146484375,
+            "high": 264.8900146484375,
+            "low": 264.1000061035156,
+            "close": 264.7200012207031,
+            "volume": 231975,
+            "period": "minute"
+          },
+          {
+            "time": "2026-06-01T13:34:00+00:00",
+            "open": 264.7200012207031,
+            "high": 265.8999938964844,
+            "low": 264.7200012207031,
+            "close": 265.69500732421875,
+            "volume": 204103,
+            "period": "minute"
+          }
+        ]
+      },
+      "GOOGL": {
+        "hourly_session": [
+          {
+            "time": "2026-06-01T08:00:00+00:00",
+            "open": 379.61,
+            "high": 380.2888,
+            "low": 376.41,
+            "close": 377.39,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T09:00:00+00:00",
+            "open": 377.6,
+            "high": 378.11,
+            "low": 376.86,
+            "close": 377.34,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T10:00:00+00:00",
+            "open": 377.34,
+            "high": 378.3711,
+            "low": 377.0946,
+            "close": 377.87,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T11:00:00+00:00",
+            "open": 377.862,
+            "high": 380.34,
+            "low": 376.5,
+            "close": 377.39,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T12:00:00+00:00",
+            "open": 377.21,
+            "high": 377.91,
+            "low": 376.91,
+            "close": 377.1,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T13:00:00+00:00",
+            "open": 377.1,
+            "high": 380.34,
+            "low": 375.16,
+            "close": 376.17,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T13:30:00+00:00",
+            "open": 376.6000061035156,
+            "high": 377.3800048828125,
+            "low": 373.5199890136719,
+            "close": 375.7200012207031,
+            "volume": 6643241,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T14:30:00+00:00",
+            "open": 375.7099914550781,
+            "high": 377.7049865722656,
+            "low": 375.1300048828125,
+            "close": 375.7300109863281,
+            "volume": 1980317,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T15:30:00+00:00",
+            "open": 375.760009765625,
+            "high": 376.5199890136719,
+            "low": 374.6825866699219,
+            "close": 375.0199890136719,
+            "volume": 1827752,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T16:30:00+00:00",
+            "open": 375.0101013183594,
+            "high": 378.0928039550781,
+            "low": 374.8399963378906,
+            "close": 378.0899963378906,
+            "volume": 1331541,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T17:30:00+00:00",
+            "open": 378.1199951171875,
+            "high": 378.4800109863281,
+            "low": 375.45001220703125,
+            "close": 377.3450012207031,
+            "volume": 2103847,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T18:30:00+00:00",
+            "open": 377.3550109863281,
+            "high": 378.3800048828125,
+            "low": 377.0299987792969,
+            "close": 378.32000732421875,
+            "volume": 1384073,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T19:30:00+00:00",
+            "open": 378.30999755859375,
+            "high": 378.54998779296875,
+            "low": 376.19000244140625,
+            "close": 376.3800048828125,
+            "volume": 1956108,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T20:00:00+00:00",
+            "open": 376.35,
+            "high": 381.3,
+            "low": 363.4996,
+            "close": 371.4234,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T21:00:00+00:00",
+            "open": 371.4218,
+            "high": 376.37,
+            "low": 355.2622,
+            "close": 369.45,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T22:00:00+00:00",
+            "open": 369.49,
+            "high": 376.37,
+            "low": 368.2516,
+            "close": 369.14,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T23:00:00+00:00",
+            "open": 369.14,
+            "high": 373.93,
+            "low": 369.1,
+            "close": 373.5086,
+            "volume": 0,
+            "period": "hour"
+          }
+        ],
+        "first_rth_minutes": [
+          {
+            "time": "2026-06-01T13:30:00+00:00",
+            "open": 376.6000061035156,
+            "high": 377.010009765625,
+            "low": 374.7300109863281,
+            "close": 376.489990234375,
+            "volume": 0,
+            "period": "minute"
+          },
+          {
+            "time": "2026-06-01T13:31:00+00:00",
+            "open": 376.489990234375,
+            "high": 377.3800048828125,
+            "low": 375.5,
+            "close": 376.57000732421875,
+            "volume": 208160,
+            "period": "minute"
+          },
+          {
+            "time": "2026-06-01T13:32:00+00:00",
+            "open": 376.55999755859375,
+            "high": 377.09991455078125,
+            "low": 376.19000244140625,
+            "close": 376.7080993652344,
+            "volume": 136753,
+            "period": "minute"
+          },
+          {
+            "time": "2026-06-01T13:33:00+00:00",
+            "open": 376.927001953125,
+            "high": 376.927001953125,
+            "low": 375.35009765625,
+            "close": 375.53009033203125,
+            "volume": 100841,
+            "period": "minute"
+          },
+          {
+            "time": "2026-06-01T13:34:00+00:00",
+            "open": 375.4596862792969,
+            "high": 375.989990234375,
+            "low": 375.2915954589844,
+            "close": 375.989990234375,
+            "volume": 88428,
+            "period": "minute"
+          }
+        ]
+      },
+      "META": {
+        "hourly_session": [
+          {
+            "time": "2026-06-01T08:00:00+00:00",
+            "open": 633.3864,
+            "high": 635.69,
+            "low": 632.17,
+            "close": 633.3122,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T09:00:00+00:00",
+            "open": 633.25,
+            "high": 633.65,
+            "low": 631.29,
+            "close": 631.74,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T10:00:00+00:00",
+            "open": 631.47,
+            "high": 632.56,
+            "low": 631.2162,
+            "close": 632.4288,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T11:00:00+00:00",
+            "open": 632.42,
+            "high": 635.0,
+            "low": 631.3152,
+            "close": 634.85,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T12:00:00+00:00",
+            "open": 634.55,
+            "high": 637.37,
+            "low": 630.929,
+            "close": 634.705,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T13:00:00+00:00",
+            "open": 634.565,
+            "high": 635.5,
+            "low": 626.5,
+            "close": 629.42,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T13:30:00+00:00",
+            "open": 629.4149780273438,
+            "high": 635.7498779296875,
+            "low": 609.8499755859375,
+            "close": 610.205810546875,
+            "volume": 6161308,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T14:30:00+00:00",
+            "open": 610.0700073242188,
+            "high": 616.0399780273438,
+            "low": 609.030029296875,
+            "close": 613.3699951171875,
+            "volume": 3400383,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T15:30:00+00:00",
+            "open": 613.4000244140625,
+            "high": 616.7896728515625,
+            "low": 610.4099731445312,
+            "close": 611.75,
+            "volume": 2286727,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T16:30:00+00:00",
+            "open": 611.780029296875,
+            "high": 612.3599853515625,
+            "low": 607.77001953125,
+            "close": 610.3499755859375,
+            "volume": 2160577,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T17:30:00+00:00",
+            "open": 610.3099975585938,
+            "high": 611.6699829101562,
+            "low": 606.280029296875,
+            "close": 607.6589965820312,
+            "volume": 3293086,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T18:30:00+00:00",
+            "open": 607.72998046875,
+            "high": 608.4000244140625,
+            "low": 604.8599853515625,
+            "close": 605.489990234375,
+            "volume": 3463618,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T19:30:00+00:00",
+            "open": 605.4000244140625,
+            "high": 605.9199829101562,
+            "low": 599.530029296875,
+            "close": 600.3699951171875,
+            "volume": 4398491,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T20:00:00+00:00",
+            "open": 600.3,
+            "high": 635.255,
+            "low": 597.19,
+            "close": 598.99,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T21:00:00+00:00",
+            "open": 598.976,
+            "high": 605.4377,
+            "low": 571.3382,
+            "close": 600.585,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T22:00:00+00:00",
+            "open": 600.5,
+            "high": 600.8,
+            "low": 597.925,
+            "close": 599.41,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T23:00:00+00:00",
+            "open": 599.7988,
+            "high": 601.0,
+            "low": 599.5,
+            "close": 600.61,
+            "volume": 0,
+            "period": "hour"
+          }
+        ],
+        "first_rth_minutes": [
+          {
+            "time": "2026-06-01T13:30:00+00:00",
+            "open": 629.4149780273438,
+            "high": 635.7498779296875,
+            "low": 629.2899780273438,
+            "close": 633.8499755859375,
+            "volume": 0,
+            "period": "minute"
+          },
+          {
+            "time": "2026-06-01T13:31:00+00:00",
+            "open": 633.9000244140625,
+            "high": 633.9000244140625,
+            "low": 626.5,
+            "close": 626.8900146484375,
+            "volume": 94128,
+            "period": "minute"
+          },
+          {
+            "time": "2026-06-01T13:32:00+00:00",
+            "open": 626.8900146484375,
+            "high": 627.010009765625,
+            "low": 622.3112182617188,
+            "close": 622.5549926757812,
+            "volume": 144745,
+            "period": "minute"
+          },
+          {
+            "time": "2026-06-01T13:33:00+00:00",
+            "open": 622.4600219726562,
+            "high": 622.5499877929688,
+            "low": 618.4600219726562,
+            "close": 619.5,
+            "volume": 173490,
+            "period": "minute"
+          },
+          {
+            "time": "2026-06-01T13:34:00+00:00",
+            "open": 619.6900024414062,
+            "high": 623.3134765625,
+            "low": 619.182373046875,
+            "close": 621.7899780273438,
+            "volume": 136460,
+            "period": "minute"
+          }
+        ]
+      },
+      "MSFT": {
+        "hourly_session": [
+          {
+            "time": "2026-06-01T08:00:00+00:00",
+            "open": 458.02,
+            "high": 464.75,
+            "low": 458.0,
+            "close": 462.55,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T09:00:00+00:00",
+            "open": 462.6,
+            "high": 466.1298,
+            "low": 461.9,
+            "close": 465.132,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T10:00:00+00:00",
+            "open": 465.1422,
+            "high": 465.45,
+            "low": 462.0,
+            "close": 464.78,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T11:00:00+00:00",
+            "open": 464.78,
+            "high": 470.58,
+            "low": 450.24,
+            "close": 470.573,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T12:00:00+00:00",
+            "open": 470.45,
+            "high": 472.1365,
+            "low": 466.11,
+            "close": 466.77,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T13:00:00+00:00",
+            "open": 466.75,
+            "high": 468.5,
+            "low": 450.24,
+            "close": 465.0,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T13:30:00+00:00",
+            "open": 465.05999755859375,
+            "high": 466.32000732421875,
+            "low": 458.9200134277344,
+            "close": 461.7950134277344,
+            "volume": 17895373,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T14:30:00+00:00",
+            "open": 461.8299865722656,
+            "high": 463.45001220703125,
+            "low": 459.1708068847656,
+            "close": 460.5799865722656,
+            "volume": 6423476,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T15:30:00+00:00",
+            "open": 460.6199951171875,
+            "high": 463.9100036621094,
+            "low": 459.20001220703125,
+            "close": 461.760009765625,
+            "volume": 4871854,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T16:30:00+00:00",
+            "open": 461.760009765625,
+            "high": 462.45001220703125,
+            "low": 459.5899963378906,
+            "close": 460.2799987792969,
+            "volume": 3061170,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T17:30:00+00:00",
+            "open": 460.3500061035156,
+            "high": 461.70001220703125,
+            "low": 458.2699890136719,
+            "close": 460.8699951171875,
+            "volume": 4257015,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T18:30:00+00:00",
+            "open": 460.8599853515625,
+            "high": 464.1199951171875,
+            "low": 460.05999755859375,
+            "close": 463.7699890136719,
+            "volume": 3592662,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T19:30:00+00:00",
+            "open": 463.7585144042969,
+            "high": 464.1499938964844,
+            "low": 460.0203857421875,
+            "close": 460.57000732421875,
+            "volume": 3640495,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T20:00:00+00:00",
+            "open": 460.52,
+            "high": 487.6942,
+            "low": 455.26,
+            "close": 455.93,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T21:00:00+00:00",
+            "open": 456.0,
+            "high": 481.1952,
+            "low": 425.909,
+            "close": 454.39,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T22:00:00+00:00",
+            "open": 454.4,
+            "high": 460.52,
+            "low": 451.5167,
+            "close": 452.9705,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T23:00:00+00:00",
+            "open": 452.9705,
+            "high": 453.2,
+            "low": 450.24,
+            "close": 452.39,
+            "volume": 0,
+            "period": "hour"
+          }
+        ],
+        "first_rth_minutes": [
+          {
+            "time": "2026-06-01T13:30:00+00:00",
+            "open": 465.05999755859375,
+            "high": 465.6199951171875,
+            "low": 462.510009765625,
+            "close": 465.135009765625,
+            "volume": 0,
+            "period": "minute"
+          },
+          {
+            "time": "2026-06-01T13:31:00+00:00",
+            "open": 465.0509948730469,
+            "high": 465.7799987792969,
+            "low": 462.4200134277344,
+            "close": 463.0799865722656,
+            "volume": 527314,
+            "period": "minute"
+          },
+          {
+            "time": "2026-06-01T13:32:00+00:00",
+            "open": 463.2799987792969,
+            "high": 463.69000244140625,
+            "low": 459.19000244140625,
+            "close": 459.20001220703125,
+            "volume": 546998,
+            "period": "minute"
+          },
+          {
+            "time": "2026-06-01T13:33:00+00:00",
+            "open": 459.32000732421875,
+            "high": 461.05999755859375,
+            "low": 458.9200134277344,
+            "close": 459.44500732421875,
+            "volume": 437488,
+            "period": "minute"
+          },
+          {
+            "time": "2026-06-01T13:34:00+00:00",
+            "open": 459.3443908691406,
+            "high": 460.8699035644531,
+            "low": 459.0849914550781,
+            "close": 460.5,
+            "volume": 275295,
+            "period": "minute"
+          }
+        ]
+      },
+      "NVDA": {
+        "hourly_session": [
+          {
+            "time": "2026-06-01T08:00:00+00:00",
+            "open": 215.77,
+            "high": 217.2607,
+            "low": 214.66,
+            "close": 214.82,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T09:00:00+00:00",
+            "open": 214.8,
+            "high": 215.7,
+            "low": 214.3,
+            "close": 214.9576,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T10:00:00+00:00",
+            "open": 214.9985,
+            "high": 215.478,
+            "low": 214.439,
+            "close": 215.19,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T11:00:00+00:00",
+            "open": 215.19,
+            "high": 216.3,
+            "low": 211.14,
+            "close": 216.0,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T12:00:00+00:00",
+            "open": 215.9803,
+            "high": 216.68,
+            "low": 215.65,
+            "close": 215.8394,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T13:00:00+00:00",
+            "open": 215.84,
+            "high": 216.5,
+            "low": 211.14,
+            "close": 215.7,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T13:30:00+00:00",
+            "open": 215.77999877929688,
+            "high": 222.1699981689453,
+            "low": 215.7050018310547,
+            "close": 221.3699951171875,
+            "volume": 69982504,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T14:30:00+00:00",
+            "open": 221.33999633789062,
+            "high": 222.08999633789062,
+            "low": 218.99000549316406,
+            "close": 219.39999389648438,
+            "volume": 24378990,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T15:30:00+00:00",
+            "open": 219.38999938964844,
+            "high": 222.3699951171875,
+            "low": 219.3300018310547,
+            "close": 221.9499969482422,
+            "volume": 17133641,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T16:30:00+00:00",
+            "open": 221.94000244140625,
+            "high": 222.39999389648438,
+            "low": 220.97000122070312,
+            "close": 221.9600067138672,
+            "volume": 15498968,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T17:30:00+00:00",
+            "open": 221.9600067138672,
+            "high": 224.66000366210938,
+            "low": 221.52999877929688,
+            "close": 224.61599731445312,
+            "volume": 20858418,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T18:30:00+00:00",
+            "open": 224.61000061035156,
+            "high": 224.8699951171875,
+            "low": 223.6699981689453,
+            "close": 224.0,
+            "volume": 17259685,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T19:30:00+00:00",
+            "open": 223.98069763183594,
+            "high": 224.43499755859375,
+            "low": 222.39999389648438,
+            "close": 224.4199981689453,
+            "volume": 14416592,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T20:00:00+00:00",
+            "open": 224.42,
+            "high": 224.86,
+            "low": 212.6,
+            "close": 224.4001,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T21:00:00+00:00",
+            "open": 224.4012,
+            "high": 237.9783,
+            "low": 215.286,
+            "close": 224.91,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T22:00:00+00:00",
+            "open": 224.871,
+            "high": 224.91,
+            "low": 221.46,
+            "close": 224.06,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T23:00:00+00:00",
+            "open": 224.06,
+            "high": 224.21,
+            "low": 223.57,
+            "close": 223.92,
+            "volume": 0,
+            "period": "hour"
+          }
+        ],
+        "first_rth_minutes": [
+          {
+            "time": "2026-06-01T13:30:00+00:00",
+            "open": 215.77999877929688,
+            "high": 217.55999755859375,
+            "low": 215.7050018310547,
+            "close": 216.86500549316406,
+            "volume": 0,
+            "period": "minute"
+          },
+          {
+            "time": "2026-06-01T13:31:00+00:00",
+            "open": 216.8625030517578,
+            "high": 219.1999969482422,
+            "low": 216.83999633789062,
+            "close": 218.26499938964844,
+            "volume": 4026743,
+            "period": "minute"
+          },
+          {
+            "time": "2026-06-01T13:32:00+00:00",
+            "open": 218.2100067138672,
+            "high": 219.78500366210938,
+            "low": 218.17010498046875,
+            "close": 219.3000946044922,
+            "volume": 2053012,
+            "period": "minute"
+          },
+          {
+            "time": "2026-06-01T13:33:00+00:00",
+            "open": 219.32000732421875,
+            "high": 220.10000610351562,
+            "low": 218.85000610351562,
+            "close": 218.9550018310547,
+            "volume": 2916192,
+            "period": "minute"
+          },
+          {
+            "time": "2026-06-01T13:34:00+00:00",
+            "open": 218.99000549316406,
+            "high": 219.16000366210938,
+            "low": 217.8699951171875,
+            "close": 217.97999572753906,
+            "volume": 1539405,
+            "period": "minute"
+          }
+        ]
+      },
+      "PLTR": {
+        "hourly_session": [
+          {
+            "time": "2026-06-01T08:00:00+00:00",
+            "open": 159.9,
+            "high": 160.88,
+            "low": 158.36,
+            "close": 158.62,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T09:00:00+00:00",
+            "open": 158.62,
+            "high": 159.7,
+            "low": 158.0032,
+            "close": 159.5,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T10:00:00+00:00",
+            "open": 159.5,
+            "high": 160.5,
+            "low": 158.97,
+            "close": 160.4,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T11:00:00+00:00",
+            "open": 160.4,
+            "high": 162.71,
+            "low": 156.54,
+            "close": 162.48,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T12:00:00+00:00",
+            "open": 162.48,
+            "high": 162.9232,
+            "low": 156.149,
+            "close": 161.57,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T13:00:00+00:00",
+            "open": 161.5882,
+            "high": 161.91,
+            "low": 143.295,
+            "close": 159.98,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T13:30:00+00:00",
+            "open": 159.97999572753906,
+            "high": 162.10000610351562,
+            "low": 156.08999633789062,
+            "close": 156.25999450683594,
+            "volume": 22401772,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T14:30:00+00:00",
+            "open": 156.2100067138672,
+            "high": 159.72000122070312,
+            "low": 155.8800048828125,
+            "close": 159.60499572753906,
+            "volume": 7316838,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T15:30:00+00:00",
+            "open": 159.60499572753906,
+            "high": 161.22999572753906,
+            "low": 159.5449981689453,
+            "close": 160.97349548339844,
+            "volume": 5307562,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T16:30:00+00:00",
+            "open": 160.97999572753906,
+            "high": 162.3699951171875,
+            "low": 160.86000061035156,
+            "close": 161.99000549316406,
+            "volume": 4805511,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T17:30:00+00:00",
+            "open": 162.02000427246094,
+            "high": 163.6898956298828,
+            "low": 161.86000061035156,
+            "close": 162.67999267578125,
+            "volume": 4489666,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T18:30:00+00:00",
+            "open": 162.67999267578125,
+            "high": 162.82000732421875,
+            "low": 160.8699951171875,
+            "close": 160.9149932861328,
+            "volume": 4824798,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T19:30:00+00:00",
+            "open": 160.88999938964844,
+            "high": 161.1468963623047,
+            "low": 160.27999877929688,
+            "close": 160.63999938964844,
+            "volume": 3921135,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T20:00:00+00:00",
+            "open": 160.65,
+            "high": 160.88,
+            "low": 148.7146,
+            "close": 159.3001,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T21:00:00+00:00",
+            "open": 159.3,
+            "high": 165.7925,
+            "low": 154.4416,
+            "close": 158.88,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T22:00:00+00:00",
+            "open": 158.8633,
+            "high": 160.65,
+            "low": 156.6562,
+            "close": 157.42,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T23:00:00+00:00",
+            "open": 157.57,
+            "high": 158.2,
+            "low": 157.06,
+            "close": 158.1497,
+            "volume": 0,
+            "period": "hour"
+          }
+        ],
+        "first_rth_minutes": [
+          {
+            "time": "2026-06-01T13:30:00+00:00",
+            "open": 159.97999572753906,
+            "high": 160.47999572753906,
+            "low": 157.45010375976562,
+            "close": 157.64720153808594,
+            "volume": 0,
+            "period": "minute"
+          },
+          {
+            "time": "2026-06-01T13:31:00+00:00",
+            "open": 157.73989868164062,
+            "high": 159.0800018310547,
+            "low": 157.3000030517578,
+            "close": 157.92999267578125,
+            "volume": 508393,
+            "period": "minute"
+          },
+          {
+            "time": "2026-06-01T13:32:00+00:00",
+            "open": 158.0,
+            "high": 158.2899932861328,
+            "low": 157.27999877929688,
+            "close": 157.46949768066406,
+            "volume": 522812,
+            "period": "minute"
+          },
+          {
+            "time": "2026-06-01T13:33:00+00:00",
+            "open": 157.5800018310547,
+            "high": 158.0800018310547,
+            "low": 157.0157928466797,
+            "close": 157.47000122070312,
+            "volume": 422681,
+            "period": "minute"
+          },
+          {
+            "time": "2026-06-01T13:34:00+00:00",
+            "open": 157.4550018310547,
+            "high": 158.0,
+            "low": 157.0,
+            "close": 157.83749389648438,
+            "volume": 406634,
+            "period": "minute"
+          }
+        ]
+      },
+      "TSLA": {
+        "hourly_session": [
+          {
+            "time": "2026-06-01T08:00:00+00:00",
+            "open": 431.54,
+            "high": 432.567,
+            "low": 429.96,
+            "close": 430.22,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T09:00:00+00:00",
+            "open": 430.3,
+            "high": 431.76,
+            "low": 429.5,
+            "close": 429.5,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T10:00:00+00:00",
+            "open": 429.37,
+            "high": 430.71,
+            "low": 428.87,
+            "close": 430.5756,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T11:00:00+00:00",
+            "open": 430.5,
+            "high": 435.79,
+            "low": 429.25,
+            "close": 429.4206,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T12:00:00+00:00",
+            "open": 429.42,
+            "high": 436.879,
+            "low": 429.03,
+            "close": 429.7401,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T13:00:00+00:00",
+            "open": 429.7386,
+            "high": 430.29,
+            "low": 427.1251,
+            "close": 427.4,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T13:30:00+00:00",
+            "open": 427.3800048828125,
+            "high": 429.29998779296875,
+            "low": 421.20001220703125,
+            "close": 421.6700134277344,
+            "volume": 10588571,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T14:30:00+00:00",
+            "open": 421.6600036621094,
+            "high": 422.2900085449219,
+            "low": 418.6499938964844,
+            "close": 421.9100036621094,
+            "volume": 7054415,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T15:30:00+00:00",
+            "open": 421.9150085449219,
+            "high": 424.1000061035156,
+            "low": 418.3500061035156,
+            "close": 418.79998779296875,
+            "volume": 5880040,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T16:30:00+00:00",
+            "open": 418.79998779296875,
+            "high": 421.260009765625,
+            "low": 418.760009765625,
+            "close": 420.9200134277344,
+            "volume": 3629599,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T17:30:00+00:00",
+            "open": 420.9800109863281,
+            "high": 421.7099914550781,
+            "low": 419.5600891113281,
+            "close": 420.1549987792969,
+            "volume": 3113734,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T18:30:00+00:00",
+            "open": 420.1549987792969,
+            "high": 420.19000244140625,
+            "low": 418.0799865722656,
+            "close": 418.2699890136719,
+            "volume": 3983030,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T19:30:00+00:00",
+            "open": 418.25,
+            "high": 418.4599914550781,
+            "low": 415.4599914550781,
+            "close": 415.7099914550781,
+            "volume": 5016375,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T20:00:00+00:00",
+            "open": 415.71,
+            "high": 422.95,
+            "low": 415.23,
+            "close": 415.6,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T21:00:00+00:00",
+            "open": 415.55,
+            "high": 432.7936,
+            "low": 415.13,
+            "close": 415.26,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T22:00:00+00:00",
+            "open": 415.25,
+            "high": 415.88,
+            "low": 413.25,
+            "close": 414.2,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-01T23:00:00+00:00",
+            "open": 414.2,
+            "high": 414.2,
+            "low": 413.45,
+            "close": 413.5507,
+            "volume": 0,
+            "period": "hour"
+          }
+        ],
+        "first_rth_minutes": [
+          {
+            "time": "2026-06-01T13:30:00+00:00",
+            "open": 427.3800048828125,
+            "high": 429.29998779296875,
+            "low": 424.4100036621094,
+            "close": 424.54229736328125,
+            "volume": 0,
+            "period": "minute"
+          },
+          {
+            "time": "2026-06-01T13:31:00+00:00",
+            "open": 424.8598937988281,
+            "high": 425.7499084472656,
+            "low": 424.1000061035156,
+            "close": 424.4898986816406,
+            "volume": 284984,
+            "period": "minute"
+          },
+          {
+            "time": "2026-06-01T13:32:00+00:00",
+            "open": 424.4898986816406,
+            "high": 424.89990234375,
+            "low": 424.1300048828125,
+            "close": 424.5199890136719,
+            "volume": 237893,
+            "period": "minute"
+          },
+          {
+            "time": "2026-06-01T13:33:00+00:00",
+            "open": 424.5249938964844,
+            "high": 424.5899963378906,
+            "low": 423.6000061035156,
+            "close": 423.79998779296875,
+            "volume": 280486,
+            "period": "minute"
+          },
+          {
+            "time": "2026-06-01T13:34:00+00:00",
+            "open": 423.7781066894531,
+            "high": 424.389892578125,
+            "low": 423.75,
+            "close": 424.3099060058594,
+            "volume": 184413,
+            "period": "minute"
+          }
+        ]
+      }
+    }
+  },
+  "ai_conclusion": {
+    "grok": {
+      "provider": "grok",
+      "status": "completed",
+      "parse_status": "parsed_json",
+      "raw_response": "{\n  \"daily_assessment\": \"Net loss of -$699 driven by MSFT long stop-out (-$324 realized) and AAPL short unrealized loss; profitable shorts in AMZN/GOOGL/META + NVDA long offset some damage. MAG7 regime produced mixed directional signals with 5/6 open positions showing volatility post 13:30 UTC RTH open.\",\n  \"what_went_well\": [\n    \"AMZN short entry ~263.14 profitable (+$270 unrealized, current 258.045); 13:30-14:30 UTC hourly candle closed 264.05 after low 262.31\",\n    \"GOOGL short entry ~375.33 profitable (+$268); 13:30 UTC first RTH 5-min closed 376.49 then trended lower\",\n    \"META short +$21 and NVDA long +$153 unrealized with positive slope continuation in NVDA 13:30-17:30 UTC candles (close 224.62)\",\n    \"Multiple MAG7 shorts captured post-open weakness per EMA-slope logic\"\n  ],\n  \"what_went_wrong\": [\n    \"MSFT long buy 459.52 stopped at 448.71 (-$324, -2.35%); 13:30-13:32 UTC first RTH minutes dropped sharply from 465.14 open to 459.20 close\",\n    \"AAPL short entry 306.71 underwater (-$371 unrealized, current 314.96); 13:30-14:30 UTC hourly low 306.30 but recovered to close 306.58\",\n    \"TSLA short slightly negative (-$56); 13:30-15:30 UTC session showed range 421.67-418.80 with close 418.80\",\n    \"7 unpaired filled orders and 12 pending exit orders indicate incomplete trade lifecycle management\",\n    \"Earnings scanner (PLTR) generated no broker activity despite 13:30 UTC volatility (close 156.26 from 159.98)\"\n  ],\n  \"successful_trade_lessons\": [\n    \"Shorting names with negative EMA slope and price below band captured continuation moves in AMZN/GOOGL (13:30 UTC breakdown candles)\",\n    \"NVDA long worked on positive slope >0 and price > EMA*(1+band) during 13:30-17:30 UTC rally to 224.62\"\n  ],\n  \"unsuccessful_trade_lessons\": [\n    \"MSFT long triggered but 13:30 UTC first 5-min candle (high 465.62 to low 459.19) showed immediate reversal invalidating signal; need stronger slope confirmation or volume filter\",\n    \"AAPL/TSLA shorts entered near session lows but failed to hold (AAPL recovered above 310 in later hours); avoid entries into potential support without tighter risk\"\n  ],\n  \"recommended_actions\": [\n    \"Tighten _band and _slope_len parameters or add volume confirmation to _evaluate_signal_with_price\",\n    \"Monitor and manually manage or cancel stale open exit orders on AAPL/TSLA if not filled by EOD\",\n    \"Reduce position sizing or add daily loss limit given -$699 day and open short exposure\",\n    \"Pause new MAG7 entries until review of 13:30 UTC RTH candle performance\"\n  ],\n  \"mag7_ticker_changes\": {\n    \"add\": [],\n    \"remove\": [\"MSFT\"],\n    \"rationale\": \"MSFT was only closed unsuccessful trade (-2.35% on stop); 13:30 UTC RTH minutes exhibited sharp reversal not aligned with sustained positive slope. AMD unobserved today.\"\n  },\n  \"new_strategy_ideas\": [\n    \"Add first-5min RTH volume spike filter to earnings scanner before placing low-of-candle limit buys\",\n    \"Develop regime filter: only allow shorts when SPX or sector ETF shows negative hourly slope to reduce correlated MAG7 drawdowns\"\n  ],\n  \"risk_controls\": [\n    \"Cap total MAG7 notional at 15% portfolio; current ~6 shorts + 1 long is concentrated\",\n    \"Implement max daily realized loss of 0.5% NAV before pausing strategies\",\n    \"Require at least 2 consecutive hourly candles confirming slope before entry signal\"\n  ],\n  \"confidence\": 65\n}",
+      "parsed": {
+        "daily_assessment": "Net loss of -$699 driven by MSFT long stop-out (-$324 realized) and AAPL short unrealized loss; profitable shorts in AMZN/GOOGL/META + NVDA long offset some damage. MAG7 regime produced mixed directional signals with 5/6 open positions showing volatility post 13:30 UTC RTH open.",
+        "what_went_well": [
+          "AMZN short entry ~263.14 profitable (+$270 unrealized, current 258.045); 13:30-14:30 UTC hourly candle closed 264.05 after low 262.31",
+          "GOOGL short entry ~375.33 profitable (+$268); 13:30 UTC first RTH 5-min closed 376.49 then trended lower",
+          "META short +$21 and NVDA long +$153 unrealized with positive slope continuation in NVDA 13:30-17:30 UTC candles (close 224.62)",
+          "Multiple MAG7 shorts captured post-open weakness per EMA-slope logic"
+        ],
+        "what_went_wrong": [
+          "MSFT long buy 459.52 stopped at 448.71 (-$324, -2.35%); 13:30-13:32 UTC first RTH minutes dropped sharply from 465.14 open to 459.20 close",
+          "AAPL short entry 306.71 underwater (-$371 unrealized, current 314.96); 13:30-14:30 UTC hourly low 306.30 but recovered to close 306.58",
+          "TSLA short slightly negative (-$56); 13:30-15:30 UTC session showed range 421.67-418.80 with close 418.80",
+          "7 unpaired filled orders and 12 pending exit orders indicate incomplete trade lifecycle management",
+          "Earnings scanner (PLTR) generated no broker activity despite 13:30 UTC volatility (close 156.26 from 159.98)"
+        ],
+        "successful_trade_lessons": [
+          "Shorting names with negative EMA slope and price below band captured continuation moves in AMZN/GOOGL (13:30 UTC breakdown candles)",
+          "NVDA long worked on positive slope >0 and price > EMA*(1+band) during 13:30-17:30 UTC rally to 224.62"
+        ],
+        "unsuccessful_trade_lessons": [
+          "MSFT long triggered but 13:30 UTC first 5-min candle (high 465.62 to low 459.19) showed immediate reversal invalidating signal; need stronger slope confirmation or volume filter",
+          "AAPL/TSLA shorts entered near session lows but failed to hold (AAPL recovered above 310 in later hours); avoid entries into potential support without tighter risk"
+        ],
+        "recommended_actions": [
+          "Tighten _band and _slope_len parameters or add volume confirmation to _evaluate_signal_with_price",
+          "Monitor and manually manage or cancel stale open exit orders on AAPL/TSLA if not filled by EOD",
+          "Reduce position sizing or add daily loss limit given -$699 day and open short exposure",
+          "Pause new MAG7 entries until review of 13:30 UTC RTH candle performance"
+        ],
+        "mag7_ticker_changes": {
+          "add": [],
+          "remove": [
+            "MSFT"
+          ],
+          "rationale": "MSFT was only closed unsuccessful trade (-2.35% on stop); 13:30 UTC RTH minutes exhibited sharp reversal not aligned with sustained positive slope. AMD unobserved today."
+        },
+        "new_strategy_ideas": [
+          "Add first-5min RTH volume spike filter to earnings scanner before placing low-of-candle limit buys",
+          "Develop regime filter: only allow shorts when SPX or sector ETF shows negative hourly slope to reduce correlated MAG7 drawdowns"
+        ],
+        "risk_controls": [
+          "Cap total MAG7 notional at 15% portfolio; current ~6 shorts + 1 long is concentrated",
+          "Implement max daily realized loss of 0.5% NAV before pausing strategies",
+          "Require at least 2 consecutive hourly candles confirming slope before entry signal"
+        ],
+        "confidence": 65
+      },
+      "error": null
+    },
+    "gemini": {
+      "provider": "gemini",
+      "status": "completed",
+      "parse_status": "parsed_json",
+      "raw_response": "# Comprehensive Quantitative and Fundamental Analysis of Technology Equities and Automated Trading Systems: June 2026\n\n**Key Points:**\n*   **System Performance:** The automated trading system realized a daily PnL of -$699.06, heavily impacted by an unsuccessful long position in Microsoft (MSFT) and an underwater short position in Apple (AAPL).\n*   **Macroeconomic Headwinds:** Research suggests that escalating AI capital expenditures (CapEx)\u2014projected to reach $1 trillion by 2027\u2014are creating investor fatigue and free cash flow compression among mega-cap tech companies [cite: 1, 2].\n*   **Sector Rotation:** Evidence leans toward a sustained rotation into small-cap value equities, which have outperformed large-cap growth by approximately 9% year-to-date in 2026 [cite: 3, 4].\n*   **Catalyst Vulnerability:** The purely technical algorithmic strategies (EMA + Slope) appear highly vulnerable to fundamental event risk, particularly around major product conferences (e.g., AAPL at WWDC, NVDA at Computex) and earnings guidance misses [cite: 5, 6, 7].\n*   **Strategic Adjustments:** It seems likely that replacing capex-burdened laggards with hyper-growth enterprise software equities (e.g., adding PLTR, removing MSFT) will improve the portfolio's risk-adjusted returns [cite: 8, 9].\n\nThe current market environment of June 2026 presents a highly complex landscape for quantitative equity trading. While broad indices hover near record highs, underlying market breadth has shifted significantly. Investors are increasingly scrutinizing the massive capital expenditure cycles of hyperscale technology companies, weighing long-term AI infrastructure dominance against short-term margin compression. Concurrently, a pronounced rotation into small-cap value equities has materialized, rewarding companies with robust current earnings over speculative growth. This report provides an exhaustive, academic-grade analysis of these macroeconomic trends, followed by a granular fundamental review of the \"Magnificent 7\" (MAG7) technology stocks. The latter half of this document critically evaluates the performance of a proprietary automated trading system operating on June 1-2, 2026, dissecting its algorithmic logic, execution efficiency, and overall portfolio risk metrics, ultimately culminating in actionable strategic recommendations.\n\n***\n\n## 1. Macroeconomic Context: The Trillion-Dollar AI Capital Expenditure Cycle\n\nThe defining macroeconomic narrative of mid-2026 is the staggering acceleration of artificial intelligence capital expenditures (CapEx) by the world's largest technology companies. Following the Q1 2026 earnings season in late April and May, it became evident that the \"hyperscalers\"\u2014Amazon, Microsoft, Alphabet, and Meta\u2014are engaged in an unprecedented infrastructure arms race. \n\n### 1.1 Unprecedented Infrastructure Investment\nFinancial institutions, including Goldman Sachs, Bank of America, and Evercore, have aggressively revised their CapEx projections upward. Current consensus estimates suggest that hyperscaler CapEx will exceed $560 billion in 2026 alone, representing a 38% year-over-year increase [cite: 10]. Furthermore, projections indicate that total infrastructure spending by the major AI platform companies will cross the $1 trillion threshold in 2027 [cite: 1, 11]. To contextualize this scale, Amazon committed to approximately $200 billion in 2026 capital expenditures, marking the largest single corporate infrastructure commitment in American history [cite: 1]. Microsoft set its 2026 CapEx at $190 billion\u2014$55 billion above average analyst estimates\u2014driven heavily by rising memory chip and component costs [cite: 1, 7]. Alphabet raised its guidance to between $180 billion and $190 billion, while Meta nearly doubled its 2025 actuals to guide for $125 billion to $145 billion [cite: 1]. \n\n### 1.2 Market Reaction and Cash Flow Compression\nThe market's reaction to these gargantuan spending plans has been mixed. While the investments secure long-term compute capacity, they severely compress near-term free cash flow (FCF). For example, Amazon's trailing twelve-month FCF collapsed 71% year-over-year to $11.2 billion, as capital spending consumed 94.5% of operating cash flow [cite: 12, 13]. Investors are increasingly anxious about the monetization timeline of AI agents and whether these multi-billion-dollar expenditures will yield proportionate returns compared to traditional software models [cite: 14]. This skepticism has created significant volatility in mega-cap technology equities, severely impacting automated trend-following strategies that rely on smooth price action. \n\n***\n\n## 2. Sector Rotation: The Resurgence of Small-Cap Value\n\nAs the MAG7 narrative has shown signs of fracturing under the weight of CapEx concerns, a historic sector rotation has taken hold in 2026. Small-cap value equities have staged a massive comeback, fundamentally breaking the large-cap growth dominance that characterized the previous decade.\n\n### 2.1 Outperformance Metrics\nBy early June 2026, small-cap value had crushed large-cap growth by approximately 9 percentage points year-to-date [cite: 3, 4]. The Avantis U.S. Small Cap Value ETF (AVUV), which utilizes an active overlay to target small-cap companies combining cheap valuations with high profitability, returned 18% year-to-date and 38% over the trailing year, significantly outperforming broader benchmarks [cite: 3, 15]. Similarly, the iShares S&P SmallCap 600 Value ETF (IJS) returned 15% YTD, and the Vanguard Small-Cap Value ETF (VBR) returned 11% [cite: 3].\n\n### 2.2 Drivers of the Value Premium\nThis rotation is driven by fundamental valuation disconnects. JPMorgan's 2026 outlook noted that MAG7 earnings growth was projected near 20%, leaving the rest of the S&P 500 priced for far more than it was delivering [cite: 3]. Morningstar highlighted that the top 10 U.S. stocks accounted for over a third of the market\u2014an unsustainable concentration\u2014prompting investors to diversify into discounted U.S. small caps with minimal AI exposure [cite: 3]. Despite headwinds such as rising Treasury yields (hovering around 4.5%) and sticky inflation (April CPI at 3.8%), companies with strong current earnings and stable cash generation have continued to attract institutional capital [cite: 15]. For quantitative trading systems heavily concentrated in the MAG7, this structural rotation presents a systemic headwind that must be hedged through universe expansion.\n\n***\n\n## 3. Fundamental and Technical Analysis of Key Equities\n\nTo contextualize the automated system's trading performance, we must conduct a deep fundamental analysis of the equities targeted by the algorithms during the June 1-2, 2026 trading window.\n\n### 3.1 Microsoft (MSFT): Capital Expenditure and Security Headwinds\nMicrosoft's recent trajectory perfectly encapsulates the tension between strong operational growth and massive infrastructure costs. In its Q3 2026 report (released in late April), Microsoft beat expectations with EPS of $4.27 and revenue of $82.89 billion (up 18.3% YoY) [cite: 7, 16, 17]. Intelligent Cloud revenue reached $34.68 billion, and commercial remaining performance obligations nearly doubled to $627 billion [cite: 16, 17]. \n\nHowever, forward guidance disappointed Wall Street. CFO Amy Hood projected Q4 revenue between $86.7 billion and $87.8 billion, trailing the consensus estimate of $87.53 billion, implying a drop in operating margins to 44% [cite: 7]. Exacerbating this was the announcement of $190 billion in 2026 CapEx, catching investors by surprise [cite: 1, 7]. Furthermore, in late May and early June 2026, Microsoft faced severe backlash over a zero-day vulnerability known as \"BlueHammer\" (CVE-2026-33825), which affected Windows Defender. The company issued legal threats against security researchers who disclosed the flaw, igniting a public relations crisis [cite: 18]. Additionally, enterprise administrators were forced to navigate a complex Secure Boot certificate rollover in June, adding operational friction to Microsoft's ecosystem [cite: 19, 20]. These compounding negative catalysts created a highly bearish technical environment for MSFT in early June.\n\n### 3.2 Nvidia (NVDA): Cementing Dominance at Computex 2026\nIn stark contrast to Microsoft, Nvidia enjoyed a barrage of positive catalysts. At the Computex Taipei exhibition on June 1-2, 2026, CEO Jensen Huang delivered a keynote announcing the company's aggressive entry into the PC market with the \"RTX Spark\" superchip [cite: 6, 21]. This architecture combines Blackwell GPUs with N1X CPUs, directly challenging Intel and AMD in the personal computing space [cite: 6, 22]. Nvidia also unveiled DLSS 4.5 Ray Reconstruction and updated its data center roadmap with \"Vera Rubin\" and \"Rosa Feynman\" architectures [cite: 6, 23]. \n\nFinancially, Nvidia's Q1 FY2027 revenue hit a historical high of $81.6 billion, with Q2 guidance set at $91 billion [cite: 24]. Despite a staggering $5.1 trillion market capitalization, models from GuruFocus indicated a GF Value of $336.11, suggesting the stock was significantly undervalued at its June price levels of ~$225-$230 [cite: 24, 25]. This robust fundamental backdrop created relentless bullish momentum for NVDA.\n\n### 3.3 Apple (AAPL): The 'Apple Intelligence' Catalyst at WWDC\nApple entered June 2026 on the precipice of its most important Worldwide Developers Conference (WWDC) in years, scheduled for June 8-12 [cite: 26, 27]. Analysts, including Morgan Stanley's Erik Woodring, identified WWDC as a \"key catalyst\" that could reframe Apple as an \"AI winner,\" assigning a bull-case price target of $440 [cite: 28, 29]. The highly anticipated announcement of iOS 27 features a massive overhaul of Siri, expected to be powered by a custom Google Gemini model to deliver \"Agentic AI\" capabilities [cite: 5, 30]. \n\nApple's Q2 2026 financials supported this optimism, with revenue climbing 16.6% YoY to $111.2 billion, driven by extraordinary demand for the iPhone 17 and a record $30.98 billion in Services revenue [cite: 5, 31, 32]. The company also authorized a $100 billion buyback [cite: 32]. The sheer gravity of the WWDC catalyst effectively placed a floor under AAPL's stock price, making any short positions highly susceptible to violent squeezes.\n\n### 3.4 Amazon (AMZN): AWS Acceleration vs. Free Cash Flow Contraction\nAmazon's Q1 2026 results showcased massive top-line strength, with revenue up 17% YoY to $181.5 billion [cite: 33, 34]. AWS revenue accelerated to 28% YoY growth, hitting an annualized run rate of $150 billion [cite: 33, 34]. However, AMZN's stock struggled under the weight of its own infrastructure ambitions. The company guided for $200 billion in 2026 CapEx, driving a severe 71% YoY collapse in Free Cash Flow down to $11.2 billion [cite: 12, 13]. For Q2 2026, Amazon guided for operating income between $20.0 billion and $24.0 billion, which included $1 billion in costs for Amazon Leo satellite manufacturing [cite: 33, 34]. The market punished AMZN for prioritizing perpetual scale over shareholder returns, making it an attractive target for short-side technical strategies.\n\n### 3.5 Palantir Technologies (PLTR): Defying Enterprise Software Gravity\nPalantir (PLTR) emerged as one of the most explosive fundamental growth stories in the software sector. In Q1 2026, Palantir reported an 85% YoY revenue growth rate to $1.633 billion, its highest ever as a public company [cite: 8, 9, 35]. More critically, U.S. Commercial revenue skyrocketed 133% YoY to $595 million, proving that its Artificial Intelligence Platform (AIP) was successfully securing massive enterprise adoption [cite: 8, 9, 36]. CEO Alex Karp noted the company's \"Rule of 40 score has soared to 145%\" [cite: 9]. Management raised full-year 2026 revenue guidance to between $7.65 billion and $7.66 billion [cite: 9, 36]. Despite trading at a premium valuation (P/E over 180x), Palantir's hyper-growth profile cemented it as an ideal candidate for quantitative momentum and earnings-breakout strategies [cite: 37, 38].\n\n***\n\n## 4. Quantitative Automated Trading Performance Review\n\nOn June 1-2, 2026, the proprietary automated trading system executed logic across multiple strategies, primarily focusing on the MAG7 universe and an AI-consensus earnings scanner. The overall performance was deeply suboptimal, exposing critical flaws in the system's reliance on lagging technical indicators during high-volatility fundamental windows.\n\n### 4.1 Portfolio and P&L Overview\n*   **Trading Day:** 2026-06-01\n*   **Baseline NAV:** $103,592.94\n*   **Current NAV:** $102,893.88\n*   **Daily PnL:** -$699.06\n*   **Realized Trade PnL:** -$324.48 (from a single closed pair)\n*   **Open Position Unrealized PnL:** +$285.46\n*   **Buying Power:** $286,942.68 (Cash: $158,195.11)\n\nThe portfolio currently holds six open positions: Short AAPL (-45 shares), Short AMZN (-53 shares), Short GOOGL (-37 shares), Short META (-23 shares), Long NVDA (63 shares), and Short TSLA (-33 shares). The system also holds 7 unpaired filled orders, indicating that entry conditions were met, but exit logic (take-profit or trailing stops) failed to trigger within the report day.\n\n### 4.2 Unsuccessful Trade Analysis: The MSFT Long Trap\nThe system executed one fully closed trade pair, which resulted in a definitive loss:\n*   **Ticker:** MSFT (Long)\n*   **Quantity:** 30 shares\n*   **Entry:** $459.522 at 2026-06-01 16:09:59 UTC\n*   **Exit:** $448.706 at 2026-06-02 13:36:31 UTC (Triggered via Stop Loss at $445.74)\n*   **Realized PnL:** -$324.48 (-2.35%)\n\n**Candlestick Forensic Analysis:** \nAt the time of entry (16:09 UTC, or 12:09 NY time), MSFT was trading within the 16:30 UTC hourly candle, which posted an Open of 461.76, a High of 462.45, a Low of 459.58, and a Close of 460.27. The 5-minute First RTH minute data confirms that at the US open (13:30 UTC / 9:30 NY), MSFT experienced a brief surge to 466.32. The algorithmic `_evaluate_signal_with_price` function calculates an Exponential Moving Average (EMA) and its slope. Because MSFT had gapped up and was maintaining price above the EMA + band, with a positive slope, the system triggered a long position. \n\nHowever, this purely technical signal completely ignored the fundamental reality. The market was actively digesting Microsoft's weak Q4 guidance, the shocking $190B CapEx bill [cite: 7], and the escalating PR crisis surrounding the BlueHammer zero-day vulnerability [cite: 18]. By the end of the regular session (20:00 UTC), MSFT plummeted to 455.93, and continued to bleed in the after-hours session. The stop-loss exit was a mechanical inevitability caused by the algorithm's inability to parse negative headline sentiment.\n\n### 4.3 Open Position Vulnerabilities: The AAPL Short Squeeze\nThe system holds a highly toxic short position in AAPL:\n*   **Ticker:** AAPL (Short)\n*   **Quantity:** -45 shares\n*   **Entry:** $306.71 at 2026-06-01 16:10:04 UTC\n*   **Current Price:** $314.96\n*   **Unrealized PnL:** -$371.25 (-2.68%)\n\n**Candlestick Forensic Analysis:**\nAAPL was shorted at 16:10 UTC during a brief intraday dip. The 16:30 UTC hourly candle hit a low of 305.02. The EMA slope logic detected this downward momentum and triggered a sell. However, the system failed to account for the massive gravitational pull of the upcoming WWDC 2026 conference (June 8) [cite: 26, 27]. As Wall Street analysts reiterated $440 price targets based on Apple's integration of Agentic AI and Gemini [cite: 5, 28], buyers rushed in. By 21:00 UTC (after hours), the price surged violently to 314.72. The short position is currently bleeding and is at extreme risk of further squeezing as WWDC approaches.\n\n### 4.4 Successful Signal Alignments\nConversely, the algorithm found success when its technical signals coincidentally aligned with prevailing fundamental catalysts.\n*   **NVDA (Long):** 63 shares at $220.35. Current price $222.78. (+1.10% Unrealized). This technical entry aligned perfectly with Jensen Huang's Computex keynote, where the RTX Spark was announced [cite: 6]. \n*   **AMZN (Short):** -53 shares at $263.14. Current price $258.04. (+1.93% Unrealized). The algorithm detected the downward momentum caused by investor exhaustion over Amazon's $200B CapEx announcement [cite: 12].\n*   **GOOGL (Short):** -37 shares at $375.33. Current price $368.08. (+1.93% Unrealized). \n\n### 4.5 Execution and Order Logic Review\nThe system holds 7 unpaired filled orders. These are entries executed as market or limit orders where the corresponding exits (Take Profit / Stop Loss) were either not triggered or remain pending. For example, the AMZN exit limit is set at 247.35, and the stop is at 271.03. The exit logic relies on `_sync_position_exits` evaluating live data against `STOP_LOSS_PCT`. The execution engine correctly managed order lifecycle states, but the parameter spacing (take profit targets) may be too wide for the current volatility regime.\n\n***\n\n## 5. Algorithmic Strategy Logic: Critique and Optimization\n\nThe provided Python strategy snippets reveal significant vulnerabilities in the system's current implementation, necessitating immediate refactoring.\n\n### 5.1 The MAG7 EMA Slope Regime (`mag7`)\nThe core logic resides in `_evaluate_signal_with_price`. The mathematical basis is a standard Exponential Moving Average:\n\\[ \\text{EMA}_t = \\text{Price}_t \\times \\alpha + \\text{EMA}_{t-1} \\times (1 - \\alpha) \\]\nWhere \\(\\alpha\\) is derived from `self._ema_period`. The signal logic dictates:\n```python\nlong_signal = (price > (ema_value * (1.0 + self._band))) and (slope_value > 0.0)\nshort_signal = (price < (ema_value * (1.0 - self._band))) and (slope_value < 0.0)\n```\n**Critique:** This implementation is highly reactive and purely price-derivative. It possesses zero awareness of exogenous event risks (Earnings dates, product keynotes). In high-beta, heavily scrutinized equities like the MAG7, price action frequently exhibits \"fake-outs\" where algorithms are lured into a trade just before a major fundamental re-rating occurs (as seen with AAPL and MSFT). \n**Optimization:** Introduce a \"Catalyst Blackout Window.\" The algorithm must query an economic/earnings calendar and suppress `long_signal` and `short_signal` evaluation within 7 days of a known major event (e.g., WWDC, Computex, Earnings releases).\n\n### 5.2 The Earnings Strategy Scanner (`earnings`)\nThe `_run_ai_scanner` correctly identified and cached `PLTR` based on AI consensus. However, the execution logic `_process_entry_candle_tick` completely failed to acquire a position.\n**Critique:** The logic relies on capturing the first 5-minute Regular Trading Hours (RTH) candle:\n```python\nif tick_time < MARKET_WARMUP_TIME:\n    self._update_entry_candle_state(key, data)\n    return\n```\nFor PLTR, the 13:30 UTC (9:30 NY) candle had a low of $157.45. The strategy sets `entry_price = round(candle.low, 2)`. It then submits a Day Limit order. Because PLTR's fundamentals were overwhelmingly bullish (133% US commercial growth [cite: 9]), the stock instantly rebounded from its opening low and never retraced to $157.45 to fill the limit order. The rigid adherence to bidding at the exact low of the first 5-minute candle guarantees missed fills on the strongest gap-and-go momentum plays.\n**Optimization:** Modify the limit pricing logic to use `(candle.low + candle.close) / 2` or implement a market-if-touched (MIT) entry mechanism to ensure high-conviction scanner hits are successfully boarded.\n\n***\n\n## 6. Strategic Recommendations and Risk Controls\n\nBased on the exhaustive fundamental and quantitative analysis above, the following strategic actions are mandated:\n\n1.  **Immediate Position Management:**\n    *   Manually intervene to close the AAPL short position. The fundamental risk posed by the June 8 WWDC 'Apple Intelligence' keynote represents an unacceptable tail risk for a short squeeze [cite: 5, 28].\n    *   Maintain the AMZN short position. Technical breakdowns align with institutional distribution regarding the $200B capex timeline [cite: 12].\n\n2.  **MAG7 Ticker Adjustments:**\n    *   **Remove:** MSFT. The stock is currently un-tradeable for momentum systems due to the conflicting forces of strong AI growth versus severe margin compression, guidance misses, and cybersecurity controversies (BlueHammer) [cite: 7, 18].\n    *   **Add:** PLTR. Palantir's 145% Rule of 40 score and 133% YoY U.S. commercial growth make it the premier high-beta momentum vehicle in the software sector, vastly superior to MSFT in the current regime [cite: 9].\n\n3.  **New Strategy Ideation:**\n    *   **Small-Cap Value Factor Rotation:** Deploy capital into a systematic long AVUV / short QQQ strategy to capture the persistent 9% YTD factor premium favoring highly profitable, low-multiple small caps over capex-heavy mega-caps [cite: 3, 4].\n    *   **Event-Driven Gap Execution:** Restructure the earnings strategy entry logic. If a stock is flagged by the AI scanner with >50% YoY revenue growth (e.g., PLTR), bypass the rigid `candle.low` limit and execute a market order upon confirmation of opening volume expansion.\n\n4.  **Risk Controls:**\n    *   Implement API-level circuit breakers that halt trading in any ticker 5 trading days prior to its respective corporate developer conference (WWDC, Computex).\n\n***\n\n## 7. Automated System Evaluation Output\n\n```json\n{\n  \"daily_assessment\": \"The automated system incurred a daily PnL of -$699.06, primarily due to an ill-timed MSFT long entry that hit its stop-loss following weak forward guidance, alongside a squeezed AAPL short position heading into a major WWDC catalyst. Trend-following logic (EMA+Slope) proved vulnerable to fundamental macro-catalysts.\",\n  \"what_went_well\": [\n    \"NVDA long entry (63 shares at 220.35) aligned perfectly with bullish momentum from Computex 2026 announcements (RTX Spark).\",\n    \"AMZN and GOOGL short positions are currently profitable, correctly capturing the bearish sentiment surrounding hyperscaler capex fatigue and FCF compression.\"\n  ],\n  \"what_went_wrong\": [\n    \"MSFT long position ignored poor Q4 revenue guidance and cybersecurity backlash (BlueHammer zero-day), resulting in a realized loss of $324.48.\",\n    \"AAPL short position (-45 shares) was initiated at 306.71 during an intraday dip but was squeezed to 314.96 amid strong WWDC 2026 'Apple Intelligence' anticipation.\",\n    \"Earnings strategy failed to execute PLTR despite highly favorable Q1 results (133% US commercial growth) and pre-market caching, likely due to overly restrictive limit-order pricing at the exact candle low.\"\n  ],\n  \"successful_trade_lessons\": [\n    \"Technical signals (EMA/Slope) that align with strong fundamental catalysts (e.g., NVDA at Computex) yield higher probability setups.\",\n    \"Shorting hyperscalers (AMZN) facing massive capital expenditure scrutiny provides excellent risk-reward when technicals break down.\"\n  ],\n  \"unsuccessful_trade_lessons\": [\n    \"Purely technical EMAs lag behind immediate fundamental deterioration (e.g., MSFT guidance miss and security vulnerabilities).\",\n    \"Shorting mega-caps immediately preceding major developer conferences (AAPL WWDC) exposes the portfolio to severe headline risk and short squeezes.\"\n  ],\n  \"recommended_actions\": [\n    \"Close the AAPL short position immediately to avoid further WWDC-driven squeezing.\",\n    \"Refactor the Earnings scanner entry logic to use higher probability limit pricing (e.g., midpoint of the first 5-min candle) rather than the absolute low.\",\n    \"Implement a 'Catalyst Blackout Window' parameter to pause technical trades 7 days prior to known earnings or major product conferences.\"\n  ],\n  \"mag7_ticker_changes\": {\n    \"add\": [\n      \"PLTR\"\n    ],\n    \"remove\": [\n      \"MSFT\"\n    ],\n    \"rationale\": \"PLTR exhibits hyper-growth (133% US commercial) and a 145% Rule of 40 score, making it an ideal high-beta replacement for MSFT, which is currently bogged down by $190B capex concerns and cybersecurity controversies.\"\n  },\n  \"new_strategy_ideas\": [\n    \"Small-Cap Value Rotation Strategy: Long AVUV or highly profitable small-caps, shorting mega-cap tech laggards to capture the 9% YTD factor rotation premium.\",\n    \"Earnings Gap-and-Go: Enter on the first 5-min RTH candle using market orders if the pre-market gap aligns with raised forward guidance and >50% top-line growth (e.g., PLTR).\"\n  ],\n  \"risk_controls\": [\n    \"Halt new short entries on AAPL until post-WWDC 2026.\",\n    \"Tighten MSFT exposure limits due to elevated headline risk and margin compression.\",\n    \"Require fundamental AI-sentiment confluence before taking systematic MAG7 trades.\"\n  ],\n  \"confidence\": 85\n}\n```\n\n**Sources:**\n1. [stefanus.ai](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHfHrAjDB-GVsuskrvDB7kqLqj9baM4tJE3bqNE_rStH6KI16i88NjguVGgfN8oqBu_s_7HAIhNeS5Ig8kvl6l5_ElnjHCfSiuU5FZ8v89XacFCvXWVyUYvPH_zPYYZ2TVVn6jk8T6Omb8gBxk9V7oDJlbSmX183RBlpZQczZBa7zHMoV0wy19nwfGsg4X2o5IfSm2o_dKd1exf0KAbIv9CZqorHYPBxHrlW5GWnqKKyApTTu-A5DsN_-3RDJ9Olmwvn8RDiUmtsBEkU_H2iKT3Fg9m9Wf3)\n2. [elementpointe.com](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQH1NfMu0e-yuoq83smO5-1R7UGh_N-Sd16xX1pEHi5RDEhuTJswXBfc-ifZrwVAkr40Kara79G8z9w3Hs2LPiqw2lyx4Y2OzysiO4i0_qXIR6ZcUC0XyfxWyGh6EG6fVOvjLLH3vw6qhV3hBrVgO6pYxIAGpNMefqf3hlQ_LhVihwTPoLmwhStZo4fCA5UYjAuDGRKzUaU=)\n3. [247wallst.com](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHMzkag5lp151sQqojVdtWYnbCLGbLYINCPUzB-hWH99hs0PNZu_dVz4AwcgOytIvqDCVGlmzrjnabcNca1fZlVrrZlpxrSNAtjUw0xUsdFTj5gFe1FQ1TdJoGqd65pp_qs_wqdnYdT6YuOPF5L0OTAwiLwIS8b__-2I_FAqmVbBibrd6-rxMsGcAkBzmPhfKRsuBmjiGu2cjKBWEB8J1FuDFfZWuExM0mP4zRy9pLJ1qjzxqCBx-bzJW-5eEQLvLltnewaA1KLS0I=)\n4. [247wallst.com](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHZiECBAm2HF8-WEhjBDwTwGB70ukJNCpE5cwc8FHOy_qAZ8i32ExsO48fQ1DoVUm2NTQZDJSQDkPpKGnqWvuLJ8U3UMUT1Z1_rkfkm0H90uOJVa56eR1Yg5Jkf32wrOchS3NDDAP4cNTEC1WMapELiR2JH8lYY3PB8zfO1mjBjJ7sMfo9TeI3r9DNS4wIuNDBeVuuyiVtdxBQX2LrD5s34T3TkiSr0lVsqFw==)\n5. [fool.com](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGkEwSQc_DFlonI8ILU27HyD0dTZglE9IZgSKyG_WzbeRbJAM7HEqGCxMV5FbcCUKkVUhqFjgi1CbVy7tHuHdxZ6dfdB9LCRDh4wiZvR1rQ6pw09AOt6GLU4OkWUy-RWO_c-0XGUG_K34JN6zl0t4AfuqzJJA6F0Y4StOfRjUtlUW84K1NhqpAt66MVEbeDFeb7690=)\n6. [tomshardware.com](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEHrXu_5OdVP0wsljHVOVu4thPo_j16QtGqFemGC1Q0sEFqDkV12BQ9fgfC0wJFkHDKr3Vy2fpafEaGt14h0MuL6zNfHibNB83GruI-4H_TWoJXoieiabPMARE4UamxC9fExWhP_iUyJgU0Hd1UP6t-3LexQf5uZVTOZBJDCJsO6g0Pz3C5_QHClzVwoMfIftNIElUBCDi-sixfqhiyO92pHh6aolScdnatqOeB2WGL9F8ITYTvZJ5nKlEPPlu6KwfMDPd6DZnT-K0F-h3sB-lPHUsbO5-8xv2uuDtutdQmjtba7PT-1RVxSJD3SkzmKA==)\n7. [siliconangle.com](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEMVtxYfe-i8-i0AQacTPCoWjQlCzLEeWAHLbFINU_pUywSCS8xJzMIhbnLJxaCg6Ba0ia3p4g4HVxRbnaUNrpCbZuSDlhl4gQWts4ES6L6gqO_e-tgjTSW5dWwmTzGtj9mIVtwZCaW0IgnH-l7NdWfRMrO2O6CXSJ_hLyjoRppexsFM5kbdZNf50BXgnnrAMHzCgHQL9y25S_KK_f-i4VfGpyYJg==)\n8. [247wallst.com](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFUAQLbkFo0WW6TOFHD3GLy3l4SIaAbRsIunrAJs19fzqnaY8A6AH7ructzlmo55VcSul5Q20riZGpwgKMY0PR46YZQuGAmJv1BY6ahi4jftfW54Od9vy0CXs2LFLZiL8Non1FsoQkOceFUjUQnyzLU7qYZLPFObkt5Ayrd_0gLs7JPryWYjNq1vs_mxvj91mSYw_F1iuV4mk1uLVMe30J6fKcQqpkgysAcrimF)\n9. [palantir.com](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQELEqSPgOwhEqMbm5KXySpN2ePmHk4TcPxFJ4ocW4ykfBeNj519rlJ5MRGfSi1XP2tAmWDzTOedTb00LqpM-Z15dh1Zm5KIi2TgU2w8A_E09kOJbwT1cvA9a8Wseds2PFGwE9T7fJMCedeZpbr2hQqIxz-stxQpGs7y6JaZ_a_Bzdks4bj6rvzvLBIw37MnD_QwA4xZdNaZcFsAa68svwgGGF8Ev8LCOY_BAXqU2LQwRNJRk5jvwe9aofMC_x__-fTBABPe1sV5NpQGCc9uflQP5yCkn36capTsIC2vnb2b8bL0KOiN36AdA4ugZ-pF-MgXUR02YnfEFBnpcWciqJY1zTBQgLFd0r2suouyyrt3TMVz5UYhAziEl43ssEo0tmlRyfuZ5MsGZZxexRcqY3p50KglpA==)\n10. [chinadailyhk.com](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGazFNvnixmilniN-BQlqkRoZ8PWAy2tJCeKuDbM5CJLx_tmI9oS68P_kzryjjsYl_nPeGwcHCgEKXw_ZiEbXjjm4uR_iarkWWWqWfwv4EoteBZPIW2B7uV2Dr0nYXdmjvlC4DH)\n11. [opus.pro](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHvwHBcWgry9smLl0Un8491Ws3y_1GkYczR3qydH_0f10xh40mrogSFRXceSYBaCk1rRX0-Xf92i6lwlLod91tTYbWrSOBs8QrT8Uy3wVRBVRW7h9dM9ZTVhVNTxMOKNrIN59L3CpYgk7T0L51YI1acHA==)\n12. [aboutamazon.com](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFK0gghna941GDf3CI6-8HQDKMDBdvu9QMcGvg1XqZX0PrDAFUiuMH2J_mdufe5NeMk8SUBGge_mJlRUeMVw7RrWG4yhYS47Xv4t4HW7vMwknkjPolU1Uuia22dhvnUhjUk13drvL5U9SPD7wi7JBmbwHxX-oOQGuXZgi2gzKsJ5xiPJL0NfhVV44ZHGg2rhe8vhIyF3J_hT8qAzi_yRSqxr5E1hY03RWMJvwg1rbkyDrjHVmhZwrMDZjr3MhcUn-ca3ztsWMY3yYz25mJJcvks4pWEvDuX8xkqmpEvdw5_--FVHLuyxvxtDkVltw3Vboflnw09EDORChq_z5L_JrAdgfyKFJyBuyNLEL9ROGlC6jGU5MIPUrQ2RQLc8g-PZq38ifVCbDSMZobL5W30zRx-eAh90mDqVLvVXTlRZoTgOjWmzhIVbxYQk8snfCz7V6n84VFsBAx_xjt-EG8ZpitUi1tjFGgam7cTwdlJy7IfvB3jAeF5JvSX_QE6a-xaMRNjpGlcfhNpFQq-Ba1kIuvPrX_V1g1T6IW2htaMO5NaTCPf1nItLAgsi2ZdGipwyFcsJ5RWdR7DyNNTk3OIYrc6nZlYRxKU3vOIGnTZ-KmH-u0QiUxZW1suWvt2OpKgiFmQI1W1XkM-Sd_X-7Jn24oznhn9lMW2Ngdy1TqiWuUd8JoomCM1Y-p-qoyt74_doTLLXl3c1yasxlL7ZYxKVapFOklEsLE5lFiWfufzRCjwpkBADLkQmMA0M5s8j6Lu_-mUPw==)\n13. [phemex.com](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQExrAjqrL_PxsUQD4VfGg1uCL6rrDfeS1vxdAzazIqA3YvnRYyiTaFAmOIe1TPnmR0Eu6dvBvm-q82UrguPeQrYLuvjLzw4xH2xgPBu9zm4adN_VzXtgVQZmuUm8v8uo2VV5MMqQvHt)\n14. [seekingalpha.com](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGYASKqlubJQCgOIgjwJHMKiHFNE5gJXN6lQq_k6p8sEhxLhif4Zs8SlerJ903RiWbxmd3BzS0KAkQjO-M3I1O7F6EjucmV9J9uRLZhL6BATTOyW2CDGBmB2L78T4AxEdBWjbOt34uaVIETv9aeguPOGUAgJ2dP1PMGwlk2fcxC3qYhjvLEUT8ij_6l)\n15. [perplexity.ai](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQF2LiNiomIa8FB3FD1_bUoMKVRbSA5zKBnlLfoL7to2fEj7LZyeqZyCv39de29jrx-KE_lYfVB98Oxd2tOrOHt5fpYvpv6pkExt9fCt-yOdRAMmuy3iX8w1wMm-ig==)\n16. [microsoft.com](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHQeODUd-n3x6mdPidxxMavLATEtJvZ9fD8ZNfNnXXje9s4qe3xLCmkZTrHoq4fk5IiwyfZ3mZ93Bzlq3GX3Rzpqlm1hkAqAd6l_63bxLRyeo3LIqEEf55yl0gf-1H7hToL7wESvfKSRSAtJW0XIclcfpszYIf0-bP4gwbEENo7L-E=)\n17. [247wallst.com](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFx5MHok-Rj7lAW-X4Y_sCYBdLivSwSEiIjksxp4U7BmDyz-uXcbu3z2FVFz8OY_SCqxbbcetfCNRM5eIrrLqEjqQFx3pDy2YgeSuNWIQIrZdP4p5D2naZf6ofDWi8WC9k_71qE)\n18. [rescana.com](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEOuNu-UGrrPgk99b8Lb1Jp31YPjnFVUp4ILIRyNzawoanTB9mL45Dgz7MkZprIGbKM5wAVnhiugoK3erF9CXF30qoL-Y2XUqk9VSmIfzb1WBfhTJD2K-tv1nS2CthpeLzK05Qy-vuJ8TXbSnKsTQvl5bQUc02X4HDQXbwJjNYdntnaTjrEETetIJn55yR_GaZE0o8t3LTVWFXKlFsTwjre2A6MYm2-zIXUIiMyOw8hMbg6H3GAGPqPCI9kpq1chRJMPKDQPf6lcGoPEzs=)\n19. [windowsforum.com](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHk-Ml59nRbxqmaCZYMKwUPWmayY4m-oP9_znSYmx4DzV1QMeYFT86vyfhiyZvxxYdI8Yc_9Kpl3SO9jSdEz1LHTw6vESmQmTraoFKQRmk6CRXims4GG8ktmCbvd18le3IrRXYn9zrRlbvhC30Od7OHii0oz-cqMyqfKJ7zjlnaJq-Y5PSI5cyYwxy4Y3VX6_ltXAWQG75o0igER1f50seQoUMaHe2mZIXHDVN1_NclkgGefTAE0fPeZfsJ9Umpo22WUGQvitU2K2c=)\n20. [malwarebytes.com](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGK_4ETjRZ4KEYzW0VGR1xceE9AOxdITKH3VkWtp0NAsqaqy5SgKtTW8kCGmw8IWuTsGt-Dw-rZLqPEG-3GUYDCerPT492_CL6snR4JQU23YQui5hVlMfKg02A7CVD5tWOausE0qXaTD4YXui1jdVx3UhlTnPQNYMrCT_PC54bEXLDOuKIccRvATrVF-2U-yt0UaTIyLSGYts7IHw==)\n21. [nvidia.com](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQG-XfnbEIxdd0Y-qtL6cat_78PCjBAI5k6f-ysazRAsSlxtWVQZhI_BgQhDwNy8PzX9BM5xSMQh0fQM5JxFdZgHwL9_S3cVXgKlqVQK-d2vc-XbM4WIc2kldwB31xBgyAsUZj1s5cOO)\n22. [morningstar.com](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFYW5yR5mg8c2LSouLmamg0mBx8zECocryxBPpDzZG8DKqwrX20Qd9bU0QfZxIl2XVvHOxbubM4wSyx0glTwT2jCCA5mr6Ih4Ka-G0S0xYjwU7ygslUHchwO4AWHhxYK02PBQBYuYdztyfnNlTK2MlBO-BjXg7Hrs7eeTBCAx8Jy6W_-Wddw92mAmAYN8oHLZt7tvshUs3It7HdspJ4VBqOnC2o)\n23. [nvidia.com](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGL2lrDI39HR-vjGOYuh1kKyFS_srf2MJdesL4v0Dmpd-bex1eBRliIKYgZKPG3ASm20wIU0cBneb9C1RpHhSb1Bow-uGqmTF0H9tidvFYcHCkTCHwR4IXmnVjfBaCJwlmO5BGI3Mrd7LR5G2FQWIsXAvNFHWJ48vCYsLLRvpEjUwp8PLk-c5QHggENGfs4Ig==)\n24. [binance.com](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHsGkZPfBUigUuBJNBYVEqqhsZhTWuPWhmwSr1tEjLf32zOB3hc70ofDyTB-JC37SwM1NfKK8c3T-KF8P-77TMgFdBaPWm3L8y89ijlhJzEFGFsXTtqyR_rnD8wl4U2qfky9pF1ZHE12q3q2L8=)\n25. [gurufocus.com](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFbgLCO9SWTYQPFVD2xwmQ-tk6QCCiW5B31pnrUkh0i6Yt4I7WYqEA_i7bLJhtjTN58uXoWG4jCkDxaxS_12Zui_hN4vxRwwcpKuHNithnS4aS2jC6S9XAcGE6MImRwbtg92LmmumvnGgkGxv79vtaQ-AZBfTTk7XIRdV5ltREPOTZRwUWtKdw7EygoKhcp4c6_uglp1hKN1F1Uow==)\n26. [macrumors.com](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFq3lcATTqKPxgVzRqzS__ZIkP-mse0UjavPkcYoeEG9VSklJkCdScZ8hvJ9aWgRIfOVeyup5cVzJBx0hXJeZ5aJ0PpOI4rY2tHv7KoA6msS8J9XuQv45W5ynQB4M5-QnvF68hYgLfdG_jXgQj1QKqHY0zqTZOFA3V0rFvq)\n27. [apple.com](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFup1vunUwkxwp6hmjoJgfZbgW7c9RIip_LLIWpQhPk4y4sthtcKN9gToa-npY-Xj5rWnod1PyHcc2D6OdmrBMMgAHCDEPAxzSGqX3NEuxgAUbdcefRgeho4eeHafbGUYPgY4nV0DxBN10BOgnUwMUUDXXVzjyNOf2h9QVujYnkXNcpFdMdyyMqgVOcqcgkG50qnirA52pK)\n28. [gurufocus.com](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHCLgQU4L02hro11eGOz1BMdYLpksFiwi_epfBVjpPkpAO2tgLsM3w-Xm2HYcZ1Gf3CT-yvtIJFGXqikEetnwgxH1RZbsp2kp6KgRFEiNQp6ebTCZHP96ZUOcXk6_yso5PkQMvcfVD9HD2QlOdbHumHDvZTwbLqXz69U7x36IjowJGV36HAJY3KcPjT8Upsz9burg==)\n29. [stocktwits.com](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQETaHYwE5IK1uEdp0pvlwQG1u11OYu_ey7yL1XS9OIsbrCZ9BGffLhYUEz-A5hKafcT_kEFehNHSpmFhHxkrAlGZxtfCtWlb-BfjBYUqHoQ5XR_NQG08jqnEb6gU6XA-rtZj75rbBpeSyeD1xbcsn3RVpTIhkJdzk93ypATg0cswdnYnPDbmgPo3Hx5RP328maIJPzMbYULlIxA3Ze-cDXcZWGHGwU1ECjzYg_xPS8hOqcfCdch5n7bJCndIBWl_HFkPPUamYAOj07btlAKvA==)\n30. [pcmag.com](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGiSJx92HnA8OKSaA2fhmGMtyn8NK0rgNElDj3xlK1NEtdB79AEOwpkQS-FuvDUfUE0ygXxlfUatgqr2--JgmJ-uBpPwSekXoX30P1jK6uP7-GdsvBkUD6ddZvrcRtYlvMs9Hdpar2HagpBaP9uYCNn7-CIZGPB3qNHIbg4tlyoB9vsGWvBpsaVxCAt9gKdy0SwT6g-K9s0hGPI-Pvk_oSX1bcCGoJnsMe8tWJ7a07t5XMMsoM8XbM=)\n31. [quiverquant.com](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFFdJYyOv7oos8mR-L-4SweyctehbxafqNXzzv3W3WT6T6xgNKLD5sfs-jmR4caaLcl_Iz18VM3B015dvDkrCx9B7Urq1djDSJcSERuxdanLsnJN_E7Cb6sB6qmMubgoF0fKFRshFsdj3VGD_6uhNwwfmqX786uTMu6HBawclNT6cBPmOoh2aOqiTFSlNLlmfZieUGD5wRK920=)\n32. [247wallst.com](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFgipWUbJNWdDdwsCJdQi7RCX_xG8pA6uqOi-xUDqMg4GDBfT3-PLhn51VvBo7WBrQG6NuvXZrj2TfIJicLmvDFwpXkDvtyoyAK1Ltc0MImAInLDq9_jcqrHZQVOFpr70g_nb9qdrn6B8d71j9ZCk93WOxwWU3yBtI25Ru3dTt_FXw=)\n33. [perplexity.ai](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGHD9fGHM7OGhL1mzrI7LujnJGAQtHiBb48M8yD2q7nqZkK7EZL9mtFYMHS8N7qwpKghzrMAvRToTxm1LK3VLATeeC73hd_B-3Fwl6YUXcZjqk5iinSYolvErJ_jghwRvkx-IR2zg==)\n34. [aboutamazon.com](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFuOaQLHY3CGO5JLTKZ122u2VxKKAGb5YgGVCBGkRymtK2eGU2IAAYVFzBqS4DhfTRzPdZFJOSs9bUR1QiBl0nq_-68zoN71wPlLQwFpa0YCi9VHGH0UpjKQ8D-BZHd-q5hW1HQAl1yIrsBmTUZzbwRdlZRyz1gce4oj0uGZEHCuuqaMOpTq87Gb1VNqBl_a69jdl-O-Y0IMtjK7vT4tdvpSP52UFE-H4yclSHGXW_L)\n35. [saastr.com](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFujzRgUDysbtOz6rbxfp5KoK9e-nD_370YtDn9ZydCF9WPkv-gpkiUvquL9AtvaBOWpunvMkd4zVmL88Y7QK2fGFfc9PC5YONr7WPsGQxM6M6OHKhT1cnqAaNc_U8MmbOZuWIqC-LfhUMtsumB6sFLoHWEWUOyv9wtr_MSGvjW14qml8ZS45j7Zl5SeKAEWjkdZddWjZV140YtstPWn79qsYeEu3FKRP2o10ErGLTf1g==)\n36. [tikr.com](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEEWvGUGzEXTZQt4kxaApXHrBvpL-FHCTuhhBHVkmJTDZz2nXL_p2EheQBRFB744_TSQVKa7taqTTyRfDnNyf1GwwclNB7Um8e5jtTLSh_jxYEp-q4LUR3U6X8QvQtJqAvOzORiWuhulLgEbKiEKM3PvDkihnd7OmpEyfMxwB4occ9WvL3GfnahwIZyg0uqG2krgTlpKJ26r_XFhQ==)\n37. [tradingkey.com](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHMA0AdLBJl6xF8ryp70NoInqNlzS_H0Nybs_PJ2uqWgOd_Zp33RTf4Oyf5ao-PeRLOmbzqij7CflfpM_m5XN2O8_tyhSA5VxXmo3HHfLEGKk38r6cXpoOY2zca_LoHFzJCWNawNypLtR-5nLwgtm1aGS58-klz4Ue8CnDtwecHq35J52rZ1cZg5g==)\n38. [gurufocus.com](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGtgmg6kn1trwu1H0OMURck7PsCLUJKoVmRMdeREfkDlovs0L9IUtVQko6ptpRJvf7mQl_O4sDmEhAJJ8G9OKmooany-kstR_NPEWVXmpWoUBhsZyvRUlSrnZvD2CIDqIufucAxKev7GAwezXr9WJhWATjdv_7ndvIz7tdz7p6q9qpqbqC2zqQ1hEdwiDS2ZLhxiO1H9hdAdDBPCX9XQkhqevTN89m_faY=)\n",
+      "parsed": {
+        "daily_assessment": "The automated system incurred a daily PnL of -$699.06, primarily due to an ill-timed MSFT long entry that hit its stop-loss following weak forward guidance, alongside a squeezed AAPL short position heading into a major WWDC catalyst. Trend-following logic (EMA+Slope) proved vulnerable to fundamental macro-catalysts.",
+        "what_went_well": [
+          "NVDA long entry (63 shares at 220.35) aligned perfectly with bullish momentum from Computex 2026 announcements (RTX Spark).",
+          "AMZN and GOOGL short positions are currently profitable, correctly capturing the bearish sentiment surrounding hyperscaler capex fatigue and FCF compression."
+        ],
+        "what_went_wrong": [
+          "MSFT long position ignored poor Q4 revenue guidance and cybersecurity backlash (BlueHammer zero-day), resulting in a realized loss of $324.48.",
+          "AAPL short position (-45 shares) was initiated at 306.71 during an intraday dip but was squeezed to 314.96 amid strong WWDC 2026 'Apple Intelligence' anticipation.",
+          "Earnings strategy failed to execute PLTR despite highly favorable Q1 results (133% US commercial growth) and pre-market caching, likely due to overly restrictive limit-order pricing at the exact candle low."
+        ],
+        "successful_trade_lessons": [
+          "Technical signals (EMA/Slope) that align with strong fundamental catalysts (e.g., NVDA at Computex) yield higher probability setups.",
+          "Shorting hyperscalers (AMZN) facing massive capital expenditure scrutiny provides excellent risk-reward when technicals break down."
+        ],
+        "unsuccessful_trade_lessons": [
+          "Purely technical EMAs lag behind immediate fundamental deterioration (e.g., MSFT guidance miss and security vulnerabilities).",
+          "Shorting mega-caps immediately preceding major developer conferences (AAPL WWDC) exposes the portfolio to severe headline risk and short squeezes."
+        ],
+        "recommended_actions": [
+          "Close the AAPL short position immediately to avoid further WWDC-driven squeezing.",
+          "Refactor the Earnings scanner entry logic to use higher probability limit pricing (e.g., midpoint of the first 5-min candle) rather than the absolute low.",
+          "Implement a 'Catalyst Blackout Window' parameter to pause technical trades 7 days prior to known earnings or major product conferences."
+        ],
+        "mag7_ticker_changes": {
+          "add": [
+            "PLTR"
+          ],
+          "remove": [
+            "MSFT"
+          ],
+          "rationale": "PLTR exhibits hyper-growth (133% US commercial) and a 145% Rule of 40 score, making it an ideal high-beta replacement for MSFT, which is currently bogged down by $190B capex concerns and cybersecurity controversies."
+        },
+        "new_strategy_ideas": [
+          "Small-Cap Value Rotation Strategy: Long AVUV or highly profitable small-caps, shorting mega-cap tech laggards to capture the 9% YTD factor rotation premium.",
+          "Earnings Gap-and-Go: Enter on the first 5-min RTH candle using market orders if the pre-market gap aligns with raised forward guidance and >50% top-line growth (e.g., PLTR)."
+        ],
+        "risk_controls": [
+          "Halt new short entries on AAPL until post-WWDC 2026.",
+          "Tighten MSFT exposure limits due to elevated headline risk and margin compression.",
+          "Require fundamental AI-sentiment confluence before taking systematic MAG7 trades."
+        ],
+        "confidence": 85
+      },
+      "error": null
+    },
+    "combined": {
+      "providers_completed": [
+        "grok",
+        "gemini"
+      ],
+      "providers_failed": [],
+      "shared_recommendations": [],
+      "parsed_provider_count": 2
+    }
+  }
+}

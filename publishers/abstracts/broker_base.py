@@ -1,6 +1,6 @@
 """Abstract broker base class for trading operations."""
 from abc import ABC, abstractmethod
-from datetime import date
+from datetime import date, datetime
 
 from common.models.order_request import OrderRequest
 from common.models.order_response import OrderResponse
@@ -98,6 +98,23 @@ class BrokerBase(IBroker, ABC):
         
         Returns:
             List of OrderResponse objects for all active orders (pending, submitted, partially filled).
+        """
+        pass
+
+    @abstractmethod
+    async def get_orders_between(
+        self,
+        after: datetime,
+        until: datetime,
+    ) -> list[OrderResponse]:
+        """Get broker orders created or updated in a UTC time range.
+
+        Args:
+            after: Inclusive UTC lower bound.
+            until: Inclusive UTC upper bound.
+
+        Returns:
+            List of normalized broker orders in the requested range.
         """
         pass
 

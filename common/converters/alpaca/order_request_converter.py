@@ -131,11 +131,11 @@ class AlpacaOrderRequestConverter:
             "qty": order_request.quantity,
             "side": cls.SIDE_MAP[order_request.side],
             "time_in_force": cls._to_tif(order_request.time_in_force),
-            "order_class": AlpacaOrderClass.BRACKET,
-            "take_profit": TakeProfitRequest(limit_price=order_request.take_profit_price),
-            "stop_loss": StopLossRequest(stop_price=stop_price),
+            "order_class": AlpacaOrderClass.SIMPLE,
+            # "take_profit": TakeProfitRequest(limit_price=order_request.take_profit_price),
+            # "stop_loss": StopLossRequest(stop_price=stop_price),
             "client_order_id": cls._build_client_order_id(order_request.ticker),
-            "extended_hours": False,
+            # "extended_hours": False,
         }
 
         if order_request.order_type == OrderType.MARKET:

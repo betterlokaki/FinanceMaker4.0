@@ -8,6 +8,7 @@ from datetime import date, datetime, time as dt_time, timezone
 import logging
 from typing import Any, TypeVar
 
+from alpaca.common.enums import Sort
 from alpaca.common.exceptions import APIError
 from alpaca.trading.client import TradingClient
 from alpaca.trading.enums import (
@@ -213,6 +214,28 @@ class AlpacaBroker(BrokerBase):
             for order in flattened
         ]
         return [order for order in responses if order.is_active]
+
+    async def get_orders_between(
+        self,
+        after: datetime,
+        until: datetime,
+    ) -> list[OrderResponse]:
+        """Get all Alpaca orders created in a UTC time range."""
+        orders = await self._run_client(
+            "get_orders",
+            lambda client: client.get_orders(
+                GetOrdersRequest(
+                    status=QueryOrderStatus.ALL,
+                    after=after,
+                    until=until,
+                    direction=Sort.ASC,
+                    nested=True,
+                ),
+            ),
+        )
+        raw_orders = self._coerce_payload_list(orders, "orders")
+        flattened = AlpacaOrderResponseConverter.flatten_orders(list(raw_orders))
+        return [AlpacaOrderResponseConverter.from_alpaca(order) for order in flattened]
 
     async def _protect_open_positions_on_startup(self) -> None:
         """Ensure every existing Alpaca position has TP and SL exit orders."""

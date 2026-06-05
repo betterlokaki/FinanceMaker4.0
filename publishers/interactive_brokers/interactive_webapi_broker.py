@@ -695,6 +695,33 @@ class InteractiveWebapiBroker(BrokerBase):
         """
         return await self._get_open_orders_once()
 
+    @retry_ibkr_request
+    async def get_orders_between(
+        self,
+        after: datetime,
+        until: datetime,
+    ) -> list[OrderResponse]:
+        """Get broker orders created or updated in a UTC time range."""
+        await self._ensure_connected()
+        assert self._client is not None
+
+        orders_result = self._client.live_orders()
+        if orders_result.data is None:
+            return []
+
+        orders_data = orders_result.data
+        raw_orders = orders_data.get("orders", []) if isinstance(orders_data, dict) else []
+        orders: list[OrderResponse] = []
+        for order_data in raw_orders:
+            try:
+                order = OrderResponseConverter.from_ibkr(order_data)
+            except Exception as exc:
+                logger.warning("Failed to convert IBKR order history row: %s", exc, exc_info=True)
+                continue
+            if self._order_in_range(order, after, until):
+                orders.append(order)
+        return orders
+
     async def _get_open_orders_once(self) -> list[OrderResponse]:
         """Execute a single open-orders fetch without decorator retries."""
         logger.debug("Getting open orders...")
@@ -741,6 +768,15 @@ class InteractiveWebapiBroker(BrokerBase):
         
         logger.debug("Returning %d active order(s)", len(open_orders))
         return open_orders
+
+    @staticmethod
+    def _order_in_range(order: OrderResponse, after: datetime, until: datetime) -> bool:
+        timestamp = order.filled_at or order.updated_at or order.created_at
+        if timestamp is None:
+            return False
+        if timestamp.tzinfo is None:
+            timestamp = timestamp.replace(tzinfo=timezone.utc)
+        return after <= timestamp.astimezone(timezone.utc) <= until
     
     async def _refresh_portfolio_loop(self) -> None:
         """Background loop that refreshes the portfolio every 5 minutes."""
@@ -859,4 +895,3 @@ class InteractiveWebapiBroker(BrokerBase):
 
         print("TOTAL REALIZED PNL 2Y:", total)
         return 0.0
-        

@@ -38,6 +38,7 @@ class OrderResponse:
     time_in_force: TimeInForce = TimeInForce.DAY
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
+    filled_at: Optional[datetime] = None
     
     @property
     def is_filled(self) -> bool:

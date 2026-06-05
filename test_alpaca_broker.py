@@ -7,6 +7,7 @@ from types import SimpleNamespace
 from typing import Any
 
 import requests
+from alpaca.trading.enums import QueryOrderStatus
 from alpaca.trading.enums import OrderClass
 
 from common.models.order import OrderSide, OrderStatus, OrderType, TimeInForce
@@ -46,6 +47,9 @@ def _order(
     time_in_force: str = "gtc",
     status: str = "new",
     legs: list[SimpleNamespace] | None = None,
+    created_at: datetime | None = None,
+    updated_at: datetime | None = None,
+    filled_at: datetime | None = None,
 ) -> SimpleNamespace:
     return SimpleNamespace(
         id=order_id,
@@ -59,6 +63,9 @@ def _order(
         stop_price=stop_price,
         filled_avg_price=None,
         time_in_force=time_in_force,
+        created_at=created_at,
+        updated_at=updated_at,
+        filled_at=filled_at,
         legs=legs or [],
     )
 
@@ -101,6 +108,7 @@ class FakeAlpacaClient:
         self.fail_next_account = fail_next_account
         self.reject_oco = reject_oco
         self.submitted_orders: list[Any] = []
+        self.order_filters: list[Any] = []
         self.cancelled_orders: list[str] = []
         self.closed_positions: list[str] = []
         self.positions = positions if positions is not None else [_position("AAPL")]
@@ -125,6 +133,7 @@ class FakeAlpacaClient:
         return self.positions
 
     def get_orders(self, _filter: Any = None) -> list[SimpleNamespace]:
+        self.order_filters.append(_filter)
         return self.orders
 
     def get_order_by_id(self, order_id: str, _filter: Any = None) -> SimpleNamespace:
@@ -409,6 +418,42 @@ def test_pnl_summary_uses_daily_equity_delta_and_history_baseline() -> None:
         assert summary.baseline_date == date(2026, 4, 1)
         assert summary.baseline_nav == 1000.0
         assert summary.current_nav == 1100.0
+        await broker.disconnect()
+
+    asyncio.run(_run())
+
+
+def test_get_orders_between_uses_all_status_and_time_bounds() -> None:
+    async def _run() -> None:
+        client = FakeAlpacaClient(
+            positions=[],
+            orders=[
+                _order(
+                    order_id="filled-1",
+                    symbol="AAPL",
+                    qty="2",
+                    side="buy",
+                    order_type="limit",
+                    status="filled",
+                    filled_at=datetime(2026, 4, 23, 14, 35, tzinfo=timezone.utc),
+                )
+            ],
+        )
+        broker = AlpacaBroker(_config(), client_factory=lambda **_: client)
+        await broker.connect()
+        client.order_filters.clear()
+
+        after = datetime(2026, 4, 23, 4, 0, tzinfo=timezone.utc)
+        until = datetime(2026, 4, 24, 0, 0, tzinfo=timezone.utc)
+        orders = await broker.get_orders_between(after=after, until=until)
+
+        assert len(orders) == 1
+        assert orders[0].order_id == "filled-1"
+        request = client.order_filters[-1]
+        assert request.status == QueryOrderStatus.ALL
+        assert request.after == after
+        assert request.until == until
+        assert request.nested is True
         await broker.disconnect()
 
     asyncio.run(_run())

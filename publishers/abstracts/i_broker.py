@@ -1,5 +1,5 @@
 """Broker interface protocol."""
-from datetime import date
+from datetime import date, datetime
 from typing import Protocol
 
 from common.models.order_request import OrderRequest
@@ -84,6 +84,22 @@ class IBroker(Protocol):
         
         Returns:
             List of OrderResponse objects for all active orders (pending, submitted, partially filled).
+        """
+        ...
+
+    async def get_orders_between(
+        self,
+        after: datetime,
+        until: datetime,
+    ) -> list[OrderResponse]:
+        """Get broker orders created or updated in a UTC time range.
+
+        Args:
+            after: Inclusive UTC lower bound.
+            until: Inclusive UTC upper bound.
+
+        Returns:
+            List of normalized broker orders in the requested range.
         """
         ...
 

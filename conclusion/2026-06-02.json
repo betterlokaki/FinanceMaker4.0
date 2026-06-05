@@ -1,0 +1,1915 @@
+{
+  "trading_day": "2026-06-02",
+  "generated_at_utc": "2026-06-02T17:19:28.569391+00:00",
+  "broker_metadata": {
+    "provider": "AlpacaBroker",
+    "is_connected": true
+  },
+  "pnl": {
+    "as_of_date": "2026-06-02",
+    "since_date": "2026-06-02",
+    "currency": "USD",
+    "daily_pnl": -566.7799999999988,
+    "pnl_since_date": -566.7799999999988,
+    "baseline_date": "2026-06-02",
+    "baseline_nav": 103592.94,
+    "current_nav": 103026.16,
+    "realized_trade_pnl_from_paired_fills": 0,
+    "open_position_unrealized_pnl": 423.51
+  },
+  "portfolio": {
+    "cash_balance": 158195.11,
+    "total_market_value": 83464.48,
+    "total_equity": 103023.92,
+    "buying_power": 286942.68,
+    "unrealized_pnl": 423.50897100000003,
+    "realized_pnl": 0.0,
+    "position_count": 6,
+    "positions": [
+      {
+        "ticker": "AAPL",
+        "quantity": -45,
+        "average_cost": 306.71,
+        "current_price": 314.6551,
+        "market_value": -14159.4795,
+        "unrealized_pnl": -357.5295,
+        "realized_pnl": null,
+        "is_long": false,
+        "is_short": true,
+        "cost_basis": 13801.949999999999,
+        "unrealized_pnl_percent": -2.5904274396009264
+      },
+      {
+        "ticker": "AMZN",
+        "quantity": -53,
+        "average_cost": 263.14,
+        "current_price": 258.32,
+        "market_value": -13690.96,
+        "unrealized_pnl": 255.46,
+        "realized_pnl": null,
+        "is_long": false,
+        "is_short": true,
+        "cost_basis": 13946.42,
+        "unrealized_pnl_percent": 1.8317245572698944
+      },
+      {
+        "ticker": "GOOGL",
+        "quantity": -37,
+        "average_cost": 375.33,
+        "current_price": 367.4096,
+        "market_value": -13594.1552,
+        "unrealized_pnl": 293.0548,
+        "realized_pnl": null,
+        "is_long": false,
+        "is_short": true,
+        "cost_basis": 13887.21,
+        "unrealized_pnl_percent": 2.110249646977327
+      },
+      {
+        "ticker": "META",
+        "quantity": -23,
+        "average_cost": 606.81,
+        "current_price": 606.34,
+        "market_value": -13945.82,
+        "unrealized_pnl": 10.81,
+        "realized_pnl": null,
+        "is_long": false,
+        "is_short": true,
+        "cost_basis": 13956.63,
+        "unrealized_pnl_percent": 0.07745422784726687
+      },
+      {
+        "ticker": "NVDA",
+        "quantity": 63,
+        "average_cost": 220.349683,
+        "current_price": 224.5499,
+        "market_value": 14146.6437,
+        "unrealized_pnl": 264.613671,
+        "realized_pnl": null,
+        "is_long": true,
+        "is_short": false,
+        "cost_basis": 13882.030029,
+        "unrealized_pnl_percent": 1.9061597651583644
+      },
+      {
+        "ticker": "TSLA",
+        "quantity": -33,
+        "average_cost": 420.71,
+        "current_price": 422.01,
+        "market_value": -13926.33,
+        "unrealized_pnl": -42.9,
+        "realized_pnl": null,
+        "is_long": false,
+        "is_short": true,
+        "cost_basis": 13883.429999999998,
+        "unrealized_pnl_percent": -0.30900144992988043
+      }
+    ],
+    "open_orders": [
+      {
+        "order_id": "a59ae26c-c0dc-4f4e-bcb8-f908ddb31c31",
+        "ticker": "AMZN",
+        "quantity": 53,
+        "filled_quantity": 0,
+        "remaining_quantity": 53,
+        "side": "BUY",
+        "order_type": "LIMIT",
+        "status": "SUBMITTED",
+        "limit_price": 247.35,
+        "stop_price": null,
+        "average_fill_price": null,
+        "time_in_force": "GTC",
+        "created_at": "2026-06-02T11:03:07.678395+00:00",
+        "updated_at": "2026-06-02T11:03:07.693419+00:00",
+        "filled_at": null
+      },
+      {
+        "order_id": "f01ac719-f6fa-41d8-8280-81d494dcd232",
+        "ticker": "AMZN",
+        "quantity": 53,
+        "filled_quantity": 0,
+        "remaining_quantity": 53,
+        "side": "BUY",
+        "order_type": "STOP",
+        "status": "PENDING",
+        "limit_price": null,
+        "stop_price": 271.03,
+        "average_fill_price": null,
+        "time_in_force": "GTC",
+        "created_at": "2026-06-02T11:03:07.678395+00:00",
+        "updated_at": "2026-06-02T11:03:07.687293+00:00",
+        "filled_at": null
+      },
+      {
+        "order_id": "f5561bea-73e6-4054-9afa-67e0672e3848",
+        "ticker": "META",
+        "quantity": 23,
+        "filled_quantity": 0,
+        "remaining_quantity": 23,
+        "side": "BUY",
+        "order_type": "LIMIT",
+        "status": "SUBMITTED",
+        "limit_price": 570.4,
+        "stop_price": null,
+        "average_fill_price": null,
+        "time_in_force": "GTC",
+        "created_at": "2026-06-01T18:40:20.479057+00:00",
+        "updated_at": "2026-06-01T18:40:20.512672+00:00",
+        "filled_at": null
+      },
+      {
+        "order_id": "bb09580c-69fe-4e7a-90c3-1e3a27025cb2",
+        "ticker": "META",
+        "quantity": 23,
+        "filled_quantity": 0,
+        "remaining_quantity": 23,
+        "side": "BUY",
+        "order_type": "STOP",
+        "status": "PENDING",
+        "limit_price": null,
+        "stop_price": 625.01,
+        "average_fill_price": null,
+        "time_in_force": "GTC",
+        "created_at": "2026-06-01T18:40:20.479057+00:00",
+        "updated_at": "2026-06-01T18:40:20.479933+00:00",
+        "filled_at": null
+      },
+      {
+        "order_id": "f875ae72-cebb-45e7-83c6-164121a44c35",
+        "ticker": "TSLA",
+        "quantity": 33,
+        "filled_quantity": 0,
+        "remaining_quantity": 33,
+        "side": "BUY",
+        "order_type": "LIMIT",
+        "status": "SUBMITTED",
+        "limit_price": 395.47,
+        "stop_price": null,
+        "average_fill_price": null,
+        "time_in_force": "GTC",
+        "created_at": "2026-06-01T16:58:26.710707+00:00",
+        "updated_at": "2026-06-01T16:58:26.730449+00:00",
+        "filled_at": null
+      },
+      {
+        "order_id": "d9bbd235-a057-4948-94df-bbac8a3b992c",
+        "ticker": "TSLA",
+        "quantity": 33,
+        "filled_quantity": 0,
+        "remaining_quantity": 33,
+        "side": "BUY",
+        "order_type": "STOP",
+        "status": "PENDING",
+        "limit_price": null,
+        "stop_price": 433.33,
+        "average_fill_price": null,
+        "time_in_force": "GTC",
+        "created_at": "2026-06-01T16:58:26.710707+00:00",
+        "updated_at": "2026-06-01T16:58:26.711709+00:00",
+        "filled_at": null
+      },
+      {
+        "order_id": "78763b83-120f-4e84-9c31-87c15127ed50",
+        "ticker": "NVDA",
+        "quantity": 63,
+        "filled_quantity": 0,
+        "remaining_quantity": 63,
+        "side": "SELL",
+        "order_type": "LIMIT",
+        "status": "SUBMITTED",
+        "limit_price": 233.57,
+        "stop_price": null,
+        "average_fill_price": null,
+        "time_in_force": "GTC",
+        "created_at": "2026-06-01T16:18:06.806098+00:00",
+        "updated_at": "2026-06-01T16:18:06.848575+00:00",
+        "filled_at": null
+      },
+      {
+        "order_id": "697109ad-b911-405a-9dee-bf1024abfc07",
+        "ticker": "NVDA",
+        "quantity": 63,
+        "filled_quantity": 0,
+        "remaining_quantity": 63,
+        "side": "SELL",
+        "order_type": "STOP",
+        "status": "PENDING",
+        "limit_price": null,
+        "stop_price": 213.74,
+        "average_fill_price": null,
+        "time_in_force": "GTC",
+        "created_at": "2026-06-01T16:18:06.806098+00:00",
+        "updated_at": "2026-06-01T16:18:06.830765+00:00",
+        "filled_at": null
+      },
+      {
+        "order_id": "e9ecc999-f808-423b-9485-1c55e7b60bc1",
+        "ticker": "GOOGL",
+        "quantity": 37,
+        "filled_quantity": 0,
+        "remaining_quantity": 37,
+        "side": "BUY",
+        "order_type": "LIMIT",
+        "status": "SUBMITTED",
+        "limit_price": 352.81,
+        "stop_price": null,
+        "average_fill_price": null,
+        "time_in_force": "GTC",
+        "created_at": "2026-06-01T16:18:04.525253+00:00",
+        "updated_at": "2026-06-01T16:18:04.538782+00:00",
+        "filled_at": null
+      },
+      {
+        "order_id": "4b7b9db6-faed-4ee1-b74a-2e73c802709e",
+        "ticker": "GOOGL",
+        "quantity": 37,
+        "filled_quantity": 0,
+        "remaining_quantity": 37,
+        "side": "BUY",
+        "order_type": "STOP",
+        "status": "PENDING",
+        "limit_price": null,
+        "stop_price": 386.59,
+        "average_fill_price": null,
+        "time_in_force": "GTC",
+        "created_at": "2026-06-01T16:18:04.525253+00:00",
+        "updated_at": "2026-06-01T16:18:04.526013+00:00",
+        "filled_at": null
+      },
+      {
+        "order_id": "81a43bd9-e663-42fa-8383-dfb236eb49c3",
+        "ticker": "AAPL",
+        "quantity": 45,
+        "filled_quantity": 0,
+        "remaining_quantity": 45,
+        "side": "BUY",
+        "order_type": "LIMIT",
+        "status": "SUBMITTED",
+        "limit_price": 288.31,
+        "stop_price": null,
+        "average_fill_price": null,
+        "time_in_force": "GTC",
+        "created_at": "2026-06-01T16:18:03.603579+00:00",
+        "updated_at": "2026-06-01T16:18:03.617417+00:00",
+        "filled_at": null
+      },
+      {
+        "order_id": "f4e32b4e-2dd2-43a9-b38a-29a826488077",
+        "ticker": "AAPL",
+        "quantity": 45,
+        "filled_quantity": 0,
+        "remaining_quantity": 45,
+        "side": "BUY",
+        "order_type": "STOP",
+        "status": "PENDING",
+        "limit_price": null,
+        "stop_price": 315.91,
+        "average_fill_price": null,
+        "time_in_force": "GTC",
+        "created_at": "2026-06-01T16:18:03.603579+00:00",
+        "updated_at": "2026-06-01T16:18:03.610496+00:00",
+        "filled_at": null
+      }
+    ]
+  },
+  "open_orders": [
+    {
+      "order_id": "a59ae26c-c0dc-4f4e-bcb8-f908ddb31c31",
+      "ticker": "AMZN",
+      "quantity": 53,
+      "filled_quantity": 0,
+      "remaining_quantity": 53,
+      "side": "BUY",
+      "order_type": "LIMIT",
+      "status": "SUBMITTED",
+      "limit_price": 247.35,
+      "stop_price": null,
+      "average_fill_price": null,
+      "time_in_force": "GTC",
+      "created_at": "2026-06-02T11:03:07.678395+00:00",
+      "updated_at": "2026-06-02T11:03:07.693419+00:00",
+      "filled_at": null
+    },
+    {
+      "order_id": "f01ac719-f6fa-41d8-8280-81d494dcd232",
+      "ticker": "AMZN",
+      "quantity": 53,
+      "filled_quantity": 0,
+      "remaining_quantity": 53,
+      "side": "BUY",
+      "order_type": "STOP",
+      "status": "PENDING",
+      "limit_price": null,
+      "stop_price": 271.03,
+      "average_fill_price": null,
+      "time_in_force": "GTC",
+      "created_at": "2026-06-02T11:03:07.678395+00:00",
+      "updated_at": "2026-06-02T11:03:07.687293+00:00",
+      "filled_at": null
+    },
+    {
+      "order_id": "f5561bea-73e6-4054-9afa-67e0672e3848",
+      "ticker": "META",
+      "quantity": 23,
+      "filled_quantity": 0,
+      "remaining_quantity": 23,
+      "side": "BUY",
+      "order_type": "LIMIT",
+      "status": "SUBMITTED",
+      "limit_price": 570.4,
+      "stop_price": null,
+      "average_fill_price": null,
+      "time_in_force": "GTC",
+      "created_at": "2026-06-01T18:40:20.479057+00:00",
+      "updated_at": "2026-06-01T18:40:20.512672+00:00",
+      "filled_at": null
+    },
+    {
+      "order_id": "bb09580c-69fe-4e7a-90c3-1e3a27025cb2",
+      "ticker": "META",
+      "quantity": 23,
+      "filled_quantity": 0,
+      "remaining_quantity": 23,
+      "side": "BUY",
+      "order_type": "STOP",
+      "status": "PENDING",
+      "limit_price": null,
+      "stop_price": 625.01,
+      "average_fill_price": null,
+      "time_in_force": "GTC",
+      "created_at": "2026-06-01T18:40:20.479057+00:00",
+      "updated_at": "2026-06-01T18:40:20.479933+00:00",
+      "filled_at": null
+    },
+    {
+      "order_id": "f875ae72-cebb-45e7-83c6-164121a44c35",
+      "ticker": "TSLA",
+      "quantity": 33,
+      "filled_quantity": 0,
+      "remaining_quantity": 33,
+      "side": "BUY",
+      "order_type": "LIMIT",
+      "status": "SUBMITTED",
+      "limit_price": 395.47,
+      "stop_price": null,
+      "average_fill_price": null,
+      "time_in_force": "GTC",
+      "created_at": "2026-06-01T16:58:26.710707+00:00",
+      "updated_at": "2026-06-01T16:58:26.730449+00:00",
+      "filled_at": null
+    },
+    {
+      "order_id": "d9bbd235-a057-4948-94df-bbac8a3b992c",
+      "ticker": "TSLA",
+      "quantity": 33,
+      "filled_quantity": 0,
+      "remaining_quantity": 33,
+      "side": "BUY",
+      "order_type": "STOP",
+      "status": "PENDING",
+      "limit_price": null,
+      "stop_price": 433.33,
+      "average_fill_price": null,
+      "time_in_force": "GTC",
+      "created_at": "2026-06-01T16:58:26.710707+00:00",
+      "updated_at": "2026-06-01T16:58:26.711709+00:00",
+      "filled_at": null
+    },
+    {
+      "order_id": "78763b83-120f-4e84-9c31-87c15127ed50",
+      "ticker": "NVDA",
+      "quantity": 63,
+      "filled_quantity": 0,
+      "remaining_quantity": 63,
+      "side": "SELL",
+      "order_type": "LIMIT",
+      "status": "SUBMITTED",
+      "limit_price": 233.57,
+      "stop_price": null,
+      "average_fill_price": null,
+      "time_in_force": "GTC",
+      "created_at": "2026-06-01T16:18:06.806098+00:00",
+      "updated_at": "2026-06-01T16:18:06.848575+00:00",
+      "filled_at": null
+    },
+    {
+      "order_id": "697109ad-b911-405a-9dee-bf1024abfc07",
+      "ticker": "NVDA",
+      "quantity": 63,
+      "filled_quantity": 0,
+      "remaining_quantity": 63,
+      "side": "SELL",
+      "order_type": "STOP",
+      "status": "PENDING",
+      "limit_price": null,
+      "stop_price": 213.74,
+      "average_fill_price": null,
+      "time_in_force": "GTC",
+      "created_at": "2026-06-01T16:18:06.806098+00:00",
+      "updated_at": "2026-06-01T16:18:06.830765+00:00",
+      "filled_at": null
+    },
+    {
+      "order_id": "e9ecc999-f808-423b-9485-1c55e7b60bc1",
+      "ticker": "GOOGL",
+      "quantity": 37,
+      "filled_quantity": 0,
+      "remaining_quantity": 37,
+      "side": "BUY",
+      "order_type": "LIMIT",
+      "status": "SUBMITTED",
+      "limit_price": 352.81,
+      "stop_price": null,
+      "average_fill_price": null,
+      "time_in_force": "GTC",
+      "created_at": "2026-06-01T16:18:04.525253+00:00",
+      "updated_at": "2026-06-01T16:18:04.538782+00:00",
+      "filled_at": null
+    },
+    {
+      "order_id": "4b7b9db6-faed-4ee1-b74a-2e73c802709e",
+      "ticker": "GOOGL",
+      "quantity": 37,
+      "filled_quantity": 0,
+      "remaining_quantity": 37,
+      "side": "BUY",
+      "order_type": "STOP",
+      "status": "PENDING",
+      "limit_price": null,
+      "stop_price": 386.59,
+      "average_fill_price": null,
+      "time_in_force": "GTC",
+      "created_at": "2026-06-01T16:18:04.525253+00:00",
+      "updated_at": "2026-06-01T16:18:04.526013+00:00",
+      "filled_at": null
+    },
+    {
+      "order_id": "81a43bd9-e663-42fa-8383-dfb236eb49c3",
+      "ticker": "AAPL",
+      "quantity": 45,
+      "filled_quantity": 0,
+      "remaining_quantity": 45,
+      "side": "BUY",
+      "order_type": "LIMIT",
+      "status": "SUBMITTED",
+      "limit_price": 288.31,
+      "stop_price": null,
+      "average_fill_price": null,
+      "time_in_force": "GTC",
+      "created_at": "2026-06-01T16:18:03.603579+00:00",
+      "updated_at": "2026-06-01T16:18:03.617417+00:00",
+      "filled_at": null
+    },
+    {
+      "order_id": "f4e32b4e-2dd2-43a9-b38a-29a826488077",
+      "ticker": "AAPL",
+      "quantity": 45,
+      "filled_quantity": 0,
+      "remaining_quantity": 45,
+      "side": "BUY",
+      "order_type": "STOP",
+      "status": "PENDING",
+      "limit_price": null,
+      "stop_price": 315.91,
+      "average_fill_price": null,
+      "time_in_force": "GTC",
+      "created_at": "2026-06-01T16:18:03.603579+00:00",
+      "updated_at": "2026-06-01T16:18:03.610496+00:00",
+      "filled_at": null
+    }
+  ],
+  "filled_orders": [
+    {
+      "order_id": "fd083bae-991a-4791-8c4f-daac590465b2",
+      "ticker": "MSFT",
+      "quantity": 30,
+      "filled_quantity": 30,
+      "remaining_quantity": 0,
+      "side": "SELL",
+      "order_type": "STOP",
+      "status": "FILLED",
+      "limit_price": null,
+      "stop_price": 445.74,
+      "average_fill_price": 448.706,
+      "time_in_force": "GTC",
+      "created_at": "2026-06-01T16:18:05.678862+00:00",
+      "updated_at": "2026-06-02T13:36:31.994097+00:00",
+      "filled_at": "2026-06-02T13:36:31.992200+00:00"
+    }
+  ],
+  "all_orders": [
+    {
+      "order_id": "a59ae26c-c0dc-4f4e-bcb8-f908ddb31c31",
+      "ticker": "AMZN",
+      "quantity": 53,
+      "filled_quantity": 0,
+      "remaining_quantity": 53,
+      "side": "BUY",
+      "order_type": "LIMIT",
+      "status": "SUBMITTED",
+      "limit_price": 247.35,
+      "stop_price": null,
+      "average_fill_price": null,
+      "time_in_force": "GTC",
+      "created_at": "2026-06-02T11:03:07.678395+00:00",
+      "updated_at": "2026-06-02T11:03:07.693419+00:00",
+      "filled_at": null
+    },
+    {
+      "order_id": "f01ac719-f6fa-41d8-8280-81d494dcd232",
+      "ticker": "AMZN",
+      "quantity": 53,
+      "filled_quantity": 0,
+      "remaining_quantity": 53,
+      "side": "BUY",
+      "order_type": "STOP",
+      "status": "PENDING",
+      "limit_price": null,
+      "stop_price": 271.03,
+      "average_fill_price": null,
+      "time_in_force": "GTC",
+      "created_at": "2026-06-02T11:03:07.678395+00:00",
+      "updated_at": "2026-06-02T11:03:07.687294+00:00",
+      "filled_at": null
+    },
+    {
+      "order_id": "fd083bae-991a-4791-8c4f-daac590465b2",
+      "ticker": "MSFT",
+      "quantity": 30,
+      "filled_quantity": 30,
+      "remaining_quantity": 0,
+      "side": "SELL",
+      "order_type": "STOP",
+      "status": "FILLED",
+      "limit_price": null,
+      "stop_price": 445.74,
+      "average_fill_price": 448.706,
+      "time_in_force": "GTC",
+      "created_at": "2026-06-01T16:18:05.678862+00:00",
+      "updated_at": "2026-06-02T13:36:31.994097+00:00",
+      "filled_at": "2026-06-02T13:36:31.992200+00:00"
+    }
+  ],
+  "successful_trades": [],
+  "unsuccessful_trades": [],
+  "open_position_outcomes": [
+    {
+      "ticker": "AAPL",
+      "quantity": -45,
+      "average_cost": 306.71,
+      "current_price": 314.6551,
+      "market_value": -14159.4795,
+      "unrealized_pnl": -357.5295,
+      "realized_pnl": null,
+      "is_long": false,
+      "is_short": true,
+      "cost_basis": 13801.949999999999,
+      "unrealized_pnl_percent": -2.5904274396009264,
+      "result": "unsuccessful"
+    },
+    {
+      "ticker": "AMZN",
+      "quantity": -53,
+      "average_cost": 263.14,
+      "current_price": 258.32,
+      "market_value": -13690.96,
+      "unrealized_pnl": 255.46,
+      "realized_pnl": null,
+      "is_long": false,
+      "is_short": true,
+      "cost_basis": 13946.42,
+      "unrealized_pnl_percent": 1.8317245572698944,
+      "result": "successful"
+    },
+    {
+      "ticker": "GOOGL",
+      "quantity": -37,
+      "average_cost": 375.33,
+      "current_price": 367.4096,
+      "market_value": -13594.1552,
+      "unrealized_pnl": 293.0548,
+      "realized_pnl": null,
+      "is_long": false,
+      "is_short": true,
+      "cost_basis": 13887.21,
+      "unrealized_pnl_percent": 2.110249646977327,
+      "result": "successful"
+    },
+    {
+      "ticker": "META",
+      "quantity": -23,
+      "average_cost": 606.81,
+      "current_price": 606.34,
+      "market_value": -13945.82,
+      "unrealized_pnl": 10.81,
+      "realized_pnl": null,
+      "is_long": false,
+      "is_short": true,
+      "cost_basis": 13956.63,
+      "unrealized_pnl_percent": 0.07745422784726687,
+      "result": "successful"
+    },
+    {
+      "ticker": "NVDA",
+      "quantity": 63,
+      "average_cost": 220.349683,
+      "current_price": 224.5499,
+      "market_value": 14146.6437,
+      "unrealized_pnl": 264.613671,
+      "realized_pnl": null,
+      "is_long": true,
+      "is_short": false,
+      "cost_basis": 13882.030029,
+      "unrealized_pnl_percent": 1.9061597651583644,
+      "result": "successful"
+    },
+    {
+      "ticker": "TSLA",
+      "quantity": -33,
+      "average_cost": 420.71,
+      "current_price": 422.01,
+      "market_value": -13926.33,
+      "unrealized_pnl": -42.9,
+      "realized_pnl": null,
+      "is_long": false,
+      "is_short": true,
+      "cost_basis": 13883.429999999998,
+      "unrealized_pnl_percent": -0.30900144992988043,
+      "result": "unsuccessful"
+    }
+  ],
+  "unpaired_filled_orders": [
+    {
+      "reason": "not_closed_within_report_day",
+      "ticker": "MSFT",
+      "side": "SELL",
+      "remaining_quantity": 30,
+      "average_fill_price": 448.706,
+      "order_id": "fd083bae-991a-4791-8c4f-daac590465b2",
+      "opened_at": "2026-06-02T13:36:31.992200+00:00"
+    }
+  ],
+  "trade_outcome_summary": {
+    "closed_trade_count": 0,
+    "successful_trade_count": 0,
+    "unsuccessful_trade_count": 0,
+    "unpaired_filled_order_count": 1,
+    "realized_trade_pnl": 0,
+    "open_position_unrealized_pnl": 423.51
+  },
+  "strategies_observed": {
+    "running_today_inference": [
+      "mag7"
+    ],
+    "mag7": {
+      "label": "MAG7 EMA Slope Regime",
+      "configured_tickers": [
+        "AAPL",
+        "AMD",
+        "AMZN",
+        "GOOGL",
+        "META",
+        "MSFT",
+        "NVDA",
+        "TSLA"
+      ],
+      "observed_tickers": [
+        "AAPL",
+        "AMZN",
+        "GOOGL",
+        "META",
+        "MSFT",
+        "NVDA",
+        "TSLA"
+      ],
+      "evidence": [
+        "broker_activity"
+      ]
+    },
+    "earnings": {
+      "label": "Earnings Strategy",
+      "cached_scanner_tickers": [],
+      "observed_tickers": [],
+      "broker_activity_tickers": [],
+      "evidence": []
+    }
+  },
+  "relevant_tickers": [
+    "AAPL",
+    "AMZN",
+    "GOOGL",
+    "META",
+    "MSFT",
+    "NVDA",
+    "TSLA"
+  ],
+  "market_data": {
+    "description": "Actual report-date candlestick data. hourly_session covers 4:00-20:00 New York time; first_rth_minutes covers 9:30-9:35 New York time.",
+    "candles_by_ticker": {
+      "AAPL": {
+        "hourly_session": [
+          {
+            "time": "2026-06-02T08:00:00+00:00",
+            "open": 306.71,
+            "high": 307.59,
+            "low": 305.0,
+            "close": 306.9,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-02T09:00:00+00:00",
+            "open": 307.0,
+            "high": 307.3,
+            "low": 305.82,
+            "close": 305.93,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-02T10:00:00+00:00",
+            "open": 306.1988,
+            "high": 306.3,
+            "low": 305.75,
+            "close": 306.04,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-02T11:00:00+00:00",
+            "open": 306.02,
+            "high": 306.31,
+            "low": 305.66,
+            "close": 305.84,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-02T12:00:00+00:00",
+            "open": 305.79,
+            "high": 306.1988,
+            "low": 305.545,
+            "close": 305.9,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-02T13:00:00+00:00",
+            "open": 305.89,
+            "high": 307.77,
+            "low": 305.3367,
+            "close": 307.37,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-02T13:30:00+00:00",
+            "open": 307.4599914550781,
+            "high": 310.4700012207031,
+            "low": 306.7200012207031,
+            "close": 310.3399963378906,
+            "volume": 7411659,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-02T14:30:00+00:00",
+            "open": 310.375,
+            "high": 312.92999267578125,
+            "low": 309.260009765625,
+            "close": 312.7099914550781,
+            "volume": 4895435,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-02T15:30:00+00:00",
+            "open": 312.70001220703125,
+            "high": 313.1499938964844,
+            "low": 312.0400085449219,
+            "close": 312.489990234375,
+            "volume": 3617660,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-02T16:30:00+00:00",
+            "open": 312.4800109863281,
+            "high": 315.1000061035156,
+            "low": 311.8999938964844,
+            "close": 314.6400146484375,
+            "volume": 4541978,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-02T17:19:25+00:00",
+            "open": 314.5350036621094,
+            "high": 314.5350036621094,
+            "low": 314.5350036621094,
+            "close": 314.5350036621094,
+            "volume": 0,
+            "period": "hour"
+          }
+        ],
+        "first_rth_minutes": [
+          {
+            "time": "2026-06-02T13:30:00+00:00",
+            "open": 307.4599914550781,
+            "high": 308.4800109863281,
+            "low": 306.7200012207031,
+            "close": 308.3500061035156,
+            "volume": 0,
+            "period": "minute"
+          },
+          {
+            "time": "2026-06-02T13:31:00+00:00",
+            "open": 308.4700012207031,
+            "high": 308.9800109863281,
+            "low": 308.2760009765625,
+            "close": 308.9200134277344,
+            "volume": 237260,
+            "period": "minute"
+          },
+          {
+            "time": "2026-06-02T13:32:00+00:00",
+            "open": 308.9200134277344,
+            "high": 309.5299987792969,
+            "low": 308.9200134277344,
+            "close": 309.4100036621094,
+            "volume": 316280,
+            "period": "minute"
+          },
+          {
+            "time": "2026-06-02T13:33:00+00:00",
+            "open": 309.3999938964844,
+            "high": 309.82000732421875,
+            "low": 309.2900085449219,
+            "close": 309.8190002441406,
+            "volume": 196075,
+            "period": "minute"
+          },
+          {
+            "time": "2026-06-02T13:34:00+00:00",
+            "open": 309.79998779296875,
+            "high": 309.8900146484375,
+            "low": 309.4200134277344,
+            "close": 309.654296875,
+            "volume": 140978,
+            "period": "minute"
+          }
+        ]
+      },
+      "AMZN": {
+        "hourly_session": [
+          {
+            "time": "2026-06-02T08:00:00+00:00",
+            "open": 259.7,
+            "high": 261.26,
+            "low": 258.18,
+            "close": 258.5003,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-02T09:00:00+00:00",
+            "open": 258.5,
+            "high": 258.99,
+            "low": 257.54,
+            "close": 257.66,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-02T10:00:00+00:00",
+            "open": 258.0,
+            "high": 258.5,
+            "low": 257.5075,
+            "close": 257.93,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-02T11:00:00+00:00",
+            "open": 257.9,
+            "high": 261.26,
+            "low": 256.66,
+            "close": 257.458,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-02T12:00:00+00:00",
+            "open": 257.458,
+            "high": 260.607,
+            "low": 257.1,
+            "close": 257.45,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-02T13:00:00+00:00",
+            "open": 257.49,
+            "high": 258.32,
+            "low": 257.01,
+            "close": 257.26,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-02T13:30:00+00:00",
+            "open": 257.1600036621094,
+            "high": 258.0,
+            "low": 254.3699951171875,
+            "close": 257.7799987792969,
+            "volume": 11580176,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-02T14:30:00+00:00",
+            "open": 257.8099060058594,
+            "high": 261.2025146484375,
+            "low": 257.760009765625,
+            "close": 260.67999267578125,
+            "volume": 5378234,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-02T15:30:00+00:00",
+            "open": 260.70001220703125,
+            "high": 260.7699890136719,
+            "low": 258.4200134277344,
+            "close": 259.2200012207031,
+            "volume": 3317773,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-02T16:30:00+00:00",
+            "open": 259.2298889160156,
+            "high": 259.25,
+            "low": 258.32000732421875,
+            "close": 258.32720947265625,
+            "volume": 1793012,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-02T17:19:25+00:00",
+            "open": 258.3299865722656,
+            "high": 258.3299865722656,
+            "low": 258.3299865722656,
+            "close": 258.3299865722656,
+            "volume": 0,
+            "period": "hour"
+          }
+        ],
+        "first_rth_minutes": [
+          {
+            "time": "2026-06-02T13:30:00+00:00",
+            "open": 257.1600036621094,
+            "high": 257.8800048828125,
+            "low": 256.3699951171875,
+            "close": 257.4049987792969,
+            "volume": 0,
+            "period": "minute"
+          },
+          {
+            "time": "2026-06-02T13:31:00+00:00",
+            "open": 257.3399963378906,
+            "high": 257.34100341796875,
+            "low": 256.0299987792969,
+            "close": 256.3599853515625,
+            "volume": 245498,
+            "period": "minute"
+          },
+          {
+            "time": "2026-06-02T13:32:00+00:00",
+            "open": 256.3599853515625,
+            "high": 256.44000244140625,
+            "low": 254.82000732421875,
+            "close": 254.82000732421875,
+            "volume": 623652,
+            "period": "minute"
+          },
+          {
+            "time": "2026-06-02T13:33:00+00:00",
+            "open": 254.89500427246094,
+            "high": 255.21499633789062,
+            "low": 254.41000366210938,
+            "close": 255.06500244140625,
+            "volume": 417860,
+            "period": "minute"
+          },
+          {
+            "time": "2026-06-02T13:34:00+00:00",
+            "open": 255.0500030517578,
+            "high": 255.38999938964844,
+            "low": 254.59500122070312,
+            "close": 255.19500732421875,
+            "volume": 321999,
+            "period": "minute"
+          }
+        ]
+      },
+      "GOOGL": {
+        "hourly_session": [
+          {
+            "time": "2026-06-02T08:00:00+00:00",
+            "open": 368.85,
+            "high": 376.37,
+            "low": 366.32,
+            "close": 366.45,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-02T09:00:00+00:00",
+            "open": 366.44,
+            "high": 367.4312,
+            "low": 365.56,
+            "close": 366.6,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-02T10:00:00+00:00",
+            "open": 366.6025,
+            "high": 368.55,
+            "low": 366.5,
+            "close": 368.3,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-02T11:00:00+00:00",
+            "open": 368.29,
+            "high": 376.37,
+            "low": 365.01,
+            "close": 366.0,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-02T12:00:00+00:00",
+            "open": 366.0,
+            "high": 366.29,
+            "low": 365.01,
+            "close": 365.02,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-02T13:00:00+00:00",
+            "open": 365.1,
+            "high": 367.5,
+            "low": 364.5,
+            "close": 366.6,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-02T13:30:00+00:00",
+            "open": 366.6499938964844,
+            "high": 370.7398986816406,
+            "low": 358.44000244140625,
+            "close": 370.3999938964844,
+            "volume": 17085832,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-02T14:30:00+00:00",
+            "open": 370.3999938964844,
+            "high": 373.5400085449219,
+            "low": 369.42999267578125,
+            "close": 369.6700134277344,
+            "volume": 5075041,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-02T15:30:00+00:00",
+            "open": 369.67999267578125,
+            "high": 369.7200012207031,
+            "low": 366.1099853515625,
+            "close": 367.2394104003906,
+            "volume": 3567580,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-02T16:30:00+00:00",
+            "open": 367.2099914550781,
+            "high": 368.9200134277344,
+            "low": 366.6499938964844,
+            "close": 367.4649963378906,
+            "volume": 1865488,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-02T17:19:25+00:00",
+            "open": 367.25,
+            "high": 367.25,
+            "low": 367.25,
+            "close": 367.25,
+            "volume": 0,
+            "period": "hour"
+          }
+        ],
+        "first_rth_minutes": [
+          {
+            "time": "2026-06-02T13:30:00+00:00",
+            "open": 366.6499938964844,
+            "high": 366.70001220703125,
+            "low": 363.2799987792969,
+            "close": 363.3299865722656,
+            "volume": 0,
+            "period": "minute"
+          },
+          {
+            "time": "2026-06-02T13:31:00+00:00",
+            "open": 363.3399963378906,
+            "high": 363.489990234375,
+            "low": 362.010009765625,
+            "close": 362.57501220703125,
+            "volume": 728922,
+            "period": "minute"
+          },
+          {
+            "time": "2026-06-02T13:32:00+00:00",
+            "open": 362.5450134277344,
+            "high": 362.5899963378906,
+            "low": 360.57000732421875,
+            "close": 360.9057922363281,
+            "volume": 837552,
+            "period": "minute"
+          },
+          {
+            "time": "2026-06-02T13:33:00+00:00",
+            "open": 360.9700012207031,
+            "high": 362.0,
+            "low": 360.70001220703125,
+            "close": 361.3750915527344,
+            "volume": 427399,
+            "period": "minute"
+          },
+          {
+            "time": "2026-06-02T13:34:00+00:00",
+            "open": 361.3299865722656,
+            "high": 362.04998779296875,
+            "low": 361.1000061035156,
+            "close": 361.135009765625,
+            "volume": 394695,
+            "period": "minute"
+          }
+        ]
+      },
+      "META": {
+        "hourly_session": [
+          {
+            "time": "2026-06-02T08:00:00+00:00",
+            "open": 603.86,
+            "high": 607.51,
+            "low": 585.19,
+            "close": 606.4988,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-02T09:00:00+00:00",
+            "open": 606.19,
+            "high": 607.8422,
+            "low": 605.39,
+            "close": 605.94,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-02T10:00:00+00:00",
+            "open": 606.48,
+            "high": 606.67,
+            "low": 604.5,
+            "close": 605.14,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-02T11:00:00+00:00",
+            "open": 605.0,
+            "high": 607.0,
+            "low": 600.47,
+            "close": 604.255,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-02T12:00:00+00:00",
+            "open": 604.07,
+            "high": 605.6,
+            "low": 598.969,
+            "close": 601.7193,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-02T13:00:00+00:00",
+            "open": 601.7987,
+            "high": 604.47,
+            "low": 600.5292,
+            "close": 603.12,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-02T13:30:00+00:00",
+            "open": 603.3499755859375,
+            "high": 605.77001953125,
+            "low": 596.6799926757812,
+            "close": 603.2050170898438,
+            "volume": 5067468,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-02T14:30:00+00:00",
+            "open": 603.1900024414062,
+            "high": 608.8800048828125,
+            "low": 602.8049926757812,
+            "close": 607.3699951171875,
+            "volume": 2132122,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-02T15:30:00+00:00",
+            "open": 607.3051147460938,
+            "high": 608.3699951171875,
+            "low": 605.4000244140625,
+            "close": 607.4099731445312,
+            "volume": 1709185,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-02T16:30:00+00:00",
+            "open": 607.4400024414062,
+            "high": 608.2999877929688,
+            "low": 605.4299926757812,
+            "close": 606.5399780273438,
+            "volume": 637506,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-02T17:19:25+00:00",
+            "open": 606.3099975585938,
+            "high": 606.3099975585938,
+            "low": 606.3099975585938,
+            "close": 606.3099975585938,
+            "volume": 0,
+            "period": "hour"
+          }
+        ],
+        "first_rth_minutes": [
+          {
+            "time": "2026-06-02T13:30:00+00:00",
+            "open": 603.3499755859375,
+            "high": 604.0,
+            "low": 600.8599853515625,
+            "close": 601.7750244140625,
+            "volume": 0,
+            "period": "minute"
+          },
+          {
+            "time": "2026-06-02T13:31:00+00:00",
+            "open": 601.7750244140625,
+            "high": 603.1599731445312,
+            "low": 601.0,
+            "close": 601.719970703125,
+            "volume": 111306,
+            "period": "minute"
+          },
+          {
+            "time": "2026-06-02T13:32:00+00:00",
+            "open": 601.719970703125,
+            "high": 604.489990234375,
+            "low": 601.2899780273438,
+            "close": 603.5800170898438,
+            "volume": 129059,
+            "period": "minute"
+          },
+          {
+            "time": "2026-06-02T13:33:00+00:00",
+            "open": 603.8200073242188,
+            "high": 604.27001953125,
+            "low": 601.2100219726562,
+            "close": 601.3200073242188,
+            "volume": 101460,
+            "period": "minute"
+          },
+          {
+            "time": "2026-06-02T13:34:00+00:00",
+            "open": 601.3200073242188,
+            "high": 602.989990234375,
+            "low": 600.60498046875,
+            "close": 602.114990234375,
+            "volume": 102157,
+            "period": "minute"
+          }
+        ]
+      },
+      "MSFT": {
+        "hourly_session": [
+          {
+            "time": "2026-06-02T08:00:00+00:00",
+            "open": 454.92,
+            "high": 460.52,
+            "low": 450.35,
+            "close": 452.52,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-02T09:00:00+00:00",
+            "open": 452.52,
+            "high": 452.82,
+            "low": 450.18,
+            "close": 450.3,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-02T10:00:00+00:00",
+            "open": 450.3,
+            "high": 450.9857,
+            "low": 447.5,
+            "close": 450.0,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-02T11:00:00+00:00",
+            "open": 449.99,
+            "high": 460.52,
+            "low": 447.62,
+            "close": 448.1303,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-02T12:00:00+00:00",
+            "open": 448.4,
+            "high": 460.52,
+            "low": 445.0,
+            "close": 446.0,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-02T13:00:00+00:00",
+            "open": 446.0,
+            "high": 447.53,
+            "low": 445.04,
+            "close": 446.86,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-02T13:30:00+00:00",
+            "open": 447.16900634765625,
+            "high": 453.5,
+            "low": 443.5,
+            "close": 444.2300109863281,
+            "volume": 10605001,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-02T14:30:00+00:00",
+            "open": 444.2300109863281,
+            "high": 445.2597961425781,
+            "low": 442.3399963378906,
+            "close": 443.57000732421875,
+            "volume": 4862335,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-02T15:30:00+00:00",
+            "open": 443.54998779296875,
+            "high": 446.20001220703125,
+            "low": 443.17999267578125,
+            "close": 445.7799987792969,
+            "volume": 2903136,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-02T16:30:00+00:00",
+            "open": 445.79998779296875,
+            "high": 445.8999938964844,
+            "low": 442.3999938964844,
+            "close": 444.81500244140625,
+            "volume": 2847181,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-02T17:19:24+00:00",
+            "open": 444.6199951171875,
+            "high": 444.6199951171875,
+            "low": 444.6199951171875,
+            "close": 444.6199951171875,
+            "volume": 0,
+            "period": "hour"
+          }
+        ],
+        "first_rth_minutes": [
+          {
+            "time": "2026-06-02T13:30:00+00:00",
+            "open": 447.16900634765625,
+            "high": 451.3599853515625,
+            "low": 445.7099914550781,
+            "close": 450.3800048828125,
+            "volume": 0,
+            "period": "minute"
+          },
+          {
+            "time": "2026-06-02T13:31:00+00:00",
+            "open": 449.80999755859375,
+            "high": 453.5,
+            "low": 449.6000061035156,
+            "close": 450.6600036621094,
+            "volume": 362529,
+            "period": "minute"
+          },
+          {
+            "time": "2026-06-02T13:32:00+00:00",
+            "open": 450.80999755859375,
+            "high": 452.2099914550781,
+            "low": 450.6499938964844,
+            "close": 451.1400146484375,
+            "volume": 213828,
+            "period": "minute"
+          },
+          {
+            "time": "2026-06-02T13:33:00+00:00",
+            "open": 451.0950012207031,
+            "high": 452.0299987792969,
+            "low": 450.70001220703125,
+            "close": 450.7650146484375,
+            "volume": 232659,
+            "period": "minute"
+          },
+          {
+            "time": "2026-06-02T13:34:00+00:00",
+            "open": 450.8399963378906,
+            "high": 451.17999267578125,
+            "low": 448.260009765625,
+            "close": 448.4200134277344,
+            "volume": 240653,
+            "period": "minute"
+          }
+        ]
+      },
+      "NVDA": {
+        "hourly_session": [
+          {
+            "time": "2026-06-02T08:00:00+00:00",
+            "open": 228.85,
+            "high": 235.0,
+            "low": 222.44,
+            "close": 226.94,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-02T09:00:00+00:00",
+            "open": 226.95,
+            "high": 228.87,
+            "low": 226.51,
+            "close": 228.5,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-02T10:00:00+00:00",
+            "open": 228.5032,
+            "high": 229.2482,
+            "low": 227.29,
+            "close": 227.31,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-02T11:00:00+00:00",
+            "open": 227.25,
+            "high": 228.55,
+            "low": 224.36,
+            "close": 227.3292,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-02T12:00:00+00:00",
+            "open": 227.32,
+            "high": 227.5,
+            "low": 226.48,
+            "close": 226.9195,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-02T13:00:00+00:00",
+            "open": 226.92,
+            "high": 227.54,
+            "low": 224.36,
+            "close": 227.2,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-02T13:30:00+00:00",
+            "open": 227.19000244140625,
+            "high": 232.27999877929688,
+            "low": 225.0500030517578,
+            "close": 228.5299072265625,
+            "volume": 63909850,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-02T14:30:00+00:00",
+            "open": 228.50999450683594,
+            "high": 228.9499969482422,
+            "low": 225.35009765625,
+            "close": 225.93899536132812,
+            "volume": 25956281,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-02T15:30:00+00:00",
+            "open": 225.9499053955078,
+            "high": 226.86500549316406,
+            "low": 224.14999389648438,
+            "close": 224.85000610351562,
+            "volume": 18776428,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-02T16:30:00+00:00",
+            "open": 224.8300018310547,
+            "high": 225.6300048828125,
+            "low": 224.3800048828125,
+            "close": 224.58999633789062,
+            "volume": 11474558,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-02T17:19:26+00:00",
+            "open": 224.5449981689453,
+            "high": 224.5449981689453,
+            "low": 224.5449981689453,
+            "close": 224.5449981689453,
+            "volume": 0,
+            "period": "hour"
+          }
+        ],
+        "first_rth_minutes": [
+          {
+            "time": "2026-06-02T13:30:00+00:00",
+            "open": 227.19000244140625,
+            "high": 227.50999450683594,
+            "low": 225.4700927734375,
+            "close": 225.552001953125,
+            "volume": 0,
+            "period": "minute"
+          },
+          {
+            "time": "2026-06-02T13:31:00+00:00",
+            "open": 225.57000732421875,
+            "high": 226.89999389648438,
+            "low": 225.4499969482422,
+            "close": 226.8699951171875,
+            "volume": 1095707,
+            "period": "minute"
+          },
+          {
+            "time": "2026-06-02T13:32:00+00:00",
+            "open": 226.8699951171875,
+            "high": 227.5,
+            "low": 225.6699981689453,
+            "close": 226.16000366210938,
+            "volume": 1437741,
+            "period": "minute"
+          },
+          {
+            "time": "2026-06-02T13:33:00+00:00",
+            "open": 226.19000244140625,
+            "high": 226.23190307617188,
+            "low": 225.16000366210938,
+            "close": 225.7100067138672,
+            "volume": 1068429,
+            "period": "minute"
+          },
+          {
+            "time": "2026-06-02T13:34:00+00:00",
+            "open": 225.7050018310547,
+            "high": 226.52000427246094,
+            "low": 225.59500122070312,
+            "close": 226.3800048828125,
+            "volume": 832299,
+            "period": "minute"
+          }
+        ]
+      },
+      "TSLA": {
+        "hourly_session": [
+          {
+            "time": "2026-06-02T08:00:00+00:00",
+            "open": 416.5127,
+            "high": 419.0,
+            "low": 411.81,
+            "close": 417.85,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-02T09:00:00+00:00",
+            "open": 417.8,
+            "high": 419.15,
+            "low": 416.8,
+            "close": 418.76,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-02T10:00:00+00:00",
+            "open": 418.97,
+            "high": 418.97,
+            "low": 415.865,
+            "close": 416.07,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-02T11:00:00+00:00",
+            "open": 416.07,
+            "high": 417.41,
+            "low": 415.4,
+            "close": 417.0778,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-02T12:00:00+00:00",
+            "open": 417.11,
+            "high": 418.5,
+            "low": 417.07,
+            "close": 417.5517,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-02T13:00:00+00:00",
+            "open": 417.5118,
+            "high": 418.49,
+            "low": 417.3326,
+            "close": 418.31,
+            "volume": 0,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-02T13:30:00+00:00",
+            "open": 418.0799865722656,
+            "high": 420.8800048828125,
+            "low": 413.6499938964844,
+            "close": 419.7349853515625,
+            "volume": 11132908,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-02T14:30:00+00:00",
+            "open": 419.7349853515625,
+            "high": 423.4700012207031,
+            "low": 419.1600036621094,
+            "close": 421.92999267578125,
+            "volume": 6317345,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-02T15:30:00+00:00",
+            "open": 421.94000244140625,
+            "high": 422.79998779296875,
+            "low": 420.57000732421875,
+            "close": 421.2699890136719,
+            "volume": 2755424,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-02T16:30:00+00:00",
+            "open": 421.2699890136719,
+            "high": 423.3299865722656,
+            "low": 420.0799865722656,
+            "close": 422.3345947265625,
+            "volume": 2361007,
+            "period": "hour"
+          },
+          {
+            "time": "2026-06-02T17:19:26+00:00",
+            "open": 422.3627014160156,
+            "high": 422.3627014160156,
+            "low": 422.3627014160156,
+            "close": 422.3627014160156,
+            "volume": 0,
+            "period": "hour"
+          }
+        ],
+        "first_rth_minutes": [
+          {
+            "time": "2026-06-02T13:30:00+00:00",
+            "open": 418.0799865722656,
+            "high": 419.4927062988281,
+            "low": 417.1199951171875,
+            "close": 418.5849914550781,
+            "volume": 0,
+            "period": "minute"
+          },
+          {
+            "time": "2026-06-02T13:31:00+00:00",
+            "open": 418.5849914550781,
+            "high": 418.6860046386719,
+            "low": 416.2099914550781,
+            "close": 416.3900146484375,
+            "volume": 296415,
+            "period": "minute"
+          },
+          {
+            "time": "2026-06-02T13:32:00+00:00",
+            "open": 416.4457092285156,
+            "high": 417.1199035644531,
+            "low": 414.5,
+            "close": 414.6000061035156,
+            "volume": 356119,
+            "period": "minute"
+          },
+          {
+            "time": "2026-06-02T13:33:00+00:00",
+            "open": 414.5,
+            "high": 414.92999267578125,
+            "low": 413.8100891113281,
+            "close": 414.57000732421875,
+            "volume": 366266,
+            "period": "minute"
+          },
+          {
+            "time": "2026-06-02T13:34:00+00:00",
+            "open": 414.4800109863281,
+            "high": 414.67999267578125,
+            "low": 413.6499938964844,
+            "close": 413.8550109863281,
+            "volume": 186562,
+            "period": "minute"
+          }
+        ]
+      }
+    }
+  },
+  "ai_conclusion": {
+    "grok": {
+      "provider": "grok",
+      "status": "completed",
+      "parse_status": "parsed_json",
+      "raw_response": "{\n  \"daily_assessment\": \"Mixed day: +423 unrealized on 5/6 positions but daily P&L -$567; AAPL short reversed hard on post-open rally while AMZN/GOOGL/NVDA worked; mag7 only active strategy.\",\n  \"what_went_well\": [\n    \"AMZN short profitable +255 (entry ~263.14, current 258.32); 13:30 UTC candle low 254.37 provided good entry zone\",\n    \"GOOGL short +293 (entry 375.33, current 367.41); 13:30 UTC dipped to 358.44 low\",\n    \"NVDA long +265 (entry 220.35, current 224.55); consistent uptrend through hourly closes 226.9->228.5->225.9->224.6\",\n    \"META short small +11 profit; price held near 606 entry\"\n  ],\n  \"what_went_wrong\": [\n    \"AAPL short -358 loss (entry 306.71, current 314.66); 13:30 UTC candle (O307.46 C310.34) and subsequent 14:30 (C312.71), 16:30 (C314.64) showed strong reversal rally\",\n    \"TSLA short -43 loss (entry 420.71, current 422.01); 13:30-16:30 hourly closes 419.7->421.9->421.3->422.3 uptrend\",\n    \"Daily P&L -$567 vs positive unrealized; MSFT unpaired SELL stop fill at 448.706 contributed to realized drag\",\n    \"Many open GTC exit orders (e.g. AAPL BUY 288.31 limit) far from current prices; limited fills today\"\n  ],\n  \"successful_trade_lessons\": [\n    \"EMA slope + band filter captured downside follow-through on AMZN/GOOGL after 13:30 UTC volatility\",\n    \"NVDA long worked on sustained positive slope through multiple hourly bars\"\n  ],\n  \"unsuccessful_trade_lessons\": [\n    \"Short entries on AAPL/TSLA failed when price broke above recent hourly highs post 13:30 UTC (AAPL 310.47 high, TSLA 420.88 high)\",\n    \"Need stronger confirmation or tighter band on reversal-prone names like AAPL (306->314+ move)\"\n  ],\n  \"recommended_actions\": [\n    \"Tighten _band or add volume filter in _evaluate_signal_with_price to avoid weak shorts\",\n    \"Review _process_signal logic for AAPL/TSLA reversals; consider intraday slope reset\",\n    \"Close or adjust far OTM open exit orders (AAPL 288 limit etc.) to free capital\",\n    \"Pause new mag7 shorts on AAPL/TSLA until clearer downtrend confirmation\"\n  ],\n  \"mag7_ticker_changes\": {\n    \"add\": [],\n    \"remove\": [\"AAPL\"],\n    \"rationale\": \"AAPL short reversal from 306.71 entry to 314.66+ (13:30-16:30 UTC candles) hurt P&L; remove until strategy params adjusted\"\n  },\n  \"new_strategy_ideas\": [\n    \"Add short-term momentum or VWAP deviation filter to mag7 hourly evaluation\",\n    \"Test earnings scanner activation for upcoming reports (currently zero activity)\"\n  ],\n  \"risk_controls\": [\n    \"Lower per-ticker notional or max positions to 5 during volatile sessions\",\n    \"Add daily loss limit trigger to pause mag7 signals if P&L < -$400\",\n    \"Monitor open_orders more aggressively; cancel stale GTC limits\"\n  ],\n  \"confidence\": 60\n}",
+      "parsed": {
+        "daily_assessment": "Mixed day: +423 unrealized on 5/6 positions but daily P&L -$567; AAPL short reversed hard on post-open rally while AMZN/GOOGL/NVDA worked; mag7 only active strategy.",
+        "what_went_well": [
+          "AMZN short profitable +255 (entry ~263.14, current 258.32); 13:30 UTC candle low 254.37 provided good entry zone",
+          "GOOGL short +293 (entry 375.33, current 367.41); 13:30 UTC dipped to 358.44 low",
+          "NVDA long +265 (entry 220.35, current 224.55); consistent uptrend through hourly closes 226.9->228.5->225.9->224.6",
+          "META short small +11 profit; price held near 606 entry"
+        ],
+        "what_went_wrong": [
+          "AAPL short -358 loss (entry 306.71, current 314.66); 13:30 UTC candle (O307.46 C310.34) and subsequent 14:30 (C312.71), 16:30 (C314.64) showed strong reversal rally",
+          "TSLA short -43 loss (entry 420.71, current 422.01); 13:30-16:30 hourly closes 419.7->421.9->421.3->422.3 uptrend",
+          "Daily P&L -$567 vs positive unrealized; MSFT unpaired SELL stop fill at 448.706 contributed to realized drag",
+          "Many open GTC exit orders (e.g. AAPL BUY 288.31 limit) far from current prices; limited fills today"
+        ],
+        "successful_trade_lessons": [
+          "EMA slope + band filter captured downside follow-through on AMZN/GOOGL after 13:30 UTC volatility",
+          "NVDA long worked on sustained positive slope through multiple hourly bars"
+        ],
+        "unsuccessful_trade_lessons": [
+          "Short entries on AAPL/TSLA failed when price broke above recent hourly highs post 13:30 UTC (AAPL 310.47 high, TSLA 420.88 high)",
+          "Need stronger confirmation or tighter band on reversal-prone names like AAPL (306->314+ move)"
+        ],
+        "recommended_actions": [
+          "Tighten _band or add volume filter in _evaluate_signal_with_price to avoid weak shorts",
+          "Review _process_signal logic for AAPL/TSLA reversals; consider intraday slope reset",
+          "Close or adjust far OTM open exit orders (AAPL 288 limit etc.) to free capital",
+          "Pause new mag7 shorts on AAPL/TSLA until clearer downtrend confirmation"
+        ],
+        "mag7_ticker_changes": {
+          "add": [],
+          "remove": [
+            "AAPL"
+          ],
+          "rationale": "AAPL short reversal from 306.71 entry to 314.66+ (13:30-16:30 UTC candles) hurt P&L; remove until strategy params adjusted"
+        },
+        "new_strategy_ideas": [
+          "Add short-term momentum or VWAP deviation filter to mag7 hourly evaluation",
+          "Test earnings scanner activation for upcoming reports (currently zero activity)"
+        ],
+        "risk_controls": [
+          "Lower per-ticker notional or max positions to 5 during volatile sessions",
+          "Add daily loss limit trigger to pause mag7 signals if P&L < -$400",
+          "Monitor open_orders more aggressively; cancel stale GTC limits"
+        ],
+        "confidence": 60
+      },
+      "error": null
+    },
+    "gemini": {
+      "provider": "gemini",
+      "status": "completed",
+      "parse_status": "parsed_json",
+      "raw_response": "# Comprehensive Academic Analysis of the Magnificent Seven Equities, AI Infrastructure Capital Expenditures, and Quantitative Trading System Performance as of June 2, 2026\n\n**Key Points:**\n* Research suggests that the market is currently experiencing a profound \"Capex-to-FCF Divergence,\" where hyperscalers (Meta, Alphabet, Amazon, Microsoft) are being heavily scrutinized for their massive artificial intelligence infrastructure investments.\n* It appears likely that semiconductor providers, particularly NVIDIA, are the primary near-term beneficiaries of this capital expenditure cycle, as evidenced by NVIDIA's 85% year-over-year revenue growth.\n* The evidence leans toward Apple remaining a defensive safe haven due to its aggressive $100 billion share repurchase program, which seems to insulate it from broader macroeconomic tech volatility.\n* Purely technical trend-following strategies (such as the EMA Slope Regime) may experience friction when deployed across fundamentally divergent assets; the strategy successfully shorted hyperscalers facing capex concerns but suffered drawdowns against Apple's fundamental buyback momentum.\n\n**Methodology**\nThis report synthesizes real-time market data, recent macroeconomic news, and historical financial context from the past four months (February to June 2026) to evaluate the fundamental posture of the \"Magnificent Seven\" (MAG7) equities. The analysis integrates these fundamental insights with a rigorous quantitative review of automated trading performance on June 2, 2026. \n\n**Scope of Analysis**\nThe subsequent sections provide an exhaustive review of Q1 and Q2 2026 earnings reports, capital expenditure guidance, and strategic pivots across the MAG7. Furthermore, we dissect the intraday candlestick data and algorithmic execution logs to refine the parameters of the active quantitative trading systems.\n\n## Introduction: Market Context in Mid-2026\n\nThe technological landscape of mid-2026 is defined by a massive, unprecedented expansion in artificial intelligence infrastructure. Termed the \"agentic AI inflection point,\" this era is characterized by hyperscale cloud providers investing heavily in compute capacity to support generative AI, multi-modal applications, and autonomous agents [cite: 1], [cite: 2]. The \"Magnificent Seven\" stocks\u2014Apple (AAPL), Amazon (AMZN), Alphabet (GOOGL), Meta Platforms (META), Microsoft (MSFT), NVIDIA (NVDA), and Tesla (TSLA)\u2014continue to dictate broader index performance [cite: 3]. However, the homogeneous upward momentum that characterized these equities in previous years has fractured. \n\nInvestors are increasingly segmenting the MAG7 based on their role in the AI value chain. Companies providing the foundational hardware (NVIDIA) are seeing immediate, parabolic revenue realization [cite: 4], [cite: 5]. Conversely, companies building the infrastructure (Meta, Alphabet, Microsoft) are facing intense scrutiny regarding their escalating capital expenditures (capex) and the delayed timeline for free cash flow (FCF) generation [cite: 6], [cite: 7]. Meanwhile, consumer-facing tech giants (Apple) and idiosyncratic pivots (Tesla) present entirely different fundamental dynamics [cite: 8], [cite: 9]. \n\nFor quantitative traders, this macroeconomic backdrop necessitates a highly nuanced approach. Trend-following algorithms that treat all MAG7 equities as highly correlated assets are prone to whipsaws. A deep fundamental overlay is required to understand why certain technical setups succeed while others fail.\n\n## The Hyperscaler Capex Dilemma: Amazon, Alphabet, Meta, and Microsoft\n\nA dominant theme over the past four months has been the staggering capital commitments made by hyperscalers. While revenue growth across these platforms remains robust, the market is aggressively repricing their near-term profitability due to the cost of AI infrastructure.\n\n### Alphabet Inc. (GOOGL)\n\nAlphabet's Q1 2026 earnings report, released in late April, was fundamentally stellar but underscored the cost of AI dominance. Consolidated revenues reached a record $109.9 billion, representing a 22% year-over-year increase [cite: 10], [cite: 11]. Google Cloud was the standout performer, crossing the $20 billion mark for the first time with a 63% growth rate, fueled primarily by enterprise AI solutions [cite: 11], [cite: 12]. Furthermore, the cloud operating margin expanded dramatically to 32.9% from 17.8% a year prior [cite: 10], [cite: 12]. \n\nDespite these outstanding top-line metrics, the market focused heavily on the company's capital allocation. Alphabet updated its full-year 2026 capex guidance to an astonishing $180 billion to $190 billion, up from prior estimates [cite: 10], [cite: 12]. CFO Ruth Porat indicated that 2027 capex would increase even further, reflecting \"unprecedented internal and external demand for AI compute resources\" [cite: 10]. Additionally, while Alphabet reported an EPS of $5.11 (an 82% increase), this figure was heavily distorted by a $37.7 billion net unrealized gain on non-marketable equity securities [cite: 11], [cite: 12]. \n\nThe quantitative implication is clear: Alphabet's massive capex burden creates downward pressure on free cash flow, making the stock susceptible to short-term technical breakdowns despite its revenue growth. Our automated system successfully captured this sentiment, holding a short position of 37 shares at an average cost of $375.33, resulting in an unrealized gain as the stock traded down to $367.40.\n\n### Meta Platforms, Inc. (META)\n\nMeta Platforms exhibited a nearly identical dynamic. The company's Q1 2026 report showcased exceptional advertising health. Revenue hit $56.31 billion, a 33% year-over-year jump, significantly beating analyst estimates [cite: 13], [cite: 6]. Ad impressions grew by 19%, and the average price per ad climbed 12%, proving that Meta's AI-driven ad ranking algorithms are successfully unlocking advertiser demand [cite: 14], [cite: 15]. \n\nHowever, the stock experienced a severe after-hours drop of up to 10% following the release [cite: 6]. The catalyst was management's decision to raise the 2026 capex forecast to $125 billion to $145 billion, a substantial $10 billion step-up from previous guidance [cite: 6], [cite: 16]. This structural shift in spending scale implies lower near-term free cash flow and delayed returns on investment [cite: 7]. Furthermore, Reality Labs continued to burn capital, posting a $4.03 billion operating loss on just $402 million in revenue [cite: 14], [cite: 17]. \n\nOur algorithmic strategy recognized the breakdown in Meta's moving average slopes, successfully initiating a short position of 23 shares at $606.81, which remained slightly profitable as the stock hovered near $606.34 on June 2. \n\n### Amazon.com, Inc. (AMZN)\n\nAmazon's Q1 2026 performance presented a slightly more resilient profile, though it remains tied to the hyperscaler narrative. Net sales increased 17% to $181.5 billion, driven by AWS revenue of $37.6 billion (a 28% year-over-year acceleration) [cite: 18], [cite: 19]. Amazon achieved its highest operating margin on record at 13.1%, producing $23.9 billion in operating income [cite: 19], [cite: 20]. \n\nHowever, like Alphabet and Meta, Amazon is allocating tens of billions toward AI infrastructure. The company reported $43.2 billion in quarterly capital expenditures, and projections suggest free cash flow could face headwinds into late 2026 [cite: 20]. Consequently, the stock's reaction to the earnings beat was muted, closing up just 0.77% [cite: 20]. The automated system capitalized on this post-earnings lethargy, establishing a short position of 53 shares at $263.14, generating a robust +1.83% unrealized return as the price decayed to $258.32.\n\n### Microsoft Corporation (MSFT)\n\nMicrosoft's fiscal Q3 2026 results (reported in late April) highlighted revenue of $82.9 billion, an 18% increase year-over-year [cite: 21], [cite: 22]. The Intelligent Cloud segment was the primary driver, with Azure revenue growing between 31% and 40% depending on currency adjustments [cite: 21], [cite: 23]. Despite this, Microsoft faces the same capex gravity as its peers. The company guided for roughly $190 billion in capital expenditures for calendar year 2026 [cite: 21], [cite: 23]. \n\nA critical factor for Microsoft's immediate price action is event-driven volatility. June 2, 2026, marks the beginning of the highly anticipated Microsoft Build 2026 developer conference in San Francisco [cite: 24], [cite: 25]. Historically, developer conferences generate intraday volatility as new AI features and hardware partnerships are announced [cite: 26], [cite: 27]. The trading system effectively captured a short entry via a SELL STOP order at $448.706 during early session weakness, leveraging the uncertainty surrounding the event.\n\n## The Hardware and Ecosystem Winners: NVIDIA and Apple\n\nIn stark contrast to the hyperscalers bearing the infrastructure costs, companies supplying the hardware or insulating themselves via consumer monopolies have exhibited different fundamental profiles.\n\n### NVIDIA Corporation (NVDA)\n\nNVIDIA remains the undisputed beneficiary of the AI buildout. On May 20, 2026, the company reported Q1 FY2027 revenue of $81.6 billion, an extraordinary 85% year-over-year increase [cite: 4], [cite: 2]. Data center revenue accounted for $75.2 billion of this total, up 92% year-over-year [cite: 2], [cite: 5]. The scale of this growth forced Wall Street to aggressively revise its models, as Q2 revenue guidance was set at an unprecedented $91.0 billion [cite: 2], [cite: 28]. \n\nCrucially, NVIDIA signaled immense financial health and shareholder confidence by increasing its quarterly cash dividend by a factor of 25 (from $0.01 to $0.25) and authorizing an additional $80.0 billion in share repurchases [cite: 5], [cite: 28]. This behavior deviates entirely from typical growth-phase reinvestment, solidifying NVIDIA's status as a mature cash-printing monopoly [cite: 28]. \n\nOur quantitative system rightly maintained a long exposure of 63 shares in NVIDIA. The entry cost of $220.34 was substantially validated by the stock's appreciation to $224.54, securing a +1.90% unrealized gain. The EMA slope logic performed flawlessly in this trending environment.\n\n### Apple Inc. (AAPL)\n\nApple represents a unique defensive posture within the MAG7. Unlike the hyperscalers, Apple is not currently engaged in a $100+ billion data center buildout. Instead, its Q2 2026 earnings (reported May 1, 2026) demonstrated the sheer power of its consumer ecosystem. Apple reported revenue of $111.2 billion, up 17% year-over-year, alongside record iPhone sales of $57 billion and record Services revenue of $31 billion [cite: 29], [cite: 9]. \n\nMore importantly, Apple announced a massive $100 billion share repurchase authorization and a 4% dividend increase [cite: 29], [cite: 9]. Gross margins expanded to 49.3%, defying macroeconomic headwinds [cite: 9], [cite: 30]. The combination of accelerating top-line growth and relentless share buybacks creates a structural upward pressure on the stock price. \n\nHere, the automated trading system failed. The system initiated a short position of 45 shares at $306.71, which subsequently drew down to an unrealized loss of -2.59% as the price surged to $314.65. This failure highlights a core limitation of purely technical momentum models: they are blind to massive corporate actions like a $100 billion buyback that structurally prevent sustained downtrends.\n\n## The Strategic Outlier: Tesla\n\nTesla's fundamental narrative has officially decoupled from traditional automotive metrics. In its Q1 2026 report, Tesla posted $22.4 billion in revenue (up 16% year-over-year) and improved its gross margin to 21.1% [cite: 31], [cite: 32]. However, the earnings call served as a pivot point. Management raised 2026 capex guidance to over $25 billion\u2014roughly three times its 2025 spend\u2014specifically to fund AI training compute, the Cybercab ramp, and Optimus humanoid robot production [cite: 32], [cite: 32]. \n\nThis massive bet on autonomy comes with significant execution risk. Tesla essentially confirmed it expects negative free cash flow for the remainder of 2026 [cite: 31], [cite: 8]. Furthermore, disclosures regarding limitations in older \"Hardware 3\" vehicles complicated the Robotaxi rollout timeline [cite: 32]. Consequently, Tesla's stock is trading on volatile, speculative sentiment rather than stable cash flows [cite: 8], [cite: 33]. The algorithmic short position in TSLA (-0.30% unrealized) remains trapped in noisy consolidation near $422.00, suggesting that pure trend-following models should avoid tickers undergoing severe narrative transitions.\n\n## Quantitative Trading Strategy Review\n\nThe automated trading infrastructure utilizes two primary sub-systems: the `mag7` EMA Slope Regime model and the `earnings` gap scanner.\n\n### The MAG7 EMA Slope Regime\n\nThe `mag7` strategy processes pricing data on a tick-by-tick basis, constructing dynamic hourly session windows to evaluate trend direction. The core mathematical engine relies on an Exponential Moving Average (EMA) and its first derivative (slope).\n\nThe EMA is calculated as:\n\\[ \\text{EMA}_t = \\alpha \\cdot P_t + (1 - \\alpha) \\cdot \\text{EMA}_{t-1} \\]\nwhere \\(\\alpha = \\frac{2}{N + 1}\\) and \\(N\\) is the `ema_period`.\n\nThe slope is derived by taking the difference over a lookback window:\n\\[ \\text{Slope}_t = \\text{EMA}_t - \\text{EMA}_{t-k} \\]\nwhere \\(k\\) is the `slope_len`. \n\nThe execution logic dictates:\n```python\nlong_signal = (price > (ema_value * (1.0 + self._band))) and (slope_value > 0.0)\nshort_signal = (price < (ema_value * (1.0 - self._band))) and (slope_value < 0.0)\n```\n\n**Critique:** This model is exceptionally effective in macro-aligned trending markets, as evidenced by the successful NVIDIA long and the hyperscaler (AMZN, GOOGL) shorts. However, the `_band` parameter is highly sensitive to gap-ups caused by corporate buybacks. In the case of Apple, the price remained elevated, but a short-term volatility contraction likely triggered a false `short_signal` when the slope momentarily dipped. To improve risk-adjusted returns, this logic must incorporate a fundamental overlay\u2014such as restricting short signals on assets with active buyback yields exceeding a specific threshold.\n\n### The Earnings Scanner Strategy\n\nThe `earnings` module utilizes an AI consensus scanner to identify pre-market earnings catalysts. Its execution logic targets the opening volatility of the regular trading hours (RTH) session:\n```python\ncandle = await self._load_first_rth_candle(ticker, trading_day)\nentry_price: float = round(candle.low, 2)\n```\nBy placing a limit order at the exact low of the 9:30\u20139:35 AM NY candle, the strategy attempts to capture mean-reversion bounces in highly liquid environments. \n\n**Critique:** While theoretically sound for capturing liquidity sweeps, the system logged zero successful entries today. The rigid requirement to hit the exact 5-minute low via a limit order often results in missed fills during strong directional moves. Implementing a trailing entry or a slight positive offset (e.g., `candle.low + 0.05`) could improve fill rates.\n\n## Intraday Candlestick Analysis (June 2, 2026)\n\nA granular review of the candlestick payload validates the efficacy and shortcomings of the execution models on June 2, 2026.\n\n| Ticker | 09:30 NY Open | 09:30 NY Low | 16:00 NY Close | Intraday Trend |\n| :--- | :--- | :--- | :--- | :--- |\n| **AAPL** | 307.45 | 306.72 | 314.64 | Strong Bullish |\n| **AMZN** | 257.16 | 254.36 | 258.32 | Consolidation |\n| **GOOGL** | 366.64 | 358.44 | 367.46 | Volatile Reversal |\n| **META** | 603.34 | 596.67 | 606.53 | Bullish Reversal |\n| **MSFT** | 447.16 | 443.50 | 444.81 | Bearish |\n| **NVDA** | 227.19 | 225.05 | 224.58 | Bearish Drift |\n| **TSLA** | 418.07 | 413.64 | 422.33 | Strong Bullish |\n\n**Apple (AAPL):** During the first 5 minutes of regular trading hours (13:30 UTC), AAPL opened at 307.45 and dipped to 306.72. However, relentless buying pressure, likely supported by the ongoing $100 billion share repurchase execution, drove the asset higher continuously. By the 14:30 UTC hourly block, it reached 312.92, eventually closing the session near the high of the day at 314.64. The short position initiated at 306.71 was severely punished by this unbroken trend.\n\n**Microsoft (MSFT):** MSFT exhibited distinct weakness at the open, dropping from 447.16 to a low of 443.50 within the first hour. This volatility coincided with the opening day of the Microsoft Build 2026 developer conference. The automated system successfully executed a SELL STOP order at 448.706 at 13:36:31 UTC. While the fill price was highly favorable, the stock's subsequent consolidation around 444.81 suggests the market is waiting for major keynote announcements before committing to a deeper trend.\n\n**NVIDIA (NVDA):** Despite its overwhelmingly bullish fundamental backdrop, NVDA experienced a slight intraday bearish drift. Opening the RTH session at 227.19, it steadily decayed to close at 224.58. However, because our long position was secured at a highly advantageous cost basis of 220.34, the portfolio easily absorbed this intraday variance, maintaining positive unrealized PnL.\n\n**Tesla (TSLA):** TSLA's action was notably erratic. It opened the RTH session at 418.07, plunged to a low of 413.64 within the 13:30 hourly window, and then reversed violently to close at 422.33. This whipsaw price action perfectly illustrates the danger of deploying simple moving average slope strategies on fundamentally unstable assets undergoing major capex transitions.\n\n## Portfolio Performance and Risk Assessment\n\nAs of the June 2, 2026 evaluation baseline, the portfolio holds a cash balance of $158,195.11 and total equity of $103,023.92. The daily PnL stands at a loss of -$566.78, despite an open-position unrealized gain of +$423.51. \n\nThis discrepancy indicates that realized losses (potentially from stopped-out trades earlier in the session or swap fees) are eroding the gains generated by the open book. The primary drag on the portfolio is the AAPL short position, which carries a market value of -$14,159.47 and an unrealized loss of -$357.52 (-2.59%). \n\nRisk-adjusted returns are currently suboptimal due to the lack of a macro-regime filter. The system is treating all MAG7 equities with equal statistical weight, ignoring the fact that capital flow is actively rotating out of high-capex hyperscalers (AMZN, GOOGL, META) and into hardware providers (NVDA) and consumer cash-cows (AAPL).\n\n## Strategic Recommendations and Adjustments\n\nTo make as much money as possible while protecting capital, the following systemic adjustments are recommended:\n\n1. **Implement a Capex-to-FCF Divergence Filter:** The algorithmic logic must be updated to ingest quarterly capex guidance. Equities with capex-to-revenue ratios increasing by more than 20% year-over-year (e.g., META, GOOGL) should have their `long_signal` thresholds heavily penalized and their `short_signal` thresholds relaxed, aligning the technical execution with the fundamental FCF drag.\n2. **Buyback Squeeze Protection:** Establish a hard rule forbidding short entries on equities with active share repurchase programs exceeding 3% of their market capitalization. This immediately invalidates the AAPL short position, preserving capital against mechanical corporate buying.\n3. **Event-Driven Volatility Suspension:** Pause automated entries on tickers actively hosting major product or developer conferences. The current MSFT Build 2026 event introduces unpredictable headline risk that invalidates the predictive power of historical EMA slopes.\n4. **Remove High-Beta Transitional Assets:** Tesla must be removed from the `mag7` universe. The company is actively shifting from a high-volume EV manufacturer to a speculative AI/Robotics platform. This narrative transition results in chaotic price action that generates false technical signals.\n\n## Conclusion\n\nThe market environment of June 2026 requires quantitative systems to look beyond basic price derivatives. The artificial intelligence infrastructure boom has created a bifurcated market within the Magnificent Seven. Algorithmic strategies that blindly apply mean-reversion or trend-following logic without accounting for $190 billion capex budgets or $100 billion share repurchases will suffer unnecessary drawdowns. By integrating fundamental overlays that respect these massive capital flows, the automated system can significantly improve its risk-adjusted returns and capitalize on the \"Capex-to-FCF Divergence\" currently dominating global equities.\n\n## Automated Trading System Output (Strict JSON)\n\n```json\n{\n  \"daily_assessment\": \"The portfolio generated a net daily loss of -$566.78 despite positive open-position unrealized PnL (+423.51). The EMA slope strategy is experiencing friction against macro-driven fundamental momentum, particularly as AAPL's $100B buyback program forces a short squeeze, and MSFT/GOOGL react dynamically to massive AI capex announcements and developer conferences.\",\n  \"what_went_well\": [\n    \"Maintained profitable short exposure in AMZN, GOOGL, and META, capturing +1.83%, +2.11%, and +0.08% unrealized gains respectively by aligning with the market's repricing of hyperscaler capex burdens.\",\n    \"Held NVDA long position successfully through extreme AI-driven volatility, capitalizing on its 85% YoY revenue growth and 25x dividend hike to secure a +1.90% unrealized margin.\",\n    \"Successfully filled MSFT short order at 448.706, leveraging intraday weakness during the opening of the Microsoft Build 2026 conference.\"\n  ],\n  \"what_went_wrong\": [\n    \"The automated strategy mistakenly held an AAPL short position (-2.59% unrealized) despite AAPL's recent blowout Q2 2026 earnings ($111.2B revenue, 49.3% margins) and structural support from a $100B share repurchase.\",\n    \"TSLA short remains unprofitable as price consolidated near 422.01; the pure EMA signal was misled by the erratic volatility following TSLA's pivot to a $25B AI/Robotaxi capex.\",\n    \"The 'Both' trade direction logic allowed counter-trend shorts in fundamentally bullish assets undergoing massive structural AI tailwinds.\"\n  ],\n  \"successful_trade_lessons\": [\n    \"Trend-following strategies performed optimally on NVDA where the fundamental momentum perfectly aligned with the EMA slope.\",\n    \"Shorting mega-caps that issued alarming capex guidance (META's $125-$145B and GOOGL's $180-$190B) proved effective as the market temporarily repriced their near-term free cash flow yield.\"\n  ],\n  \"unsuccessful_trade_lessons\": [\n    \"Ignoring large-scale corporate actions (like AAPL's $100B buyback) leads to catastrophic short-side drag against relentless mechanical buying.\",\n    \"The earnings scanner and EMA logic are vulnerable to 'event risk' when executing pure technical entries on days with major keynote events like MSFT Build.\"\n  ],\n  \"recommended_actions\": [\n    \"Immediately close the AAPL short position at market to prevent further drawdowns against the buyback tailwind.\",\n    \"Adjust EMA slope parameters to require a longer warmup period for shorting assets with >20% YoY revenue growth.\",\n    \"Pause 'earnings' and 'mag7' strategy entries on MSFT until the conclusion of the Microsoft Build 2026 event to avoid headline whipsaws.\",\n    \"Hold NVDA long and tighten trailing stops to lock in gains generated from its record $81.6B Q1 FY27 revenue.\"\n  ],\n  \"mag7_ticker_changes\": {\n    \"add\": [],\n    \"remove\": [\n      \"TSLA\"\n    ],\n    \"rationale\": \"TSLA is undergoing a structural narrative shift toward AI and robotics, with a highly controversial $25B capex plan and Hardware 3 limitations. This fundamental uncertainty breaks the mean-reverting and trending assumptions of the current EMA algorithms, causing excessive portfolio drag.\"\n  },\n  \"new_strategy_ideas\": [\n    \"Capex-to-FCF Divergence Strategy: Go long infrastructure hardware providers (NVDA) while selectively shorting hyperscalers showing declining FCF yield due to massive data center buildouts.\",\n    \"Post-Earnings Buyback Alpha: Implement a fundamental overlay that automatically overrides short signals and forces long exposure on mega-caps announcing >$50B buyback programs coupled with >10% EPS beats.\"\n  ],\n  \"risk_controls\": [\n    \"Disable short selling on any ticker within 30 days of announcing a share repurchase program exceeding 3% of its market cap.\",\n    \"Implement an event-volatility filter that restricts automated entries on tickers with major scheduled events (e.g., MSFT Build, Apple WWDC) to avoid unpredictable algorithmic sweeps.\"\n  ],\n  \"confidence\": 92\n}\n```\n\n**Sources:**\n1. [nvidia.com](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEdKkGVWTfdO37eXbYhDj4CC7P7ep6VwuVLWtd0rEFv2wQOK4bZ8vvSr5Ux6dFYZA-5jrDgXHDFQcTI2AD3cwMJxM8eyUNxqwGOInEcU_51vYgG9SOGLPdWlD6OapqxemhilR21qDRIwhDEii8VV5Xuc59LvEgzNVQ6zptnIpxn66jXHZnR7_GF5P_5__waHHoKhXvoFGeDVr_trKmmRw==)\n2. [qz.com](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFHGxnqLWVe5q_t6x8WY1wo2CzupNpoxBm8v-Zw5qn2sS0_M9Dm2QpaPX6YZv_3jGUgxhcAcrmcIRZeEYyISnJHZgEPZkfUFULuKX5MjWViH3XpUCGTj20U9yPVVr3wKvpCI5PRC-XdoDuS12hE9-qheAB5R7kGhigGk9A=)\n3. [home.saxo](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQElB7i4yIj6on6jkPQlpligHYWzfA0MAOAnN7LdgHsgav5_gB59XUXt1AfsrYxhAKefpt3McmXk0G1hIiAKxwqz-U-cdIttWg8S5tK2Gw5bstUkTI_WKNENlMa7sFV0mmi-Ox_HT-Ox9miGRBNd-mNMZ6gMYI2cFMiti46exK9R9Sjrl0SyJsoTLex_Z3L7lUg0oXNp0cytT7ENJC8=)\n4. [tikr.com](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHbD3gIOudLbai5R9FInPTL4Jli_uh-kzKab9CQ8UKoDCCLBD1rgaNnFqlBNMZuq6Jkmgyjc3I_8vhaJYa5boqFfDtYvNUoz9cXh2DVpiiNfShtbvTfA1DRmgoE0Q7co4xAwoUg5XCWmFuSheiAimt0DVyN6y56urDZteMnDhy_MwGA136HMXvyGXkQ5jADX_kk3XAZwThywfVYQcsbWFMWDA==)\n5. [nvidia.com](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQG6YMDVVyg_L1xt7jATOz5WdNgYKeSjAizutiBHeqOhzc1HIpdbQWDimBlbKgSpGe-qCf0HF2iQm99DfYyfc9MO-QZeA3m9c1xmbhjtgtQD5yS-hor34J_kP5LCrJIILOfxdzBlYx7dUYy8FCKCWh9FhtnNscMd6BJQJ3KP5qHvcPmmJGVG2LRpEr76UYlGH13S754A0rqDdto=)\n6. [tikr.com](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHbruqBkmb-oGBbn7BX5EG9ktc9lXSHno6yZb0MKT6LtqpbewFhBoLaePMkhV2m4MDZCJJviqi1jI5PkjP96k_IELfM-zO2MVqHGjeyO-dWOVIRt_tq)\n7. [coindcx.com](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFJEuyl3o_oclJbfEMJHde9_zHTXLsE3bus1YKAk9y2_y39WIHqW62jf1IIZ1kc3aly69amQ6grekEUlWWHPgksPf009tRncwBPBc4IbFPlgZhiB-Lft0rruFSwu0LNY8ETGm-KGwVPLooLEANqbsOPkl5-5D_u)\n8. [trefis.com](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEGK6Y4hzZUcKlImGaLVZD2lPnTi46riZg_owTs5u1Sh8b0kZnia6zAh0yF2Ypj-SckEOjYWO37BEvKpSlhE6dyeWZ3kvfPOmj1KiJCn2HyPTGPm897mFt3uMIIAfqRAp0oydYlWs2c4Zfh9bnacVoqH3cIyzbQv-IMLnYRoNXEsljI1GR7eW71YK0k7KwGyCIJvbSe-Hzc_MepAKv1fza04k1JZk4NcZDTtVsbsgwz9EAZjNsA-PJuYnPE8DI=)\n9. [tradingkey.com](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQH19twCmtgjGFVYi7CgPW2ti6Fb53jAo9cNWmjNi-o6I7yh8Q0bgx9bYuHKWxuyFqQfIg0hieLQBxxLMjr5Xw8AvDdgqT3d4iU6TZXQgrNHvUkZ8hGCV1yh9M4lThO0XVyiaYGTr5qNrBsCxRZ_kSiWO4hq-VbqhpdE0Ur4N1jUBhVhA7SKss6d2TzLwkaEMrnbhhI=)\n10. [perplexity.ai](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEitPAuhY7xh5VlROOS9uBkoma0tR_uuNW7khHoCeuRpNcBylQ2zxATap_6YPaDO6KJ7wnPAhhb1oAPmV30EoM4INwOxmnnrKsicVZ5K8pFaBA6coUdRNl3F-qekhrW6fmkKcy_Buc=)\n11. [q4cdn.com](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEqqKMBLLKlqZ501cvyvng5SleZJEyGvmDcTuJNypqKPqiEd_zJ5cSHphMJuBnluYGhYyZtGKcFNoxoM6S3WCVd4izAratAuZpOjz4_4fAy9xDnx7yb-JRkQFdCwmDc2xgqJ0H_DQP_fkpFsHkZ0Nl5LgbL940rzlSSwAxUx_SOck1gRC9m2SGQ7r5DKsyHxlLDE_uMx5WxwQ==)\n12. [youtube.com](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFcyzrJOaOhGGEgJm8rOS9wDAdtwONefRYTlNQU9Z7K3UgF4n6x8BH61Pa4vqoyw_del-Vusa7KWfZ032s8UyAkiV1OqS_sg1jTXYAnVtxbLk5noZcf7mOF9-VvynS_tT3L)\n13. [tikr.com](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQF-xaJvzRbM25dX-dVMum7XpUR12qnPg4FxHk6dozx63Vr2CJEHtUS94aNAlX5VlmzJ9PRdidAh93E1aoETQ-Dp6b4AWVkCOhJUUWE5sPRbIvzHTk7o-x8EdoLVuNlvVzOXCAL3TP6l1AT_wGbdBjsK2LqnZGXbNknXKekNGd6siejkedajNXZQK_J2vFr7-9LYbl2bfH06uEmTPw==)\n14. [247wallst.com](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHamodStEzMmzcYRoekLXMCFFeUwgNuEvl12t71B9a4F16QRLxEvuPp2IlA3uRaE3vUgIl9VxdTeZYdBQTROCPdqVkkNnpN3cB1F7i1WjBu69uttK1ERGBbPfkLvNzUNs80S0I1h6IvQAyli_Qy32_KYRWZDVKwj-Wqm0OGtOpY17bPbQ==)\n15. [heygotrade.com](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFmiHNAgBCkfD9oRY3w7FP33nHY703pTI3hO87MpMzU0EF-n2QfaIMVgdaZrD_CAlSh6WrjjNdiacr54rwZaLrQIjba0nBfb1awp2d6QlErydBZXXRhLxmOMelgYU19B-EIIObkpu6vK-NM1nYgsnb_RMC93HVyim7geWmW7DS4WCVmuMRv)\n16. [atmeta.com](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQF9n30MlADWeUw-3l7J4tmjnwMXYC5KUTir-cw9l_Gkp2L8rvBQY3w9Et9LWn_rtMc2sUxcLalHq7hnBytpwA0quqF9u5i3usyWscKk0Eb2lSV_0vrAtGpuKt8Y-yn4sn4_wM-JTAvIohN1fsdTTMSWqJAhioDsl8L348A1tXfI5HtOpwQPMoLoxM_xbr9AaLGNkIlsqgWZTpxI29An2F5-kaAKq0j3HBJsEOMUiBIn)\n17. [heygotrade.com](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFxy2LodsJPu5tZfrMdKS8qZ82icUVE_xC1madKRd0jy9F_dh-MQ8eW05ywWlMe0dpxezMhF8nwElspa-ERs0Ii6-WHImEgn4WrRC77wOEzmMOdZJdewqcHv7ezg6wchQgfmwPR03PRPG9IdiMFcM7Hduq_vI86SFo=)\n18. [aboutamazon.com](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEjSFZiIGd7G0sVJggn_DyrP_jMFnt-vix7_Qit6UUsnrZHsiyZVEenimKVpUaOIVjEH82ezxzeA0BMZFOInUh3sMvkr9ueTamzNd48n1djoLIO76QKYMG8lgvyek6sHHUXIQijp5dPPZ5A4XuN2ygonGeibwPMkKTH7uOx6X9VLq4ky7qcoSggwbeHxWx65WJMDx3IPL-Kj6QeZZ13xJ57GiRcC4PEaeRtxzvI6VHQ)\n19. [perplexity.ai](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQE0Rrir9Ny0sokDWoKTZE544V9Hc1bvltcUg6_7WEX6AGgEeSI8GaFoFgWx43p-LSUSKDw-pr1EljkOv0PHlAvK-2rPzBc8UvFIIQ5520D9Zlgfyn6Gvu3SJjw9vJ7DDSnfMbQAXA==)\n20. [tikr.com](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQE8rOR2akbEOr5suWmXzZkyuLvkS9kn5iNl4lz-82DDOELuBJDFD60-SbKE3YaDK0WX9ubCoMAXM07PIlcLUPpV7aeaggfCVgSMRb26KcJ11ePywNoF7SzD0mCDeEjJNtQ3HrSLAaeaQElDz5Iod3HACSaAfg7aSHZbRSDAF8IrxS_jxmsAw-Cx4apvyStu)\n21. [zacks.com](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQF0i49YgAj_sFyqEesZH2SZGWTqLs4f0F34PCCEg4c3UbPuOMlZJIbZaKb6_p0IhB1dzrUkjy8QyVMNEn5Z1MqtK0wpsm12OKpSRD6Z7SLDsFHby-MWXJLgSq-7fgZRGi4A5adJNs_-N1ZhjX94krNMQRZYET_XUKHbo0oCUcxEVlihlPgtU5r0CayxgEVgj4TGKDRixHkI5hWyBEl24ANv)\n22. [marketbeat.com](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHaiSL7DClftuocUomevfwVMXVeLdLCYV3STNvoqdcz7am96QVCZx0ESbl_0DjZcSfbFF7Xln51qCJiZb09Baecu_m_LVT4twlKMXh-3yMxt6wbRl2QAb2Gkq1zW29UlAWS2SlPG8_BH6yw3u0d)\n23. [tradingkey.com](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQE0gokf_bCLLlkH4A82PIAScbYw6fpCBXPRcM4ph8YmC4VqyqJXWXiyLpLH92O5CwnWtexK_uAyl2SWVmyM0zFhoMY9NgLvYD76q3qFb8hPpvwKkmWTxAEWu9MmJCe36QMnTH7Q5i7DMkuIpOOQpWQTCbXbXOft7h3w2SZk_y8W8yX0BikMbKPETUoG4NzZSxcF49wjLppn9nulk4FH_X50Z0vTQyU0Y-CJV5cR0gqkUhhenW2C4eSx-GbewQ4=)\n24. [microsoft.com](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQECEFx9LMYssVHkULhCuJRYrHkk0qqQmaNeO5hNmGGWp8HhRBgfBPpRZlGW6XNgYnLRrB2Vlgh5Q-Pqv2gwZWo2uFeNpb622qPJWwXfScYgscajmGUuNTzKiX75yg==)\n25. [reworked.co](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHj0jCD-gxs3qbL4POpXwLWEB7L6zTmTJ7OzZAkxSfxfHicPfa1bq4dpTUfPAd5KHspRmqLqRJXQq6i4kD0osmEyzbkoW6tNE2qR026go27LTAskCn49h6ti9_N6Wiwg5i3oI6Q2xKicJFCtxDkRG5QrNNvnu3TTMl0N2z-KVmIKw1BOw==)\n26. [engadget.com](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHvNzToSQVe2TMV609C43CS4VCvI3rdQiwy_dB5c_qwc2Pt8iO0ojpHfZZo8DvFKSKA8CTYD_5tdU2BKv2l3OAnot1eHkfTGDseP-Ttl4KMdAmYxOBjGqOywYCMDYY_H9pbC9WzSFmnSfPFWPF77S_yXMVrkmtIBfiw)\n27. [cnet.com](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHF8Ua833D7HTP_o-43lqn82rISZvn8fJD1duWlqnGqxsABKh347VXENA0zwbQAbcrCWAdaqOw7JezS4qtfwk7--812DHzy7_uLlxtxglPY38TChC6uh3ZFtrYNNNKSl0kxiRxH55NAW7gq3Sk07OptqT2jJXWuCMv5cA==)\n28. [indmoney.com](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFbcLbob4UQIPLAm04azVP5Dju_18bIunHQDmphXyhk-WB80PzvXiuRa_DzZ0REa-6lu4fGeCXaEEF1sdnLj-9X4Edv0h7nfT1xinF43tvaL07Q2d25fvW9D1hadI0f61NHKGJu1JFnDkv-AJ9NaBN2fYNuOLtZwvgEafbfGs4IFvMFCL5bdc5dAriFQ194YcFJXSGD)\n29. [perplexity.ai](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEfIE54UTAsdLwL4O4bFkrG2DPhc5Cei9ZreYPCKxhPliQjVIhZbE8emMkKOod23YAFmUYU8KcC1v18OerWCFheFDqc4pk_Kciz3uKlUDevqimgqWmV0Yv01g5F_IMc3GxKH9U2Qg==)\n30. [stocktitan.net](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFkKPdsCZtUC97gEUS5AcLLvc93GccOoHYqvMxXoTifF6fBIaQF_Of3VpxJsfAfWqAT3Y14B-pAK7eHpH5wY-dvzGmpN74QIs8fXdsWEKzLAqViq4wyt89oytyUc-Rawz52Fz-DD9Oyf1kYTx7T12kpQTGOiwrTytNh2UxOYC2e7sjWkrBg1sUrdsCybzMUlOOeaAQIc2IQgQUHO9Y=)\n31. [tikr.com](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQF5KQ4ymhS_e2tyTQSHBKvaKCev5uszPX8cGi67gLG7g0OI_3aup3iznMOjYrLzU5wcZP65RbulEuMhIl7ON6kOIrVFZ-kVsFVqR6UVv7NY-p7_UyRxYYxC5LeLZYOvO3LUUKKKlM3_vq8UJjlpsQW5Cnrl53o-nWq9B6oMOVQ7IH_CzHxo6Wf7CCk=)\n32. [heygotrade.com](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHmMA-8YK8BzLRA51_3GB72aZuYDyLwSw93GF2zQyQSRFzATj7nPx9YafFVEci0LBvbsN6pOKmSL_jeXu0wHG_qLLugZJ87R2KOX275AiJaHEBu-R7kdZEOt5gUaCNFtveW0zs7Ph1cJegOB5S6Ph1bB1n7TSU4)\n33. [investing.com](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGeUUq9vrCarMsyoVMsU4vcz1No5g9io-V13IMY-VfM1xyrrqwfF3qqok3tROtOXXXkE4Gu2QOBl0SqkzCSbbqUusIEdJJr_wUd90rYkgh9Qah34hSbu0B7Wgeknuh1lkCCWvjKtv-Srbz7EOL6BdXVqcntzilXlQab26zeB3N4-wa_q2a_dj3MEmyG4upjJiBR2IfClnxfIE6_ni6twZyDig-73sk=)\n",
+      "parsed": {
+        "daily_assessment": "The portfolio generated a net daily loss of -$566.78 despite positive open-position unrealized PnL (+423.51). The EMA slope strategy is experiencing friction against macro-driven fundamental momentum, particularly as AAPL's $100B buyback program forces a short squeeze, and MSFT/GOOGL react dynamically to massive AI capex announcements and developer conferences.",
+        "what_went_well": [
+          "Maintained profitable short exposure in AMZN, GOOGL, and META, capturing +1.83%, +2.11%, and +0.08% unrealized gains respectively by aligning with the market's repricing of hyperscaler capex burdens.",
+          "Held NVDA long position successfully through extreme AI-driven volatility, capitalizing on its 85% YoY revenue growth and 25x dividend hike to secure a +1.90% unrealized margin.",
+          "Successfully filled MSFT short order at 448.706, leveraging intraday weakness during the opening of the Microsoft Build 2026 conference."
+        ],
+        "what_went_wrong": [
+          "The automated strategy mistakenly held an AAPL short position (-2.59% unrealized) despite AAPL's recent blowout Q2 2026 earnings ($111.2B revenue, 49.3% margins) and structural support from a $100B share repurchase.",
+          "TSLA short remains unprofitable as price consolidated near 422.01; the pure EMA signal was misled by the erratic volatility following TSLA's pivot to a $25B AI/Robotaxi capex.",
+          "The 'Both' trade direction logic allowed counter-trend shorts in fundamentally bullish assets undergoing massive structural AI tailwinds."
+        ],
+        "successful_trade_lessons": [
+          "Trend-following strategies performed optimally on NVDA where the fundamental momentum perfectly aligned with the EMA slope.",
+          "Shorting mega-caps that issued alarming capex guidance (META's $125-$145B and GOOGL's $180-$190B) proved effective as the market temporarily repriced their near-term free cash flow yield."
+        ],
+        "unsuccessful_trade_lessons": [
+          "Ignoring large-scale corporate actions (like AAPL's $100B buyback) leads to catastrophic short-side drag against relentless mechanical buying.",
+          "The earnings scanner and EMA logic are vulnerable to 'event risk' when executing pure technical entries on days with major keynote events like MSFT Build."
+        ],
+        "recommended_actions": [
+          "Immediately close the AAPL short position at market to prevent further drawdowns against the buyback tailwind.",
+          "Adjust EMA slope parameters to require a longer warmup period for shorting assets with >20% YoY revenue growth.",
+          "Pause 'earnings' and 'mag7' strategy entries on MSFT until the conclusion of the Microsoft Build 2026 event to avoid headline whipsaws.",
+          "Hold NVDA long and tighten trailing stops to lock in gains generated from its record $81.6B Q1 FY27 revenue."
+        ],
+        "mag7_ticker_changes": {
+          "add": [],
+          "remove": [
+            "TSLA"
+          ],
+          "rationale": "TSLA is undergoing a structural narrative shift toward AI and robotics, with a highly controversial $25B capex plan and Hardware 3 limitations. This fundamental uncertainty breaks the mean-reverting and trending assumptions of the current EMA algorithms, causing excessive portfolio drag."
+        },
+        "new_strategy_ideas": [
+          "Capex-to-FCF Divergence Strategy: Go long infrastructure hardware providers (NVDA) while selectively shorting hyperscalers showing declining FCF yield due to massive data center buildouts.",
+          "Post-Earnings Buyback Alpha: Implement a fundamental overlay that automatically overrides short signals and forces long exposure on mega-caps announcing >$50B buyback programs coupled with >10% EPS beats."
+        ],
+        "risk_controls": [
+          "Disable short selling on any ticker within 30 days of announcing a share repurchase program exceeding 3% of its market cap.",
+          "Implement an event-volatility filter that restricts automated entries on tickers with major scheduled events (e.g., MSFT Build, Apple WWDC) to avoid unpredictable algorithmic sweeps."
+        ],
+        "confidence": 92
+      },
+      "error": null
+    },
+    "combined": {
+      "providers_completed": [
+        "grok",
+        "gemini"
+      ],
+      "providers_failed": [],
+      "shared_recommendations": [],
+      "parsed_provider_count": 2
+    }
+  }
+}

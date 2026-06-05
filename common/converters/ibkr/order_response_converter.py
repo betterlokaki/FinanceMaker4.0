@@ -1,5 +1,5 @@
 """IBKR order response converter."""
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 
 from common.models.order import OrderSide, OrderStatus, OrderType, TimeInForce
@@ -162,6 +162,19 @@ class OrderResponseConverter:
         ).upper()
         time_in_force = cls.TIF_MAP.get(tif_str, TimeInForce.DAY)
         
+        created_at = cls._first_datetime(
+            ibkr_response,
+            ("created_at", "createdAt", "placed_time", "placedTime", "submitted_at"),
+        ) or datetime.now(timezone.utc)
+        updated_at = cls._first_datetime(
+            ibkr_response,
+            ("updated_at", "updatedAt", "lastExecutionTime", "last_execution_time", "last_update"),
+        ) or created_at
+        filled_at = cls._first_datetime(
+            ibkr_response,
+            ("filled_at", "filledAt", "lastExecutionTime", "last_execution_time"),
+        )
+
         return OrderResponse(
             order_id=order_id,
             ticker=ticker,
@@ -174,8 +187,9 @@ class OrderResponseConverter:
             stop_price=stop_price,
             average_fill_price=avg_fill_price,
             time_in_force=time_in_force,
-            created_at=datetime.now(),
-            updated_at=datetime.now(),
+            created_at=created_at,
+            updated_at=updated_at,
+            filled_at=filled_at if status == OrderStatus.FILLED else None,
         )
 
     @classmethod
@@ -221,3 +235,44 @@ class OrderResponseConverter:
             created_at=datetime.now(),
             updated_at=datetime.now(),
         )
+
+    @classmethod
+    def _first_datetime(
+        cls,
+        payload: dict[str, Any],
+        keys: tuple[str, ...],
+    ) -> datetime | None:
+        for key in keys:
+            parsed = cls._safe_datetime(payload.get(key))
+            if parsed is not None:
+                return parsed
+        return None
+
+    @staticmethod
+    def _safe_datetime(value: Any) -> datetime | None:
+        if isinstance(value, datetime):
+            return value
+        if value is None or value == "":
+            return None
+        if isinstance(value, (int, float)):
+            raw = float(value)
+            if raw > 10_000_000_000:
+                raw /= 1000.0
+            try:
+                return datetime.fromtimestamp(raw, tz=timezone.utc)
+            except (OSError, ValueError):
+                return None
+        if isinstance(value, str):
+            stripped = value.strip()
+            if stripped.isdigit():
+                return OrderResponseConverter._safe_datetime(float(stripped))
+            for fmt in ("%Y%m%d %H:%M:%S", "%Y-%m-%d %H:%M:%S"):
+                try:
+                    return datetime.strptime(stripped, fmt).replace(tzinfo=timezone.utc)
+                except ValueError:
+                    continue
+            try:
+                return datetime.fromisoformat(stripped.replace("Z", "+00:00"))
+            except ValueError:
+                return None
+        return None

@@ -77,8 +77,9 @@ class AlpacaOrderResponseConverter:
             stop_price=cls._safe_float(cls._get(alpaca_order, "stop_price", None)),
             average_fill_price=cls._safe_float(cls._get(alpaca_order, "filled_avg_price", None)),
             time_in_force=cls.TIF_MAP.get(tif, TimeInForce.DAY),
-            created_at=cls._get(alpaca_order, "created_at", None) or datetime.now(),
-            updated_at=cls._get(alpaca_order, "updated_at", None) or datetime.now(),
+            created_at=cls._safe_datetime(cls._get(alpaca_order, "created_at", None)) or datetime.now(),
+            updated_at=cls._safe_datetime(cls._get(alpaca_order, "updated_at", None)) or datetime.now(),
+            filled_at=cls._safe_datetime(cls._get(alpaca_order, "filled_at", None)),
         )
 
     @classmethod
@@ -111,3 +112,16 @@ class AlpacaOrderResponseConverter:
             return float(value)
         except (TypeError, ValueError):
             return None
+
+    @staticmethod
+    def _safe_datetime(value: Any) -> datetime | None:
+        if isinstance(value, datetime):
+            return value
+        if not value:
+            return None
+        if isinstance(value, str):
+            try:
+                return datetime.fromisoformat(value.replace("Z", "+00:00"))
+            except ValueError:
+                return None
+        return None
