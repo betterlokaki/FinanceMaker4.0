@@ -59,7 +59,7 @@ class Mag7EmaSlopeRegimeLiveStrategy(RealTimeTradingBase):
         slope_len: int = 36,
         band: float = 0.0,
         stop_loss_pct: float = 0.03,
-        take_profit_pct: float = 0.06,
+        take_profit_pct: float = 0.05,
     ) -> None:
         """Initialize strategy with tuned MAG7 defaults."""
         super().__init__(realtime_provider, broker=broker)

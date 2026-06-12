@@ -46,6 +46,7 @@ jobs:
             test_alpaca_converters.py \
             test_alpaca_order_request_converter.py \
             test_alpaca_broker.py \
+            test_run_live_mag7_entrypoint.py \
             test_run_live_strategies_menu.py
 
       - name: Compile strategy entrypoint
@@ -163,7 +164,7 @@ jobs:
       - name: Create or update Cloud Run Job
         run: |
           set -euo pipefail
-          ENV_VARS="BROKER_PROVIDER=alpaca,ALPACA_PAPER=true,ALPACA_NOTIONAL_PER_TRADE=14000,EOD_REPORT_ENABLED=false,PYTHONUNBUFFERED=1,YFINANCE_CACHE_DIR=/tmp/yfinance-cache"
+          ENV_VARS="BROKER_PROVIDER=alpaca,ALPACA_PAPER=true,ALPACA_NOTIONAL_PER_TRADE=14000,ALPACA_TAKE_PROFIT_PCT=0.05,ALPACA_STOP_LOSS_PCT=0.03,EOD_REPORT_ENABLED=false,PYTHONUNBUFFERED=1,YFINANCE_CACHE_DIR=/tmp/yfinance-cache"
           SECRET_VARS="ALPACA_API_KEY=${ALPACA_API_KEY_SECRET_NAME}:latest,ALPACA_SECRET_KEY=${ALPACA_SECRET_KEY_SECRET_NAME}:latest,GROK_API_KEY=${GROK_API_KEY_SECRET_NAME}:latest,GEMINI_API_KEY=${GEMINI_API_KEY_SECRET_NAME}:latest"
           JOB_FLAGS=(
             --image "${{ steps.image.outputs.image_uri }}"

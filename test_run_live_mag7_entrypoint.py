@@ -29,7 +29,7 @@ def test_seconds_until_israel_stop_at_stop_time() -> None:
     assert seconds_until_israel_stop(now) == 0
 
 
-def test_mag7_entry_order_uses_gtc_and_default_three_percent_stop_loss() -> None:
+def test_mag7_entry_order_uses_gtc_and_default_five_to_three_bracket() -> None:
     strategy = Mag7EmaSlopeRegimeLiveStrategy(
         realtime_provider=object(),
         market_provider=object(),
@@ -46,5 +46,5 @@ def test_mag7_entry_order_uses_gtc_and_default_three_percent_stop_loss() -> None
     assert order_request.time_in_force == TimeInForce.GTC
     assert order_request.take_profit_rth is True
     assert order_request.stop_loss_rth is False
-    assert order_request.take_profit_price == 106.0
+    assert order_request.take_profit_price == 105.0
     assert order_request.stop_loss_price == 97.0

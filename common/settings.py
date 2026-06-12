@@ -134,8 +134,8 @@ class AlpacaConfig(BaseSettings):
         description="Background portfolio refresh interval in seconds; 0 disables refresh",
     )
     take_profit_pct: float = Field(
-        default=0.06,
-        description="Default Alpaca take-profit percentage (0.06 = 6%)",
+        default=0.05,
+        description="Default Alpaca take-profit percentage (0.05 = 5%)",
     )
     stop_loss_pct: float = Field(
         default=0.03,
