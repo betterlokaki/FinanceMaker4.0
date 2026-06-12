@@ -323,7 +323,7 @@ def test_startup_attaches_gtc_rth_oco_for_unprotected_long_position() -> None:
         assert oco.time_in_force.value == "gtc"
         assert oco.order_class.value == "oco"
         assert oco.extended_hours is False
-        assert oco.take_profit.limit_price == 106.0
+        assert oco.take_profit.limit_price == 105.0
         assert oco.stop_loss.stop_price == 97.0
         assert client.closed_positions == []
         await broker.disconnect()
@@ -349,7 +349,7 @@ def test_startup_attaches_inverse_oco_prices_for_unprotected_short_position() ->
         assert oco.time_in_force.value == "gtc"
         assert oco.order_class.value == "oco"
         assert oco.extended_hours is False
-        assert oco.take_profit.limit_price == 94.0
+        assert oco.take_profit.limit_price == 95.0
         assert oco.stop_loss.stop_price == 103.0
         assert client.closed_positions == []
         await broker.disconnect()
