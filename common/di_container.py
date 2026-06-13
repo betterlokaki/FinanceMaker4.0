@@ -238,7 +238,7 @@ class Container(containers.DeclarativeContainer):
     # Shared live strategy list for menu-free scheduled runs.
     strategies: providers.Provider[list[ITradingStrategy]] = providers.Callable(
         create_live_strategies,
-        selection=providers.Object(LiveStrategySelection.BOTH),
+        selection=providers.Object(LiveStrategySelection.MAG7),
         broker=live_broker,
         realtime_provider=yahoo_realtime_provider,
         market_provider=yahoo_market_provider,
