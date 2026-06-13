@@ -13,8 +13,11 @@ env:
   PYTHON_VERSION: "3.12"
   ARTIFACT_REPOSITORY: financemaker-repo
   IMAGE_NAME: mag7-alpaca
+  MOMENTUM_IMAGE_NAME: momentum-breakout-alpaca
   JOB_NAME: financemaker-mag7-alpaca-paper
+  MOMENTUM_JOB_NAME: financemaker-momentum-breakout-alpaca-paper
   SCHEDULER_NAME: financemaker-mag7-alpaca-paper-scheduler
+  MOMENTUM_SCHEDULER_NAME: financemaker-momentum-breakout-alpaca-paper-scheduler
   SCHEDULER_CRON: "0 14 * * 1-5"
   SCHEDULER_TIME_ZONE: Asia/Jerusalem
   TASK_TIMEOUT: 33000s
@@ -47,23 +50,41 @@ jobs:
             test_alpaca_order_request_converter.py \
             test_alpaca_broker.py \
             test_run_live_mag7_entrypoint.py \
-            test_run_live_strategies_menu.py
+            test_run_live_strategies_menu.py \
+            test_scheduler_live_strategy_wiring.py \
+            test_momentum_breakout_strategy.py \
+            test_run_live_momentum_breakout_menu.py
 
       - name: Compile strategy entrypoint
         env:
           BROKER_PROVIDER: alpaca
           ALPACA_API_KEY: dummy
           ALPACA_SECRET_KEY: dummy
+          MOMENTUM_ALPACA_API_KEY: dummy
+          MOMENTUM_ALPACA_SECRET_KEY: dummy
           GROK_API_KEY: dummy
           GEMINI_API_KEY: dummy
           PYTHONDONTWRITEBYTECODE: "1"
-        run: python -m py_compile run_live_strategies_menu.py
+        run: |
+          python -m py_compile \
+            run_live_mag7_ema_slope_regime_strategy.py \
+            run_live_strategies_menu.py \
+            run_live_momentum_breakout_menu.py \
+            strategy/momentum_breakout_strategy/menu.py \
+            strategy/momentum_breakout_strategy/momentum_breakout_live_strategy.py
 
       - name: Build Alpaca Docker image
         run: |
           docker build \
             -f Dockerfile.mag7-alpaca \
             -t financemaker-mag7-alpaca:test \
+            .
+
+      - name: Build Momentum Alpaca Docker image
+        run: |
+          docker build \
+            -f Dockerfile.momentum-alpaca \
+            -t financemaker-momentum-breakout-alpaca:test \
             .
 
   deploy:
@@ -82,6 +103,8 @@ jobs:
       GCP_SA_EMAIL: ${{ secrets.GCP_SA_EMAIL }}
       ALPACA_API_KEY_SECRET_NAME: alpaca-paper-api-key
       ALPACA_SECRET_KEY_SECRET_NAME: alpaca-paper-secret-key
+      MOMENTUM_ALPACA_API_KEY_SECRET_NAME: momentum-alpaca-paper-api-key
+      MOMENTUM_ALPACA_SECRET_KEY_SECRET_NAME: momentum-alpaca-paper-secret-key
       GROK_API_KEY_SECRET_NAME: GROK_API_KEY
       GEMINI_API_KEY_SECRET_NAME: GEMINI_API_KEY
 
@@ -124,6 +147,10 @@ jobs:
             --project "$GCP_PROJECT_ID" >/dev/null
           gcloud secrets describe "$ALPACA_SECRET_KEY_SECRET_NAME" \
             --project "$GCP_PROJECT_ID" >/dev/null
+          gcloud secrets describe "$MOMENTUM_ALPACA_API_KEY_SECRET_NAME" \
+            --project "$GCP_PROJECT_ID" >/dev/null
+          gcloud secrets describe "$MOMENTUM_ALPACA_SECRET_KEY_SECRET_NAME" \
+            --project "$GCP_PROJECT_ID" >/dev/null
           gcloud secrets describe "$GROK_API_KEY_SECRET_NAME" \
             --project "$GCP_PROJECT_ID" >/dev/null
           gcloud secrets describe "$GEMINI_API_KEY_SECRET_NAME" \
@@ -161,6 +188,19 @@ jobs:
             .
           docker push "$IMAGE_URI"
 
+      - name: Build and push Momentum Alpaca image
+        id: momentum_image
+        run: |
+          set -euo pipefail
+          IMAGE_URI="${GCP_REGION}-docker.pkg.dev/${GCP_PROJECT_ID}/${ARTIFACT_REPOSITORY}/${MOMENTUM_IMAGE_NAME}:${GITHUB_SHA}"
+          echo "image_uri=${IMAGE_URI}" >> "$GITHUB_OUTPUT"
+
+          docker build \
+            -f Dockerfile.momentum-alpaca \
+            -t "$IMAGE_URI" \
+            .
+          docker push "$IMAGE_URI"
+
       - name: Create or update Cloud Run Job
         run: |
           set -euo pipefail
@@ -189,9 +229,46 @@ jobs:
             gcloud run jobs create "$JOB_NAME" "${JOB_FLAGS[@]}" --quiet
           fi
 
+      - name: Create or update Momentum Cloud Run Job
+        run: |
+          set -euo pipefail
+          ENV_VARS="MOMENTUM_ALPACA_PAPER=true,MOMENTUM_CASH_ALLOCATION_PCT=0.25,MOMENTUM_MAX_POSITIONS=3,MOMENTUM_MIN_RVOL=2.0,MOMENTUM_LIQUID_STOP_LOSS_PCT=0.01,MOMENTUM_VOLATILE_STOP_LOSS_PCT=0.02,MOMENTUM_REWARD_TO_RISK=2.0,EOD_REPORT_ENABLED=false,PYTHONUNBUFFERED=1,YFINANCE_CACHE_DIR=/tmp/yfinance-cache"
+          SECRET_VARS="MOMENTUM_ALPACA_API_KEY=${MOMENTUM_ALPACA_API_KEY_SECRET_NAME}:latest,MOMENTUM_ALPACA_SECRET_KEY=${MOMENTUM_ALPACA_SECRET_KEY_SECRET_NAME}:latest"
+          JOB_FLAGS=(
+            --image "${{ steps.momentum_image.outputs.image_uri }}"
+            --region "$GCP_REGION"
+            --project "$GCP_PROJECT_ID"
+            --service-account "$GCP_SA_EMAIL"
+            --tasks 1
+            --parallelism 1
+            --max-retries 0
+            --task-timeout "$TASK_TIMEOUT"
+            --cpu 1
+            --memory 2Gi
+            --set-env-vars "$ENV_VARS"
+            --set-secrets "$SECRET_VARS"
+          )
+
+          if gcloud run jobs describe "$MOMENTUM_JOB_NAME" \
+            --region "$GCP_REGION" \
+            --project "$GCP_PROJECT_ID" >/dev/null 2>&1; then
+            gcloud run jobs update "$MOMENTUM_JOB_NAME" "${JOB_FLAGS[@]}" --quiet
+          else
+            gcloud run jobs create "$MOMENTUM_JOB_NAME" "${JOB_FLAGS[@]}" --quiet
+          fi
+
       - name: Allow scheduler account to execute Cloud Run Job
         run: |
           gcloud run jobs add-iam-policy-binding "$JOB_NAME" \
+            --region "$GCP_REGION" \
+            --project "$GCP_PROJECT_ID" \
+            --member "serviceAccount:${GCP_SA_EMAIL}" \
+            --role roles/run.invoker \
+            --quiet
+
+      - name: Allow scheduler account to execute Momentum Cloud Run Job
+        run: |
+          gcloud run jobs add-iam-policy-binding "$MOMENTUM_JOB_NAME" \
             --region "$GCP_REGION" \
             --project "$GCP_PROJECT_ID" \
             --member "serviceAccount:${GCP_SA_EMAIL}" \
@@ -226,6 +303,52 @@ jobs:
               --description "$DESCRIPTION"
           else
             gcloud scheduler jobs create http "$SCHEDULER_NAME" \
+              --location "$GCP_REGION" \
+              --project "$GCP_PROJECT_ID" \
+              --schedule "$SCHEDULER_CRON" \
+              --time-zone "$SCHEDULER_TIME_ZONE" \
+              --uri "$JOBS_API_URL" \
+              --http-method POST \
+              --oauth-service-account-email "$GCP_SA_EMAIL" \
+              --headers "Content-Type=application/json" \
+              --message-body "{}" \
+              --attempt-deadline 30s \
+              --max-retry-attempts 0 \
+              --max-retry-duration 0s \
+              --min-backoff 5s \
+              --max-backoff 5s \
+              --max-doublings 0 \
+              --description "$DESCRIPTION"
+          fi
+
+      - name: Create or update Momentum Cloud Scheduler trigger
+        run: |
+          set -euo pipefail
+          JOBS_API_URL="https://run.googleapis.com/v2/projects/${GCP_PROJECT_ID}/locations/${GCP_REGION}/jobs/${MOMENTUM_JOB_NAME}:run"
+          DESCRIPTION="Start ${MOMENTUM_JOB_NAME} at 14:00 Israel time Monday-Friday"
+
+          if gcloud scheduler jobs describe "$MOMENTUM_SCHEDULER_NAME" \
+            --location "$GCP_REGION" \
+            --project "$GCP_PROJECT_ID" >/dev/null 2>&1; then
+            gcloud scheduler jobs update http "$MOMENTUM_SCHEDULER_NAME" \
+              --location "$GCP_REGION" \
+              --project "$GCP_PROJECT_ID" \
+              --schedule "$SCHEDULER_CRON" \
+              --time-zone "$SCHEDULER_TIME_ZONE" \
+              --uri "$JOBS_API_URL" \
+              --http-method POST \
+              --oauth-service-account-email "$GCP_SA_EMAIL" \
+              --update-headers "Content-Type=application/json" \
+              --message-body "{}" \
+              --attempt-deadline 30s \
+              --max-retry-attempts 0 \
+              --max-retry-duration 0s \
+              --min-backoff 5s \
+              --max-backoff 5s \
+              --max-doublings 0 \
+              --description "$DESCRIPTION"
+          else
+            gcloud scheduler jobs create http "$MOMENTUM_SCHEDULER_NAME" \
               --location "$GCP_REGION" \
               --project "$GCP_PROJECT_ID" \
               --schedule "$SCHEDULER_CRON" \

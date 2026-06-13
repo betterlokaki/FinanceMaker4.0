@@ -1,4 +1,4 @@
-# FinanceMaker Alpaca paper strategy runner
+# FinanceMaker isolated momentum Alpaca paper strategy runner
 FROM python:3.12-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -19,4 +19,4 @@ RUN python -m pip install --upgrade pip \
 
 COPY . .
 
-CMD ["python", "run_live_mag7_ema_slope_regime_strategy.py"]
+CMD ["python", "run_live_momentum_breakout_menu.py"]
