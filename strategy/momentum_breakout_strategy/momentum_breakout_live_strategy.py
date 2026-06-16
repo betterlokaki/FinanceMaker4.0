@@ -233,16 +233,24 @@ class MomentumBreakoutLiveStrategy(RealTimeTradingBase):
         current_price = _latest_current_price(daily, intraday, as_of_ny)
         previous_close = _previous_daily_close(daily, as_of_ny.date())
         if current_price <= 0 or previous_close <= 0:
+            logger.info(
+                "Skipping %s: invalid current/previous price current=%.4f previous=%.4f",
+                ticker,
+                current_price,
+                previous_close,
+            )
             return None
 
         close_with_live = _close_series_with_live_price(daily, current_price, as_of_ny)
         if len(close_with_live) < 50:
+            logger.info("Skipping %s: insufficient EMA bars (%d)", ticker, len(close_with_live))
             return None
 
         ema20 = float(close_with_live.ewm(span=20, adjust=False).mean().iloc[-1])
         ema50 = float(close_with_live.ewm(span=50, adjust=False).mean().iloc[-1])
         high_52 = float(daily["high"].tail(252).max())
         if high_52 <= 0:
+            logger.info("Skipping %s: invalid 52-week high %.4f", ticker, high_52)
             return None
 
         one_day_return = current_price / previous_close - 1.0
@@ -252,7 +260,7 @@ class MomentumBreakoutLiveStrategy(RealTimeTradingBase):
         if not math.isfinite(rvol) or rvol <= 0:
             rvol = _relative_daily_volume(daily)
 
-        if not self._passes_filters(
+        rejection_reasons = self._filter_rejection_reasons(
             current_price=current_price,
             ema20=ema20,
             ema50=ema50,
@@ -260,7 +268,24 @@ class MomentumBreakoutLiveStrategy(RealTimeTradingBase):
             distance_from_high=distance_from_high,
             one_day_return=one_day_return,
             gap_return=gap_return,
-        ):
+        )
+        if rejection_reasons:
+            logger.info(
+                "Skipping %s momentum candidate: reasons=%s current=%.2f ema20=%.2f "
+                "ema50=%.2f rvol=%.2f min_rvol=%.2f distance_from_52w_high=%.4f "
+                "max_distance=%.4f one_day_return=%.4f gap_return=%.4f",
+                ticker,
+                rejection_reasons,
+                current_price,
+                ema20,
+                ema50,
+                rvol,
+                self._min_rvol,
+                distance_from_high,
+                self._high_proximity_pct,
+                one_day_return,
+                gap_return,
+            )
             return None
 
         high_factor = max(0.0, 1.0 - distance_from_high / max(self._high_proximity_pct, 0.0001))
@@ -288,13 +313,39 @@ class MomentumBreakoutLiveStrategy(RealTimeTradingBase):
         one_day_return: float,
         gap_return: float,
     ) -> bool:
-        return (
-            rvol >= self._min_rvol
-            and current_price > ema20
-            and current_price > ema50
-            and distance_from_high <= self._high_proximity_pct
-            and (one_day_return > 0.0 or gap_return > 0.0)
+        return not self._filter_rejection_reasons(
+            current_price=current_price,
+            ema20=ema20,
+            ema50=ema50,
+            rvol=rvol,
+            distance_from_high=distance_from_high,
+            one_day_return=one_day_return,
+            gap_return=gap_return,
         )
+
+    def _filter_rejection_reasons(
+        self,
+        *,
+        current_price: float,
+        ema20: float,
+        ema50: float,
+        rvol: float,
+        distance_from_high: float,
+        one_day_return: float,
+        gap_return: float,
+    ) -> list[str]:
+        reasons: list[str] = []
+        if rvol < self._min_rvol:
+            reasons.append("rvol")
+        if current_price <= ema20:
+            reasons.append("ema20")
+        if current_price <= ema50:
+            reasons.append("ema50")
+        if distance_from_high > self._high_proximity_pct:
+            reasons.append("52w_high_distance")
+        if one_day_return <= 0.0 and gap_return <= 0.0:
+            reasons.append("positive_momentum")
+        return reasons
 
     async def on_tick(self, data: PricingData) -> None:
         """Track opening range/VWAP and submit confirmed breakout entries."""

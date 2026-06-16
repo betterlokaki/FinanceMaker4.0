@@ -159,28 +159,16 @@ async def main() -> None:
         await broker.connect()
         await strategy.initialize()
         if not strategy.active_signals:
-            logger.info("No pullback signals found today. Exiting.")
-            return
+            logger.info(
+                "No pullback signals found today. Staying alive until 23:00 Israel time."
+            )
+        else:
+            logger.info(
+                "Pullback strategy running with active signals: %s",
+                sorted(strategy.active_signals),
+            )
 
-        logger.info(
-            "Pullback strategy running with active signals: %s",
-            sorted(strategy.active_signals),
-        )
-
-        remaining_runtime = seconds_until_israel_stop()
-        stop_task = asyncio.create_task(asyncio.sleep(remaining_runtime))
-        shutdown_task = asyncio.create_task(shutdown_event.wait())
-        done, pending = await asyncio.wait(
-            {stop_task, shutdown_task},
-            return_when=asyncio.FIRST_COMPLETED,
-        )
-        if stop_task in done:
-            logger.info("Reached 23:00 Israel time. Stopping pullback strategy...")
-        if shutdown_task in done:
-            logger.info("Shutdown requested. Stopping pullback strategy...")
-        for task in pending:
-            task.cancel()
-        await asyncio.gather(*pending, return_exceptions=True)
+        await wait_until_stop_or_shutdown(shutdown_event)
     finally:
         try:
             await strategy.shutdown()
@@ -196,6 +184,24 @@ async def main() -> None:
             logger.warning("Broker disconnect error: %s", exc)
         await http_client.aclose()
         logger.info("Pullback runner shutdown complete")
+
+
+async def wait_until_stop_or_shutdown(shutdown_event: asyncio.Event) -> None:
+    """Keep the Cloud Run job alive until the configured stop time or shutdown."""
+    remaining_runtime = seconds_until_israel_stop()
+    stop_task = asyncio.create_task(asyncio.sleep(remaining_runtime))
+    shutdown_task = asyncio.create_task(shutdown_event.wait())
+    done, pending = await asyncio.wait(
+        {stop_task, shutdown_task},
+        return_when=asyncio.FIRST_COMPLETED,
+    )
+    if stop_task in done:
+        logger.info("Reached 23:00 Israel time. Stopping pullback strategy...")
+    if shutdown_task in done:
+        logger.info("Shutdown requested. Stopping pullback strategy...")
+    for task in pending:
+        task.cancel()
+    await asyncio.gather(*pending, return_exceptions=True)
 
 
 def _env_bool(name: str, default: bool) -> bool:

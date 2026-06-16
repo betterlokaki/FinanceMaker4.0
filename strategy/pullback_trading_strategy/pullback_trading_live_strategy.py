@@ -186,6 +186,7 @@ class PullbackTradingLiveStrategy(RealTimeTradingBase):
     ) -> PullbackSignal | None:
         daily = _normalize_ohlcv(daily_df)
         if daily.empty:
+            logger.info("Skipping %s: no daily OHLCV data", ticker)
             return None
 
         as_of_ny = self._ensure_utc(as_of).astimezone(NY_TZ)
@@ -223,16 +224,31 @@ class PullbackTradingLiveStrategy(RealTimeTradingBase):
                 rsi_value,
             )
         ):
+            logger.info("Skipping %s: invalid pullback indicator values", ticker)
             return None
 
-        if not self._passes_signal_filters(
+        rejection_reasons = self._signal_rejection_reasons(
             open_price=open_price,
             low_price=low_price,
             close_price=close_price,
             ema20=ema20_value,
             ema50=ema50_value,
             rsi=rsi_value,
-        ):
+        )
+        if rejection_reasons:
+            logger.info(
+                "Skipping %s pullback signal: reasons=%s open=%.2f low=%.2f "
+                "close=%.2f ema20=%.2f ema50=%.2f rsi=%.2f min_rsi=%.2f",
+                ticker,
+                rejection_reasons,
+                open_price,
+                low_price,
+                close_price,
+                ema20_value,
+                ema50_value,
+                rsi_value,
+                self._min_rsi,
+            )
             return None
 
         return PullbackSignal(
@@ -258,13 +274,37 @@ class PullbackTradingLiveStrategy(RealTimeTradingBase):
         ema50: float,
         rsi: float,
     ) -> bool:
-        return (
-            close_price > ema50
-            and low_price <= ema20
-            and close_price >= ema20
-            and rsi > self._min_rsi
-            and close_price > open_price
+        return not self._signal_rejection_reasons(
+            open_price=open_price,
+            low_price=low_price,
+            close_price=close_price,
+            ema20=ema20,
+            ema50=ema50,
+            rsi=rsi,
         )
+
+    def _signal_rejection_reasons(
+        self,
+        *,
+        open_price: float,
+        low_price: float,
+        close_price: float,
+        ema20: float,
+        ema50: float,
+        rsi: float,
+    ) -> list[str]:
+        reasons: list[str] = []
+        if close_price <= ema50:
+            reasons.append("trend_below_ema50")
+        if low_price > ema20:
+            reasons.append("no_ema20_touch")
+        if close_price < ema20:
+            reasons.append("close_below_ema20")
+        if rsi <= self._min_rsi:
+            reasons.append("rsi")
+        if close_price <= open_price:
+            reasons.append("not_bullish_daily_close")
+        return reasons
 
     async def on_tick(self, data: PricingData) -> None:
         """Submit one long bracket entry on the first RTH tick for active signals."""

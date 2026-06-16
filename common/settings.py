@@ -10,7 +10,8 @@ Best practice Python configuration pattern:
 import logging
 import os
 from pathlib import Path
-from typing import List, Optional
+from typing import Any, List, Optional
+from copy import deepcopy
 
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -419,6 +420,65 @@ def _load_secrets_from_gcp() -> None:
     logger.debug("Using Cloud Run native secret mounting - no code changes needed")
 
 
+def _env_lookup() -> dict[str, str]:
+    """Return environment variables keyed case-insensitively."""
+    return {key.upper(): value for key, value in os.environ.items()}
+
+
+def _env_value(env: dict[str, str], *names: str) -> str | None:
+    for name in names:
+        value = env.get(name.upper())
+        if value is not None:
+            return value
+    return None
+
+
+def _nested_settings_class(field_info: Any) -> type[BaseSettings] | None:
+    annotation = field_info.annotation
+    if isinstance(annotation, type) and issubclass(annotation, BaseSettings):
+        return annotation
+    return None
+
+
+def _apply_environment_overrides(config: dict[str, Any]) -> dict[str, Any]:
+    """Apply environment variables over YAML config while preserving YAML defaults."""
+    merged = deepcopy(config)
+    env = _env_lookup()
+    delimiter = Settings.model_config.get("env_nested_delimiter") or "__"
+
+    for field_name, field_info in Settings.model_fields.items():
+        field_key = field_name.upper()
+        settings_cls = _nested_settings_class(field_info)
+
+        if settings_cls is None:
+            value = _env_value(env, field_key)
+            if value is not None:
+                merged[field_name] = value
+            continue
+
+        section = merged.get(field_name)
+        if not isinstance(section, dict):
+            section = {}
+        else:
+            section = dict(section)
+
+        env_prefix = str(settings_cls.model_config.get("env_prefix") or "")
+        for nested_name in settings_cls.model_fields:
+            nested_key = nested_name.upper()
+            value = _env_value(
+                env,
+                f"{field_key}{delimiter}{nested_key}",
+                f"{env_prefix}{nested_key}" if env_prefix else "",
+                f"{field_key}_{nested_key}",
+            )
+            if value is not None:
+                section[nested_name] = value
+
+        merged[field_name] = section
+
+    return merged
+
+
 # Create settings instance with YAML support
 def create_settings() -> Settings:
     """Create and validate application settings.
@@ -445,8 +505,8 @@ def create_settings() -> Settings:
         from dotenv import load_dotenv
         load_dotenv(env_path)
     
-    # Create settings with YAML data merged
-    settings = Settings(**yaml_config)
+    # Create settings with YAML defaults and env/.env values applied above them.
+    settings = Settings(**_apply_environment_overrides(yaml_config))
     
     return settings
 

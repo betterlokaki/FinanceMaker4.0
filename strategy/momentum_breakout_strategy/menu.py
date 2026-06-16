@@ -149,6 +149,7 @@ async def main() -> None:
         cash_allocation_pct=_env_float("MOMENTUM_CASH_ALLOCATION_PCT", 0.25),
         max_positions=_env_int("MOMENTUM_MAX_POSITIONS", 3),
         min_rvol=_env_float("MOMENTUM_MIN_RVOL", 2.0),
+        high_proximity_pct=_env_float("MOMENTUM_HIGH_PROXIMITY_PCT", 0.03),
         liquid_stop_loss_pct=_env_float("MOMENTUM_LIQUID_STOP_LOSS_PCT", 0.01),
         volatile_stop_loss_pct=_env_float("MOMENTUM_VOLATILE_STOP_LOSS_PCT", 0.02),
         reward_to_risk=_env_float("MOMENTUM_REWARD_TO_RISK", 2.0),
