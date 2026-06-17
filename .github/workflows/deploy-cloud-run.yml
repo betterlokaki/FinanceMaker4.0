@@ -54,6 +54,8 @@ jobs:
             test_alpaca_broker.py \
             test_run_live_mag7_entrypoint.py \
             test_run_live_strategies_menu.py \
+            test_live_strategy_random_feed_e2e.py \
+            test_settings_env_precedence.py \
             test_momentum_breakout_strategy.py \
             test_run_live_momentum_breakout_menu.py \
             test_pullback_trading_strategy.py \
