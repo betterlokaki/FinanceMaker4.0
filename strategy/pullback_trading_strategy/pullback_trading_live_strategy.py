@@ -22,6 +22,7 @@ from publishers.abstracts.i_broker import IBroker
 from pullers.market.abstracts.i_market_provider import IMarketProvider
 from pullers.realtime.abstracts.i_realtime_provider import IRealtimeProvider
 from strategy.abstracts.realtime_trading_base import RealTimeTradingBase
+from strategy.helpers.realtime_tick_logger import RealtimeTickLogger
 
 logger: logging.Logger = logging.getLogger(__name__)
 
@@ -45,6 +46,31 @@ class PullbackSignal:
     high_price: float
     low_price: float
     close_price: float
+
+
+@dataclass(frozen=True)
+class PullbackWatchContext:
+    """Daily indicator context used for live pullback confirmation."""
+
+    ticker: str
+    signal_date: date
+    previous_close: float
+    ema20: float
+    ema50: float
+    rsi: float
+
+
+@dataclass(frozen=True)
+class _PullbackSetup:
+    context: PullbackWatchContext | None
+    signal: PullbackSignal | None
+
+
+@dataclass
+class _IntradayPullbackState:
+    session_date: date
+    open_price: float
+    low_price: float
 
 
 class PullbackTradingLiveStrategy(RealTimeTradingBase):
@@ -94,9 +120,12 @@ class PullbackTradingLiveStrategy(RealTimeTradingBase):
         self._now_provider = now_provider or (lambda: datetime.now(UTC))
 
         self._active_signals: dict[str, PullbackSignal] = {}
+        self._watch_contexts: dict[str, PullbackWatchContext] = {}
+        self._intraday_states: dict[str, _IntradayPullbackState] = {}
         self._submitted_today: set[tuple[str, date]] = set()
         self._reserved_cash: dict[str, float] = {}
         self._order_locks: dict[str, asyncio.Lock] = {}
+        self._tick_logger = RealtimeTickLogger()
 
     @property
     def active_signals(self) -> dict[str, PullbackSignal]:
@@ -110,11 +139,26 @@ class PullbackTradingLiveStrategy(RealTimeTradingBase):
     async def _before_subscribe(self) -> None:
         self._tickers = [ticker.upper() for ticker in self._tickers]
         self._active_signals.clear()
+        self._watch_contexts.clear()
+        self._intraday_states.clear()
         self._submitted_today.clear()
         self._reserved_cash.clear()
+        self._tick_logger.reset()
 
-        signals = await self.scan_signals()
+        setups = await self._scan_setups()
+        signals = [setup.signal for setup in setups if setup.signal is not None]
         self._active_signals = {signal.ticker: signal for signal in signals}
+        self._watch_contexts = {
+            setup.context.ticker: setup.context
+            for setup in setups
+            if setup.context is not None
+        }
+        if not self._active_signals:
+            logger.warning(
+                "Pullback scan found no daily signals; listening to hard-coded live "
+                "watchlist for intraday EMA20 confirmations: %s",
+                sorted(self._watch_contexts),
+            )
         logger.info(
             "Pullback active signals: %s",
             [
@@ -132,13 +176,18 @@ class PullbackTradingLiveStrategy(RealTimeTradingBase):
 
     async def scan_signals(self) -> list[PullbackSignal]:
         """Scan all hard-coded tickers using completed daily Yahoo candles."""
+        setups = await self._scan_setups()
+        return [setup.signal for setup in setups if setup.signal is not None]
+
+    async def _scan_setups(self) -> list[_PullbackSetup]:
+        """Scan all tickers and keep both signal and live-watch context."""
         as_of = self._ensure_utc(self._now_provider())
         start_time = as_of - timedelta(days=self.HISTORY_LOOKBACK_DAYS)
         semaphore = asyncio.Semaphore(self._scan_concurrency)
 
-        async def _bounded_scan(ticker: str) -> PullbackSignal | None:
+        async def _bounded_scan(ticker: str) -> _PullbackSetup:
             async with semaphore:
-                return await self._scan_ticker(
+                return await self._scan_ticker_setup(
                     ticker=ticker,
                     start_time=start_time,
                     end_time=as_of,
@@ -150,14 +199,14 @@ class PullbackTradingLiveStrategy(RealTimeTradingBase):
             return_exceptions=True,
         )
 
-        signals: list[PullbackSignal] = []
+        setups: list[_PullbackSetup] = []
         for ticker, result in zip(self.PULLBACK_TICKERS, results):
             if isinstance(result, Exception):
                 logger.warning("Pullback scan failed for %s: %s", ticker, result)
-            elif result is not None:
-                signals.append(result)
+            else:
+                setups.append(result)
 
-        return signals
+        return setups
 
     async def _scan_ticker(
         self,
@@ -172,11 +221,26 @@ class PullbackTradingLiveStrategy(RealTimeTradingBase):
             end_time=end_time,
             period=Period.DAILY,
         )
-        return self._signal_from_daily_frame(
+        return self._setup_from_daily_frame(
             ticker=ticker,
             daily_df=daily_df,
             as_of=as_of,
+        ).signal
+
+    async def _scan_ticker_setup(
+        self,
+        ticker: str,
+        start_time: datetime,
+        end_time: datetime,
+        as_of: datetime,
+    ) -> _PullbackSetup:
+        daily_df = await self._market_provider.get_prices(
+            ticker=ticker,
+            start_time=start_time,
+            end_time=end_time,
+            period=Period.DAILY,
         )
+        return self._setup_from_daily_frame(ticker=ticker, daily_df=daily_df, as_of=as_of)
 
     def _signal_from_daily_frame(
         self,
@@ -184,10 +248,22 @@ class PullbackTradingLiveStrategy(RealTimeTradingBase):
         daily_df: pd.DataFrame | None,
         as_of: datetime,
     ) -> PullbackSignal | None:
+        return self._setup_from_daily_frame(
+            ticker=ticker,
+            daily_df=daily_df,
+            as_of=as_of,
+        ).signal
+
+    def _setup_from_daily_frame(
+        self,
+        ticker: str,
+        daily_df: pd.DataFrame | None,
+        as_of: datetime,
+    ) -> _PullbackSetup:
         daily = _normalize_ohlcv(daily_df)
         if daily.empty:
             logger.info("Skipping %s: no daily OHLCV data", ticker)
-            return None
+            return _PullbackSetup(context=None, signal=None)
 
         as_of_ny = self._ensure_utc(as_of).astimezone(NY_TZ)
         daily_ny = daily.copy()
@@ -196,7 +272,7 @@ class PullbackTradingLiveStrategy(RealTimeTradingBase):
         min_bars = max(self._ema_slow_period, self._rsi_period) + 2
         if len(completed) < min_bars:
             logger.info("Skipping %s: insufficient completed daily bars (%d)", ticker, len(completed))
-            return None
+            return _PullbackSetup(context=None, signal=None)
 
         close = completed["close"].astype(float)
         ema20 = close.ewm(span=self._ema_fast_period, adjust=False, min_periods=1).mean()
@@ -225,7 +301,16 @@ class PullbackTradingLiveStrategy(RealTimeTradingBase):
             )
         ):
             logger.info("Skipping %s: invalid pullback indicator values", ticker)
-            return None
+            return _PullbackSetup(context=None, signal=None)
+
+        context = PullbackWatchContext(
+            ticker=ticker.upper(),
+            signal_date=completed.index[-1].date(),
+            previous_close=close_price,
+            ema20=ema20_value,
+            ema50=ema50_value,
+            rsi=rsi_value,
+        )
 
         rejection_reasons = self._signal_rejection_reasons(
             open_price=open_price,
@@ -249,9 +334,9 @@ class PullbackTradingLiveStrategy(RealTimeTradingBase):
                 rsi_value,
                 self._min_rsi,
             )
-            return None
+            return _PullbackSetup(context=context, signal=None)
 
-        return PullbackSignal(
+        signal = PullbackSignal(
             ticker=ticker.upper(),
             signal_date=completed.index[-1].date(),
             entry_price=close_price,
@@ -263,6 +348,7 @@ class PullbackTradingLiveStrategy(RealTimeTradingBase):
             low_price=low_price,
             close_price=close_price,
         )
+        return _PullbackSetup(context=context, signal=signal)
 
     def _passes_signal_filters(
         self,
@@ -309,15 +395,65 @@ class PullbackTradingLiveStrategy(RealTimeTradingBase):
     async def on_tick(self, data: PricingData) -> None:
         """Submit one long bracket entry on the first RTH tick for active signals."""
         ticker = data.id.upper()
-        signal = self._active_signals.get(ticker)
-        if signal is None:
-            return
-
         tick_time_ny = self._ensure_utc(data.time).astimezone(NY_TZ)
         if not self._is_regular_market_time(tick_time_ny):
             return
-
+        price = float(data.price)
         session_date = tick_time_ny.date()
+        signal = self._active_signals.get(ticker)
+        if signal is None:
+            context = self._watch_contexts.get(ticker)
+            state = await self._intraday_state_for_tick(
+                ticker=ticker,
+                price=price,
+                session_date=session_date,
+                tick_time_ny=tick_time_ny,
+            )
+            self._tick_logger.log(
+                logger,
+                strategy_name=self.__class__.__name__,
+                data=data,
+                tick_time=tick_time_ny,
+                state=self._watch_state_label(context, state),
+            )
+            if context is None:
+                return
+            if not self._is_live_pullback_confirmed(context, state, price):
+                return
+            await self._submit_entry(
+                ticker=ticker,
+                entry_price=price,
+                session_date=session_date,
+                signal_date=context.signal_date,
+                source="live-confirmed",
+            )
+            return
+
+        self._tick_logger.log(
+            logger,
+            strategy_name=self.__class__.__name__,
+            data=data,
+            tick_time=tick_time_ny,
+            state="active_pullback_signal",
+        )
+
+        await self._submit_entry(
+            ticker=ticker,
+            entry_price=signal.entry_price,
+            session_date=session_date,
+            signal_date=signal.signal_date,
+            source="daily-signal",
+        )
+
+    async def _submit_entry(
+        self,
+        *,
+        ticker: str,
+        entry_price: float,
+        session_date: date,
+        signal_date: date,
+        source: str,
+    ) -> None:
         key = (ticker, session_date)
         if key in self._submitted_today:
             return
@@ -333,7 +469,7 @@ class PullbackTradingLiveStrategy(RealTimeTradingBase):
                 logger.info("Skipping %s: existing position/open order", ticker)
                 return
 
-            quantity = self._calculate_quantity_from_cash(portfolio, signal.entry_price)
+            quantity = self._calculate_quantity_from_cash(portfolio, entry_price)
             if quantity < 1:
                 logger.warning(
                     "Skipping %s: actual cash cannot buy one share after reservations",
@@ -344,7 +480,7 @@ class PullbackTradingLiveStrategy(RealTimeTradingBase):
             request = self._build_entry_order_request(
                 ticker=ticker,
                 quantity=quantity,
-                entry_price=signal.entry_price,
+                entry_price=entry_price,
             )
             response = await self._broker.place_order(request)
             self._submitted_today.add(key)
@@ -356,13 +492,14 @@ class PullbackTradingLiveStrategy(RealTimeTradingBase):
             )
             logger.info(
                 "Placed pullback bracket for %s | qty=%d entry=%.2f stop=%.2f tp=%.2f "
-                "signal_date=%s order_id=%s",
+                "signal_date=%s source=%s order_id=%s",
                 ticker,
                 quantity,
                 request.limit_price or 0.0,
                 request.stop_loss_price or 0.0,
                 request.take_profit_price or 0.0,
-                signal.signal_date.isoformat(),
+                signal_date.isoformat(),
+                source,
                 response.order_id,
             )
 
@@ -374,9 +511,117 @@ class PullbackTradingLiveStrategy(RealTimeTradingBase):
         """Shutdown strategy and clear isolated runtime state."""
         await super().shutdown()
         self._active_signals.clear()
+        self._watch_contexts.clear()
+        self._intraday_states.clear()
         self._submitted_today.clear()
         self._reserved_cash.clear()
         self._order_locks.clear()
+
+    def _update_intraday_state(
+        self,
+        ticker: str,
+        price: float,
+        session_date: date,
+    ) -> _IntradayPullbackState:
+        state = self._intraday_states.get(ticker)
+        if state is None or state.session_date != session_date:
+            state = _IntradayPullbackState(
+                session_date=session_date,
+                open_price=price,
+                low_price=price,
+            )
+            self._intraday_states[ticker] = state
+            return state
+
+        state.low_price = min(state.low_price, price)
+        return state
+
+    async def _intraday_state_for_tick(
+        self,
+        *,
+        ticker: str,
+        price: float,
+        session_date: date,
+        tick_time_ny: datetime,
+    ) -> _IntradayPullbackState:
+        state = self._intraday_states.get(ticker)
+        if state is None and tick_time_ny.time() > MARKET_OPEN_TIME:
+            recovered = await self._recover_intraday_state_from_history(
+                ticker=ticker,
+                session_date=session_date,
+                tick_time_ny=tick_time_ny,
+            )
+            if recovered is not None:
+                self._intraday_states[ticker] = recovered
+
+        return self._update_intraday_state(ticker, price, session_date)
+
+    async def _recover_intraday_state_from_history(
+        self,
+        *,
+        ticker: str,
+        session_date: date,
+        tick_time_ny: datetime,
+    ) -> _IntradayPullbackState | None:
+        start_ny = datetime.combine(session_date, MARKET_OPEN_TIME, tzinfo=NY_TZ)
+        try:
+            minute_df = await self._market_provider.get_prices(
+                ticker=ticker,
+                start_time=start_ny.astimezone(UTC),
+                end_time=tick_time_ny.astimezone(UTC),
+                period=Period.MINUTE,
+            )
+        except Exception as exc:
+            logger.warning("Could not recover intraday pullback state for %s: %s", ticker, exc)
+            return None
+
+        session = _session_intraday_frame(_normalize_ohlcv(minute_df), session_date)
+        session = session[
+            (session.index.time >= MARKET_OPEN_TIME)
+            & (session.index.time <= tick_time_ny.time())
+        ]
+        if session.empty:
+            return None
+
+        state = _IntradayPullbackState(
+            session_date=session_date,
+            open_price=float(session["open"].iloc[0]),
+            low_price=float(session["low"].min()),
+        )
+        logger.info(
+            "Recovered %s pullback intraday state from Yahoo minute history: open=%.2f low=%.2f",
+            ticker,
+            state.open_price,
+            state.low_price,
+        )
+        return state
+
+    def _is_live_pullback_confirmed(
+        self,
+        context: PullbackWatchContext,
+        state: _IntradayPullbackState,
+        price: float,
+    ) -> bool:
+        return (
+            context.rsi > self._min_rsi
+            and state.low_price <= context.ema20
+            and price >= context.ema20
+            and price > context.ema50
+            and price > state.open_price
+        )
+
+    @staticmethod
+    def _watch_state_label(
+        context: PullbackWatchContext | None,
+        state: _IntradayPullbackState,
+    ) -> str:
+        if context is None:
+            return "no_pullback_context"
+        return (
+            "watching_live_pullback "
+            f"open={state.open_price:.2f} low={state.low_price:.2f} "
+            f"ema20={context.ema20:.2f} ema50={context.ema50:.2f} rsi={context.rsi:.2f}"
+        )
 
     def _calculate_quantity_from_cash(self, portfolio: Portfolio, entry_price: float) -> int:
         cash_balance = max(0.0, float(portfolio.cash_balance))
@@ -459,6 +704,15 @@ def _normalize_ohlcv(df: pd.DataFrame | None) -> pd.DataFrame:
     frame = frame.loc[valid].copy()
     frame.index = index[valid]
     return frame.sort_index()
+
+
+def _session_intraday_frame(intraday: pd.DataFrame, session_date: date) -> pd.DataFrame:
+    if intraday.empty:
+        return intraday
+
+    frame = intraday.copy()
+    frame.index = frame.index.tz_convert(NY_TZ)
+    return frame[frame.index.date == session_date]
 
 
 def _compute_wilder_rsi(close: pd.Series, period: int = 14) -> pd.Series:

@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import asyncio
+import logging
 from datetime import date, datetime
 from typing import Any
 from zoneinfo import ZoneInfo
@@ -15,16 +16,23 @@ from common.models.period import Period
 from common.models.pnl_summary import PnlSummary
 from common.models.portfolio import Portfolio
 from common.models.pricing_data import PricingData
+from common.settings import settings
 from strategy.momentum_breakout_strategy import MomentumBreakoutLiveStrategy
 
 NY_TZ = ZoneInfo("America/New_York")
 
 
 class FakeRealtimeProvider:
-    async def subscribe(self, _tickers: list[str], _on_tick: Any) -> None:
+    def __init__(self) -> None:
+        self.subscribed: list[list[str]] = []
+        self.unsubscribed: list[list[str]] = []
+
+    async def subscribe(self, tickers: list[str], _on_tick: Any) -> None:
+        self.subscribed.append(tickers)
         return None
 
-    async def unsubscribe(self, _tickers: list[str], _on_tick: Any | None = None) -> None:
+    async def unsubscribe(self, tickers: list[str], _on_tick: Any | None = None) -> None:
+        self.unsubscribed.append(tickers)
         return None
 
     async def disconnect(self) -> None:
@@ -111,9 +119,10 @@ class FakeBroker:
 def _strategy(
     broker: FakeBroker | None = None,
     market_provider: FakeMarketProvider | None = None,
+    realtime_provider: FakeRealtimeProvider | None = None,
 ) -> MomentumBreakoutLiveStrategy:
     return MomentumBreakoutLiveStrategy(
-        realtime_provider=FakeRealtimeProvider(),  # type: ignore[arg-type]
+        realtime_provider=realtime_provider or FakeRealtimeProvider(),  # type: ignore[arg-type]
         market_provider=market_provider or FakeMarketProvider(),  # type: ignore[arg-type]
         broker=broker or FakeBroker(),  # type: ignore[arg-type]
         now_provider=lambda: datetime(2026, 5, 6, 9, 25, tzinfo=NY_TZ),
@@ -225,6 +234,39 @@ def test_load_tickers_returns_hard_coded_momentum_universe() -> None:
             "HUT",
             "CRWV",
         ]
+
+    asyncio.run(_run())
+
+
+def test_initialize_subscribes_hard_coded_universe_when_scan_has_no_candidates() -> None:
+    async def _run() -> None:
+        previous_eod_enabled = settings.eod_report.enabled
+        settings.eod_report.enabled = False
+        realtime_provider = FakeRealtimeProvider()
+        strategy = _strategy(realtime_provider=realtime_provider)
+        try:
+            await strategy.initialize()
+
+            expected = list(MomentumBreakoutLiveStrategy.MOMENTUM_TICKERS)
+            assert realtime_provider.subscribed == [expected]
+            assert strategy._active_candidates == set(expected)
+        finally:
+            await strategy.shutdown()
+            settings.eod_report.enabled = previous_eod_enabled
+
+    asyncio.run(_run())
+
+
+def test_hard_coded_momentum_tick_is_logged_when_listening(caplog: Any) -> None:
+    async def _run() -> None:
+        caplog.set_level(logging.INFO)
+        strategy = _strategy()
+        strategy._active_candidates = {"NVDA"}
+
+        await strategy.on_tick(_tick(100.0, datetime(2026, 5, 6, 9, 30, tzinfo=NY_TZ)))
+
+        assert "MomentumBreakoutLiveStrategy live tick NVDA" in caplog.text
+        assert "state=active_breakout_watch" in caplog.text
 
     asyncio.run(_run())
 

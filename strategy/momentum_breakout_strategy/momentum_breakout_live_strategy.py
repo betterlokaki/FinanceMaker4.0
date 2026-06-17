@@ -23,6 +23,7 @@ from publishers.abstracts.i_broker import IBroker
 from pullers.market.abstracts.i_market_provider import IMarketProvider
 from pullers.realtime.abstracts.i_realtime_provider import IRealtimeProvider
 from strategy.abstracts.realtime_trading_base import RealTimeTradingBase
+from strategy.helpers.realtime_tick_logger import RealtimeTickLogger
 
 logger: logging.Logger = logging.getLogger(__name__)
 
@@ -122,6 +123,7 @@ class MomentumBreakoutLiveStrategy(RealTimeTradingBase):
         self._submitted_today: set[tuple[str, date]] = set()
         self._reserved_cash: dict[str, float] = {}
         self._order_locks: dict[str, asyncio.Lock] = {}
+        self._tick_logger = RealtimeTickLogger()
 
     async def load_tickers(self) -> list[str]:
         """Return the fixed momentum universe requested for this strategy."""
@@ -134,13 +136,21 @@ class MomentumBreakoutLiveStrategy(RealTimeTradingBase):
         self._opening_states.clear()
         self._submitted_today.clear()
         self._reserved_cash.clear()
+        self._tick_logger.reset()
 
         candidates = await self.scan_candidates()
         self._candidate_scores = {candidate.ticker: candidate for candidate in candidates}
-        self._active_candidates = {candidate.ticker for candidate in candidates[: self._max_positions]}
+        ranked_tickers = [candidate.ticker for candidate in candidates[: self._max_positions]]
+        self._active_candidates = set(ranked_tickers)
+        if not self._active_candidates:
+            self._active_candidates = set(self._tickers)
+            logger.warning(
+                "Momentum scan found no candidates; falling back to hard-coded live watchlist: %s",
+                self._tickers,
+            )
         logger.info(
             "Momentum active candidates: %s",
-            [candidate.ticker for candidate in candidates[: self._max_positions]],
+            sorted(self._active_candidates),
         )
 
     async def scan_candidates(self) -> list[MomentumCandidate]:
@@ -350,12 +360,26 @@ class MomentumBreakoutLiveStrategy(RealTimeTradingBase):
     async def on_tick(self, data: PricingData) -> None:
         """Track opening range/VWAP and submit confirmed breakout entries."""
         ticker = data.id.upper()
-        if ticker not in self._active_candidates:
-            return
-
         tick_time_ny = self._ensure_utc(data.time).astimezone(NY_TZ)
         if not self._is_regular_market_time(tick_time_ny):
             return
+        if ticker not in self._active_candidates:
+            self._tick_logger.log(
+                logger,
+                strategy_name=self.__class__.__name__,
+                data=data,
+                tick_time=tick_time_ny,
+                state="ignored_not_in_active_watchlist",
+            )
+            return
+
+        self._tick_logger.log(
+            logger,
+            strategy_name=self.__class__.__name__,
+            data=data,
+            tick_time=tick_time_ny,
+            state="active_breakout_watch",
+        )
 
         session_date = tick_time_ny.date()
         key = (ticker, session_date)

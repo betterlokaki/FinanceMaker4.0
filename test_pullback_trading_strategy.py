@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import asyncio
+import logging
 from datetime import date, datetime
 from typing import Any
 from zoneinfo import ZoneInfo
@@ -16,16 +17,26 @@ from common.models.pnl_summary import PnlSummary
 from common.models.portfolio import Portfolio
 from common.models.position import Position
 from common.models.pricing_data import PricingData
+from common.settings import settings
 from strategy.pullback_trading_strategy import PullbackSignal, PullbackTradingLiveStrategy
+from strategy.pullback_trading_strategy.pullback_trading_live_strategy import (
+    PullbackWatchContext,
+)
 
 NY_TZ = ZoneInfo("America/New_York")
 
 
 class FakeRealtimeProvider:
-    async def subscribe(self, _tickers: list[str], _on_tick: Any) -> None:
+    def __init__(self) -> None:
+        self.subscribed: list[list[str]] = []
+        self.unsubscribed: list[list[str]] = []
+
+    async def subscribe(self, tickers: list[str], _on_tick: Any) -> None:
+        self.subscribed.append(tickers)
         return None
 
-    async def unsubscribe(self, _tickers: list[str], _on_tick: Any | None = None) -> None:
+    async def unsubscribe(self, tickers: list[str], _on_tick: Any | None = None) -> None:
+        self.unsubscribed.append(tickers)
         return None
 
     async def disconnect(self) -> None:
@@ -112,11 +123,12 @@ class FakeBroker:
 def _strategy(
     broker: FakeBroker | None = None,
     market_provider: FakeMarketProvider | None = None,
+    realtime_provider: FakeRealtimeProvider | None = None,
     *,
     min_rsi: float = 50.0,
 ) -> PullbackTradingLiveStrategy:
     return PullbackTradingLiveStrategy(
-        realtime_provider=FakeRealtimeProvider(),  # type: ignore[arg-type]
+        realtime_provider=realtime_provider or FakeRealtimeProvider(),  # type: ignore[arg-type]
         market_provider=market_provider or FakeMarketProvider(),  # type: ignore[arg-type]
         broker=broker or FakeBroker(),  # type: ignore[arg-type]
         min_rsi=min_rsi,
@@ -170,6 +182,23 @@ def _daily_pullback_frame(
     return frame
 
 
+def _intraday_pullback_recovery_frame() -> pd.DataFrame:
+    rows = [
+        (datetime(2026, 5, 6, 9, 30, tzinfo=NY_TZ), 99.0, 100.0, 99.0, 99.5, 1_000),
+        (datetime(2026, 5, 6, 9, 31, tzinfo=NY_TZ), 99.5, 100.5, 99.0, 100.0, 1_000),
+    ]
+    return pd.DataFrame(
+        {
+            "open": [row[1] for row in rows],
+            "high": [row[2] for row in rows],
+            "low": [row[3] for row in rows],
+            "close": [row[4] for row in rows],
+            "volume": [row[5] for row in rows],
+        },
+        index=pd.DatetimeIndex([row[0] for row in rows]),
+    )
+
+
 def _tick(
     price: float,
     timestamp: datetime,
@@ -215,6 +244,90 @@ def test_load_tickers_returns_full_pullback_universe() -> None:
             "SMR",
             "OKLO",
         ]
+
+    asyncio.run(_run())
+
+
+def test_initialize_subscribes_hard_coded_universe_when_scan_has_no_signals() -> None:
+    async def _run() -> None:
+        previous_eod_enabled = settings.eod_report.enabled
+        settings.eod_report.enabled = False
+        realtime_provider = FakeRealtimeProvider()
+        strategy = _strategy(realtime_provider=realtime_provider)
+        try:
+            await strategy.initialize()
+
+            assert realtime_provider.subscribed == [list(PullbackTradingLiveStrategy.PULLBACK_TICKERS)]
+            assert strategy.active_signals == {}
+        finally:
+            await strategy.shutdown()
+            settings.eod_report.enabled = previous_eod_enabled
+
+    asyncio.run(_run())
+
+
+def test_no_signal_pullback_tick_logs_without_order(caplog: Any) -> None:
+    async def _run() -> None:
+        caplog.set_level(logging.INFO)
+        broker = FakeBroker()
+        strategy = _strategy(broker=broker)
+
+        await strategy.on_tick(_tick(108.0, datetime(2026, 5, 6, 9, 30, tzinfo=NY_TZ)))
+
+        assert broker.submitted == []
+        assert "PullbackTradingLiveStrategy live tick NVDA" in caplog.text
+        assert "state=no_pullback_context" in caplog.text
+
+    asyncio.run(_run())
+
+
+def test_live_pullback_confirmation_enters_without_daily_signal() -> None:
+    async def _run() -> None:
+        broker = FakeBroker(cash_balance=100_000.0)
+        strategy = _strategy(broker=broker)
+        strategy._watch_contexts = {
+            "NVDA": PullbackWatchContext(
+                ticker="NVDA",
+                signal_date=date(2026, 5, 5),
+                previous_close=103.0,
+                ema20=100.0,
+                ema50=95.0,
+                rsi=60.0,
+            )
+        }
+
+        await strategy.on_tick(_tick(99.0, datetime(2026, 5, 6, 9, 30, tzinfo=NY_TZ)))
+        await strategy.on_tick(_tick(101.0, datetime(2026, 5, 6, 9, 31, tzinfo=NY_TZ)))
+
+        assert len(broker.submitted) == 1
+        assert broker.submitted[0].ticker == "NVDA"
+        assert broker.submitted[0].limit_price == 101.0
+
+    asyncio.run(_run())
+
+
+def test_late_live_pullback_confirmation_recovers_intraday_low_from_history() -> None:
+    async def _run() -> None:
+        broker = FakeBroker(cash_balance=100_000.0)
+        market_provider = FakeMarketProvider(
+            {("NVDA", Period.MINUTE): _intraday_pullback_recovery_frame()}
+        )
+        strategy = _strategy(broker=broker, market_provider=market_provider)
+        strategy._watch_contexts = {
+            "NVDA": PullbackWatchContext(
+                ticker="NVDA",
+                signal_date=date(2026, 5, 5),
+                previous_close=103.0,
+                ema20=100.0,
+                ema50=95.0,
+                rsi=60.0,
+            )
+        }
+
+        await strategy.on_tick(_tick(101.0, datetime(2026, 5, 6, 9, 36, tzinfo=NY_TZ)))
+
+        assert len(broker.submitted) == 1
+        assert broker.submitted[0].limit_price == 101.0
 
     asyncio.run(_run())
 
