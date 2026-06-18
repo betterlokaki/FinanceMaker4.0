@@ -49,6 +49,8 @@ def test_create_live_strategies_shares_broker_and_realtime_provider() -> None:
     assert strategies[0]._realtime_provider is realtime_provider
     assert strategies[1]._realtime_provider is realtime_provider
     assert strategies[0]._notional_per_trade == strategies[1]._notional_per_trade
+    assert strategies[0]._take_profit_pct == 0.04
+    assert strategies[0]._stop_loss_pct == 0.02
 
 
 class FakeLiveStrategy:

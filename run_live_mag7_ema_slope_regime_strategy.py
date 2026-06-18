@@ -101,8 +101,6 @@ async def main() -> None:
         market_provider=market_provider,
         broker=broker,
         notional_per_trade=settings.alpaca.notional_per_trade,
-        stop_loss_pct=settings.alpaca.stop_loss_pct,
-        take_profit_pct=settings.alpaca.take_profit_pct,
     )
 
     try:

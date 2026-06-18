@@ -28,6 +28,9 @@ logger: logging.Logger = logging.getLogger(__name__)
 
 UTC = timezone.utc
 NY_TZ = ZoneInfo("America/New_York")
+DEFAULT_STOP_LOSS_PCT = 0.02
+DEFAULT_TAKE_PROFIT_PCT = 0.04
+DEFAULT_FLIP_SLOPE_LEN = 30
 
 
 class Mag7EmaSlopeRegimeLiveStrategy(RealTimeTradingBase):
@@ -57,9 +60,10 @@ class Mag7EmaSlopeRegimeLiveStrategy(RealTimeTradingBase):
         notional_per_trade: float = 5_000.0,
         ema_period: int = 20,
         slope_len: int = 36,
+        flip_slope_len: int = DEFAULT_FLIP_SLOPE_LEN,
         band: float = 0.0,
-        stop_loss_pct: float = 0.03,
-        take_profit_pct: float = 0.05,
+        stop_loss_pct: float = DEFAULT_STOP_LOSS_PCT,
+        take_profit_pct: float = DEFAULT_TAKE_PROFIT_PCT,
     ) -> None:
         """Initialize strategy with tuned MAG7 defaults."""
         super().__init__(realtime_provider, broker=broker)
@@ -69,6 +73,7 @@ class Mag7EmaSlopeRegimeLiveStrategy(RealTimeTradingBase):
         self._notional_per_trade: float = max(0.0, float(notional_per_trade))
         self._ema_period: int = max(2, int(ema_period))
         self._slope_len: int = max(1, int(slope_len))
+        self._flip_slope_len: int = max(1, int(flip_slope_len))
         self._band: float = max(0.0, float(band))
         self._stop_loss_pct: float = max(0.0, float(stop_loss_pct))
         self._take_profit_pct: float = max(0.0, float(take_profit_pct))
@@ -283,7 +288,7 @@ class Mag7EmaSlopeRegimeLiveStrategy(RealTimeTradingBase):
             del history[: len(history) - self.MAX_HISTORY_BARS]
 
         close_values = history + [float(price)]
-        warmup = self._ema_period + self._slope_len + 2
+        warmup = self._ema_period + max(self._slope_len, self._flip_slope_len) + 2
         if len(close_values) < warmup:
             return
 
@@ -294,11 +299,17 @@ class Mag7EmaSlopeRegimeLiveStrategy(RealTimeTradingBase):
             min_periods=1,
         ).mean()
         ema_value = float(ema_series.iloc[-1])
-        slope_series = ema_series - ema_series.shift(max(1, self._slope_len))
-        slope_value = float(slope_series.fillna(0.0).iloc[-1])
+        slope_value = self._slope_value(ema_series, self._slope_len)
+        flip_slope_value = self._slope_value(ema_series, self._flip_slope_len)
 
         long_signal = (price > (ema_value * (1.0 + self._band))) and (slope_value > 0.0)
         short_signal = (price < (ema_value * (1.0 - self._band))) and (slope_value < 0.0)
+        flip_long_signal = (price > (ema_value * (1.0 + self._band))) and (
+            flip_slope_value > 0.0
+        )
+        flip_short_signal = (price < (ema_value * (1.0 - self._band))) and (
+            flip_slope_value < 0.0
+        )
 
         can_long = self._trade_direction in ("Both", "Long Only")
         can_short = self._trade_direction in ("Both", "Short Only")
@@ -309,8 +320,36 @@ class Mag7EmaSlopeRegimeLiveStrategy(RealTimeTradingBase):
 
         if short_signal and can_short:
             await self._process_signal(ticker=ticker, desired_side=OrderSide.SELL, entry_price=price)
+            return
 
-    async def _process_signal(self, ticker: str, desired_side: OrderSide, entry_price: float) -> None:
+        if flip_long_signal and can_long:
+            await self._process_signal(
+                ticker=ticker,
+                desired_side=OrderSide.BUY,
+                entry_price=price,
+                allow_new_entry=False,
+                signal_note="sensitive-flip",
+            )
+            return
+
+        if flip_short_signal and can_short:
+            await self._process_signal(
+                ticker=ticker,
+                desired_side=OrderSide.SELL,
+                entry_price=price,
+                allow_new_entry=False,
+                signal_note="sensitive-flip",
+            )
+
+    async def _process_signal(
+        self,
+        ticker: str,
+        desired_side: OrderSide,
+        entry_price: float,
+        *,
+        allow_new_entry: bool = True,
+        signal_note: str = "signal-entry",
+    ) -> None:
         lock = self._get_lock(self._order_locks, ticker)
         async with lock:
             if ticker in self._in_flight_transitions:
@@ -325,6 +364,13 @@ class Mag7EmaSlopeRegimeLiveStrategy(RealTimeTradingBase):
                 position_side = self._position_side(position)
                 open_order_side = self._infer_order_intent_side(open_orders)
                 current_side = position_side or open_order_side
+
+                if current_side is None and not allow_new_entry:
+                    logger.debug(
+                        "Skipping %s: sensitive flip signal without existing exposure",
+                        ticker,
+                    )
+                    return
 
                 if current_side == desired_side:
                     logger.info(
@@ -382,7 +428,7 @@ class Mag7EmaSlopeRegimeLiveStrategy(RealTimeTradingBase):
                 await self._record_submitted_trade(
                     order_request=order_request,
                     order_response=response,
-                    note="signal-entry",
+                    note=signal_note,
                 )
                 logger.info(
                     "Placed %s bracket for %s | qty=%d entry=%.2f | order_id=%s status=%s",
@@ -523,6 +569,11 @@ class Mag7EmaSlopeRegimeLiveStrategy(RealTimeTradingBase):
             time=state["start_time_utc"],
             period=Period.HOUR,
         )
+
+    @staticmethod
+    def _slope_value(ema_series: pd.Series, length: int) -> float:
+        slope_series = ema_series - ema_series.shift(max(1, length))
+        return float(slope_series.fillna(0.0).iloc[-1])
 
     @staticmethod
     def _orders_for_ticker(portfolio: Portfolio, ticker: str) -> list[OrderResponse]:

@@ -183,15 +183,9 @@ def test_mag7_and_earnings_both_initialize_and_receive_mock_market_tick() -> Non
             assert mag7.is_initialized is True
             assert earnings.is_initialized is True
             assert earnings_scanner.scan_calls == 1
-            assert set(realtime_provider.subscribed_tickers) == {
-                "AAPL",
-                "MSFT",
-                "NVDA",
-                "AMZN",
-                "META",
-                "TSLA",
-                "GOOGL",
-            }
+            assert set(realtime_provider.subscribed_tickers) == set(
+                Mag7EmaSlopeRegimeLiveStrategy.MAG7_TICKERS
+            )
 
             aapl_callbacks = realtime_provider._subscriptions["AAPL"]
             callback_owner_names = {

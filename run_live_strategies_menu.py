@@ -78,8 +78,6 @@ def _create_mag7_strategy(context: LiveStrategyContext) -> ITradingStrategy:
         market_provider=context.market_provider,
         broker=context.broker,
         notional_per_trade=settings.alpaca.notional_per_trade,
-        stop_loss_pct=settings.alpaca.stop_loss_pct,
-        take_profit_pct=settings.alpaca.take_profit_pct,
     )
 
 

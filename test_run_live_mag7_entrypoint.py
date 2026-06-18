@@ -1,6 +1,7 @@
 """Unit tests for the MAG7 Alpaca live runner entrypoint."""
 from __future__ import annotations
 
+import asyncio
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
@@ -29,7 +30,7 @@ def test_seconds_until_israel_stop_at_stop_time() -> None:
     assert seconds_until_israel_stop(now) == 0
 
 
-def test_mag7_entry_order_uses_gtc_and_default_five_to_three_bracket() -> None:
+def test_mag7_entry_order_uses_gtc_and_default_four_to_two_bracket() -> None:
     strategy = Mag7EmaSlopeRegimeLiveStrategy(
         realtime_provider=object(),
         market_provider=object(),
@@ -46,5 +47,38 @@ def test_mag7_entry_order_uses_gtc_and_default_five_to_three_bracket() -> None:
     assert order_request.time_in_force == TimeInForce.GTC
     assert order_request.take_profit_rth is True
     assert order_request.stop_loss_rth is False
-    assert order_request.take_profit_price == 105.0
-    assert order_request.stop_loss_price == 97.0
+    assert order_request.take_profit_price == 104.0
+    assert order_request.stop_loss_price == 98.0
+
+
+def test_mag7_sensitive_flip_uses_faster_slope_without_new_entry() -> None:
+    strategy = Mag7EmaSlopeRegimeLiveStrategy(
+        realtime_provider=object(),
+        market_provider=object(),
+        broker=object(),
+    )
+    strategy._close_history["AAPL"] = (
+        [100.0] * 20
+        + [130.0] * 10
+        + [120.0] * 10
+        + [112.0] * 20
+    )
+    signals: list[tuple[OrderSide, bool, str]] = []
+
+    async def capture_signal(
+        *,
+        ticker: str,
+        desired_side: OrderSide,
+        entry_price: float,
+        allow_new_entry: bool = True,
+        signal_note: str = "signal-entry",
+    ) -> None:
+        assert ticker == "AAPL"
+        assert entry_price == 108.0
+        signals.append((desired_side, allow_new_entry, signal_note))
+
+    strategy._process_signal = capture_signal  # type: ignore[method-assign]
+
+    asyncio.run(strategy._evaluate_signal_with_price(ticker="AAPL", price=108.0))
+
+    assert signals == [(OrderSide.SELL, False, "sensitive-flip")]
