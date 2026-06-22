@@ -6,7 +6,11 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 from common.models.order import OrderSide, TimeInForce
-from run_live_mag7_ema_slope_regime_strategy import seconds_until_israel_stop
+import run_live_mag7_ema_slope_regime_strategy as runner
+from run_live_mag7_ema_slope_regime_strategy import (
+    create_mag7_strategy_input_from_settings,
+    seconds_until_israel_stop,
+)
 from strategy.mag7_ema_slope_regime_strategy import Mag7EmaSlopeRegimeLiveStrategy
 
 ISRAEL_TZ = ZoneInfo("Asia/Jerusalem")
@@ -28,6 +32,23 @@ def test_seconds_until_israel_stop_at_stop_time() -> None:
     now = datetime(2026, 5, 6, 23, 0, tzinfo=ISRAEL_TZ)
 
     assert seconds_until_israel_stop(now) == 0
+
+
+def test_create_mag7_strategy_input_uses_alpaca_risk_reward_and_notional(
+    monkeypatch,
+) -> None:
+    monkeypatch.setattr(runner.settings.alpaca, "stop_loss_pct", 0.02)
+    monkeypatch.setattr(runner.settings.alpaca, "take_profit_pct", 0.06)
+    monkeypatch.setattr(runner.settings.alpaca, "notional_per_trade", 12_345.0)
+    monkeypatch.setattr(runner.settings.portfolio_allocation, "strategy_allocation_pct", 0.5)
+    monkeypatch.setattr(runner.settings.portfolio_allocation, "ticker_allocation_pct", 0.5)
+
+    strategy_input = create_mag7_strategy_input_from_settings()
+
+    assert strategy_input.portfolio_pct_per_trade == 0.25
+    assert strategy_input.risk_pct == 0.02
+    assert strategy_input.reward_pct == 0.06
+    assert strategy_input.max_notional_per_trade == 12_345.0
 
 
 def test_mag7_entry_order_uses_gtc_and_default_four_to_two_bracket() -> None:

@@ -11,6 +11,7 @@ import common.di_container as di_container
 import run_live_pullback_trading_strategy as runner
 from run_live_pullback_trading_strategy import (
     create_pullback_alpaca_config_from_env,
+    create_pullback_strategy_input_from_env,
     seconds_until_israel_stop,
     seconds_until_ny_regular_open,
     validate_pullback_alpaca_config,
@@ -47,6 +48,20 @@ def test_validate_pullback_alpaca_config_requires_pullback_credentials(
 
     with pytest.raises(RuntimeError, match="PULLBACK_ALPACA_API_KEY"):
         validate_pullback_alpaca_config(config)
+
+
+def test_create_pullback_strategy_input_maps_existing_env_names(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("PULLBACK_CASH_ALLOCATION_PCT", "0.2")
+    monkeypatch.setenv("PULLBACK_STOP_LOSS_PCT", "0.03")
+    monkeypatch.setenv("PULLBACK_TAKE_PROFIT_PCT", "0.07")
+
+    strategy_input = create_pullback_strategy_input_from_env()
+
+    assert strategy_input.portfolio_pct_per_trade == 0.2
+    assert strategy_input.risk_pct == 0.03
+    assert strategy_input.reward_pct == 0.07
 
 
 def test_seconds_until_israel_stop_matches_existing_runtime_window() -> None:

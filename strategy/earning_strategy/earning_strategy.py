@@ -14,7 +14,10 @@ from common.models.pricing_data import PricingData
 from common.models.position import Position
 from common.models.portfolio import Portfolio
 from common.models.scanner_params import ScannerParams
+from common.models.strategy_input import StrategyInputModel
 from common.settings import AIScannerConfig, OrderParamsConfig, PortfolioAllocationConfig
+from common.trading.order_request_factory import OrderRequestFactory
+from common.trading.position_sizing import PositionSizer
 from dynamic_stop_loss.interfaces.i_dynamic_stop_loss_manager import (
     IDynamicStopLossManager,
 )
@@ -66,6 +69,7 @@ class EarningStrategy(RealTimeTradingBase):
         order_params_config: OrderParamsConfig,
         notional_per_trade: float = 14_000.0,
         dynamic_stop_loss_manager: IDynamicStopLossManager | None = None,
+        strategy_input: StrategyInputModel | None = None,
     ) -> None:
         """Initialize the earnings strategy.
         
@@ -101,7 +105,16 @@ class EarningStrategy(RealTimeTradingBase):
         self._entry_window_missed: set[tuple[str, date]] = set()
         self._entry_candle_retry_after: dict[tuple[str, date], datetime] = {}
         self._seen_tick_tickers: set[str] = set()
-        self._notional_per_trade: float = max(0.0, float(notional_per_trade))
+        self._strategy_input = strategy_input or StrategyInputModel(
+            portfolio_pct_per_trade=1.0,
+            risk_pct=STOP_LOSS_PCT,
+            reward_pct=TAKE_PROFIT_PCT,
+            max_notional_per_trade=max(0.0, float(notional_per_trade)) or None,
+        )
+        self._notional_per_trade: float = self._strategy_input.max_notional_per_trade or max(
+            0.0,
+            float(notional_per_trade),
+        )
         self._total_tickers: int = 0  # Total number of tickers to trade
 
     async def load_tickers(self) -> list[str]:
@@ -258,23 +271,16 @@ class EarningStrategy(RealTimeTradingBase):
             "📊 %s order: Entry=%.2f (first 5-min LOW), SyntheticSL=%.1f%%, TP=%.1f%%, Qty=%d ($%.2f)",
             ticker,
             entry_price,
-            STOP_LOSS_PCT * 100,
-            TAKE_PROFIT_PCT * 100,
+            self._strategy_input.risk_pct * 100,
+            self._strategy_input.reward_pct * 100,
             quantity,
             self._notional_per_trade,
         )
 
-        order_request: OrderRequest = OrderRequest(
+        order_request: OrderRequest = OrderRequestFactory.plain_extended_hours_entry(
             ticker=ticker,
             quantity=quantity,
-            side=OrderSide.BUY,
-            order_type=OrderType.LIMIT,
-            limit_price=entry_price,
-            stop_price=entry_price * (1 - STOP_LOSS_PCT),
-            take_profit_price=entry_price * (1 + TAKE_PROFIT_PCT),
-            time_in_force=TimeInForce.DAY,
-            extended_hours=True,
-            buy_limit_rth=False,
+            entry_price=entry_price,
         )
         
         response = await self._broker.place_order(order_request)
@@ -462,9 +468,16 @@ class EarningStrategy(RealTimeTradingBase):
         """
         if entry_price <= 0:
             return 0
-        buying_power = max(0.0, await self._broker.get_buying_power())
-        notional = min(self._notional_per_trade, buying_power)
-        return int(notional / entry_price)
+        try:
+            portfolio = await self._broker.get_portfolio()
+        except Exception as exc:
+            logger.warning("Could not refresh portfolio for quantity calculation: %s", exc)
+            portfolio = self._broker.portfolio
+        return PositionSizer.quantity_for_entry(
+            portfolio=portfolio,
+            entry_price=entry_price,
+            strategy_input=self._strategy_input,
+        )
 
     async def _has_existing_exposure(self, ticker: str) -> bool:
         ticker = ticker.upper()
@@ -505,7 +518,7 @@ class EarningStrategy(RealTimeTradingBase):
         if entry_price <= 0:
             return
 
-        stop_price = self._round_price(entry_price * (1 - STOP_LOSS_PCT))
+        stop_price = self._round_price(entry_price * (1 - self._strategy_input.risk_pct))
         if data.price <= stop_price:
             await self._trigger_synthetic_stop(
                 ticker=ticker,
@@ -544,7 +557,9 @@ class EarningStrategy(RealTimeTradingBase):
         if quantity < MIN_QUANTITY:
             return
 
-        take_profit_price = self._round_price(entry_price * (1 + TAKE_PROFIT_PCT))
+        take_profit_price = self._round_price(
+            entry_price * (1 + self._strategy_input.reward_pct)
+        )
         order_request = OrderRequest(
             ticker=ticker,
             quantity=quantity,

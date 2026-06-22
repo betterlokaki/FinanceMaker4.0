@@ -36,7 +36,11 @@ from scheduler.trading_scheduler.end_of_day_email_reporter import EndOfDayEmailR
 from strategy.abstracts import ITradingStrategy
 from strategy.demand_zone_strategy import DemandZoneStrategy
 from strategy.weekly_consensus_strategy import WeeklyDoubleConsensusLiveStrategy
-from run_live_strategies_menu import LiveStrategySelection, create_live_strategies
+from run_live_strategies_menu import (
+    LiveStrategySelection,
+    create_live_strategies,
+    create_strategy_input_from_settings,
+)
 from dynamic_stop_loss import (
     DynamicStopLossManager,
     IDynamicStopLossManager,
@@ -190,6 +194,8 @@ class Container(containers.DeclarativeContainer):
         limit_sell_offset_pct=settings.dynamic_stop_loss.limit_sell_offset_pct,
     )
 
+    strategy_input = providers.Singleton(create_strategy_input_from_settings)
+
     # Trading Strategies
     earning_strategy: providers.Provider[ITradingStrategy] = providers.Singleton(
         EarningStrategy,
@@ -201,7 +207,7 @@ class Container(containers.DeclarativeContainer):
         ticker_cache=ticker_cache,
         portfolio_allocation_config=providers.Object(settings.portfolio_allocation),
         order_params_config=providers.Object(settings.order_params),
-        notional_per_trade=providers.Object(settings.alpaca.notional_per_trade),
+        strategy_input=strategy_input,
     )
 
     demand_zone_strategy: providers.Provider[ITradingStrategy] = providers.Singleton(
@@ -219,6 +225,7 @@ class Container(containers.DeclarativeContainer):
         finviz_url=providers.Object(settings.demand_zone_strategy.finviz_url),
         portfolio_allocation_config=providers.Object(settings.portfolio_allocation),
         order_params_config=providers.Object(settings.order_params),
+        strategy_input=strategy_input,
     )
 
     weekly_double_consensus_strategy: providers.Provider[ITradingStrategy] = providers.Singleton(
@@ -233,6 +240,7 @@ class Container(containers.DeclarativeContainer):
         min_ai_score=providers.Object(settings.weekly_consensus_strategy.min_ai_score),
         rr_ratio=providers.Object(settings.weekly_consensus_strategy.rr_ratio),
         direction_preference=providers.Object(settings.weekly_consensus_strategy.direction_preference),
+        strategy_input=strategy_input,
     )
 
     # Shared live strategy list for menu-free scheduled runs.
@@ -247,6 +255,7 @@ class Container(containers.DeclarativeContainer):
         ai_scanner_config=providers.Object(settings.ai_scanner),
         portfolio_allocation_config=providers.Object(settings.portfolio_allocation),
         order_params_config=providers.Object(settings.order_params),
+        strategy_input=strategy_input,
     )
 
     # Market Calendar
@@ -260,6 +269,7 @@ class Container(containers.DeclarativeContainer):
     strategy_runner = providers.Singleton(
         StrategyRunner,
         strategies=strategies,
+        strategy_input=strategy_input,
         max_retries=settings.scheduler.strategy_max_retries,
         retry_delay=settings.scheduler.strategy_retry_delay,
     )

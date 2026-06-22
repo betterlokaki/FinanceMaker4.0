@@ -1,0 +1,329 @@
+{
+  "benchmark_ticker": "SPY",
+  "benchmarks": {
+    "SPY": {
+      "mean_monthly_return_pct": 1.0368302842402601,
+      "return_pct": 77.43192896102748
+    },
+    "equal_weight_universe": {
+      "mean_monthly_return_pct": 2.270399101061207,
+      "return_pct": 249.33018995607208
+    }
+  },
+  "end_date": "2026-06-20",
+  "feature_params": {
+    "atr_period": 20,
+    "fast_momentum_bars": 21,
+    "fast_weight": 1.0,
+    "mid_momentum_bars": 63,
+    "mid_weight": 0.5,
+    "slow_momentum_bars": 126,
+    "slow_weight": 2.0,
+    "trend_ema_period": 30
+  },
+  "full_window_target_hit": false,
+  "holdout_start_date": "2025-01-01",
+  "holdout_target_hit": true,
+  "isolated_backtesting_py": {},
+  "live_gate_passed": false,
+  "recent_trades": [
+    {
+      "entry_price": 325.720001,
+      "entry_time": "2026-01-16T14:30:00",
+      "exit_price": 300.070007,
+      "exit_reason": "rank_or_trend_exit",
+      "exit_time": "2026-02-05T14:30:00",
+      "net_return_pct": -7.882939,
+      "shares": 38,
+      "ticker": "AMAT"
+    },
+    {
+      "entry_price": 217.539993,
+      "entry_time": "2026-01-14T14:30:00",
+      "exit_price": 201.860001,
+      "exit_reason": "rank_or_trend_exit",
+      "exit_time": "2026-02-05T14:30:00",
+      "net_return_pct": -7.234907,
+      "shares": 17,
+      "ticker": "AMD"
+    },
+    {
+      "entry_price": 215.440002,
+      "entry_time": "2026-02-02T14:30:00",
+      "exit_price": 216.830002,
+      "exit_reason": "rank_or_trend_exit",
+      "exit_time": "2026-02-10T14:30:00",
+      "net_return_pct": 0.593617,
+      "shares": 9,
+      "ticker": "TXN"
+    },
+    {
+      "entry_price": 223.130005,
+      "entry_time": "2026-02-11T14:30:00",
+      "exit_price": 216.740005,
+      "exit_reason": "rank_or_trend_exit",
+      "exit_time": "2026-02-20T14:30:00",
+      "net_return_pct": -2.895813,
+      "shares": 14,
+      "ticker": "TXN"
+    },
+    {
+      "entry_price": 132.699997,
+      "entry_time": "2026-02-13T14:30:00",
+      "exit_price": 121.243443,
+      "exit_reason": "stop",
+      "exit_time": "2026-02-20T14:30:00",
+      "net_return_pct": -8.708782,
+      "shares": 10,
+      "ticker": "WMT"
+    },
+    {
+      "entry_price": 364.679993,
+      "entry_time": "2026-01-20T14:30:00",
+      "exit_price": 393.640015,
+      "exit_reason": "rank_or_trend_exit",
+      "exit_time": "2026-03-04T14:30:00",
+      "net_return_pct": 7.931759,
+      "shares": 29,
+      "ticker": "MU"
+    },
+    {
+      "entry_price": 125.900002,
+      "entry_time": "2026-02-24T14:30:00",
+      "exit_price": 122.5,
+      "exit_reason": "rank_or_trend_exit",
+      "exit_time": "2026-03-06T14:30:00",
+      "net_return_pct": -2.719469,
+      "shares": 42,
+      "ticker": "WMT"
+    },
+    {
+      "entry_price": 309.410004,
+      "entry_time": "2026-02-06T14:30:00",
+      "exit_price": 320.480011,
+      "exit_reason": "rank_or_trend_exit",
+      "exit_time": "2026-03-09T13:30:00",
+      "net_return_pct": 3.569897,
+      "shares": 41,
+      "ticker": "AMAT"
+    },
+    {
+      "entry_price": 398.600006,
+      "entry_time": "2026-03-05T14:30:00",
+      "exit_price": 363.959991,
+      "exit_reason": "rank_or_trend_exit",
+      "exit_time": "2026-03-09T13:30:00",
+      "net_return_pct": -8.701328,
+      "shares": 23,
+      "ticker": "MU"
+    },
+    {
+      "entry_price": 348.0,
+      "entry_time": "2026-03-11T13:30:00",
+      "exit_price": 342.470001,
+      "exit_reason": "rank_or_trend_exit",
+      "exit_time": "2026-03-13T13:30:00",
+      "net_return_pct": -1.59729,
+      "shares": 35,
+      "ticker": "AMAT"
+    },
+    {
+      "entry_price": 380.700012,
+      "entry_time": "2026-02-09T14:30:00",
+      "exit_price": 370.679993,
+      "exit_reason": "rank_or_trend_exit",
+      "exit_time": "2026-03-13T13:30:00",
+      "net_return_pct": -2.894673,
+      "shares": 1,
+      "ticker": "AMGN"
+    },
+    {
+      "entry_price": 204.889999,
+      "entry_time": "2026-03-20T13:30:00",
+      "exit_price": 206.399994,
+      "exit_reason": "rank_or_trend_exit",
+      "exit_time": "2026-03-23T13:30:00",
+      "net_return_pct": 0.248911,
+      "shares": 1,
+      "ticker": "AMD"
+    },
+    {
+      "entry_price": 410.769989,
+      "entry_time": "2026-03-11T13:30:00",
+      "exit_price": 401.279999,
+      "exit_reason": "rank_or_trend_exit",
+      "exit_time": "2026-03-24T13:30:00",
+      "net_return_pct": -2.318408,
+      "shares": 30,
+      "ticker": "MU"
+    },
+    {
+      "entry_price": 346.179993,
+      "entry_time": "2026-03-17T13:30:00",
+      "exit_price": 337.630005,
+      "exit_reason": "rank_or_trend_exit",
+      "exit_time": "2026-03-27T13:30:00",
+      "net_return_pct": -2.477217,
+      "shares": 39,
+      "ticker": "AMAT"
+    },
+    {
+      "entry_price": 211.509995,
+      "entry_time": "2026-03-25T13:30:00",
+      "exit_price": 201.770004,
+      "exit_reason": "rank_or_trend_exit",
+      "exit_time": "2026-03-27T13:30:00",
+      "net_return_pct": -4.613734,
+      "shares": 54,
+      "ticker": "AMD"
+    },
+    {
+      "entry_price": 81.980003,
+      "entry_time": "2026-03-27T13:30:00",
+      "exit_price": 79.860001,
+      "exit_reason": "rank_or_trend_exit",
+      "exit_time": "2026-03-30T13:30:00",
+      "net_return_pct": -2.594969,
+      "shares": 136,
+      "ticker": "CSCO"
+    },
+    {
+      "entry_price": 204.050003,
+      "entry_time": "2026-04-02T13:30:00",
+      "exit_price": 239.0,
+      "exit_reason": "rank_or_trend_exit",
+      "exit_time": "2026-04-10T13:30:00",
+      "net_return_pct": 17.118906,
+      "shares": 53,
+      "ticker": "AMD"
+    },
+    {
+      "entry_price": 83.849998,
+      "entry_time": "2026-04-09T13:30:00",
+      "exit_price": 82.029999,
+      "exit_reason": "rank_or_trend_exit",
+      "exit_time": "2026-04-14T13:30:00",
+      "net_return_pct": -2.568078,
+      "shares": 3,
+      "ticker": "CSCO"
+    },
+    {
+      "entry_price": 128.720001,
+      "entry_time": "2026-04-10T13:30:00",
+      "exit_price": 123.150002,
+      "exit_reason": "rank_or_trend_exit",
+      "exit_time": "2026-04-14T13:30:00",
+      "net_return_pct": -4.334551,
+      "shares": 106,
+      "ticker": "WMT"
+    },
+    {
+      "entry_price": 217.190002,
+      "entry_time": "2026-04-14T13:30:00",
+      "exit_price": 264.34554,
+      "exit_reason": "take_profit",
+      "exit_time": "2026-04-23T13:30:00",
+      "net_return_pct": 21.703714,
+      "shares": 58,
+      "ticker": "TXN"
+    },
+    {
+      "entry_price": 407.609985,
+      "entry_time": "2026-04-09T13:30:00",
+      "exit_price": 570.653979,
+      "exit_reason": "take_profit",
+      "exit_time": "2026-05-04T13:30:00",
+      "net_return_pct": 39.964952,
+      "shares": 7,
+      "ticker": "MU"
+    },
+    {
+      "entry_price": 281.0,
+      "entry_time": "2026-04-17T13:30:00",
+      "exit_price": 364.083682,
+      "exit_reason": "take_profit",
+      "exit_time": "2026-05-06T13:30:00",
+      "net_return_pct": 29.448523,
+      "shares": 3,
+      "ticker": "AMD"
+    },
+    {
+      "entry_price": 609.780029,
+      "entry_time": "2026-05-05T13:30:00",
+      "exit_price": 839.081134,
+      "exit_reason": "take_profit",
+      "exit_time": "2026-05-26T13:30:00",
+      "net_return_pct": 37.580478,
+      "shares": 7,
+      "ticker": "MU"
+    },
+    {
+      "entry_price": 338.0,
+      "entry_time": "2026-04-02T13:30:00",
+      "exit_price": 472.167122,
+      "exit_reason": "take_profit",
+      "exit_time": "2026-06-02T13:30:00",
+      "net_return_pct": 39.685169,
+      "shares": 32,
+      "ticker": "AMAT"
+    },
+    {
+      "entry_price": 287.829987,
+      "entry_time": "2026-04-24T13:30:00",
+      "exit_price": 293.730011,
+      "exit_reason": "rank_or_trend_exit",
+      "exit_time": "2026-06-08T13:30:00",
+      "net_return_pct": 2.044226,
+      "shares": 62,
+      "ticker": "TXN"
+    }
+  ],
+  "shared_account": {
+    "dev_mean_monthly_return_pct": -0.01585195836643281,
+    "final_equity": 29018.15976292978,
+    "holdout_mean_monthly_return_pct": 11.880886612475164,
+    "initial_capital": 10000.0,
+    "max_drawdown_pct": -77.48716855032382,
+    "mean_monthly_return_pct": 3.5531696128860464,
+    "months": 60,
+    "months_at_or_above_target": 24,
+    "profit_factor": 1.6024318465006568,
+    "return_pct": 190.1815976292978,
+    "trades": 304,
+    "win_rate_pct": 37.5
+  },
+  "start_date": "2021-06-21",
+  "strategy": "mag7_relative_strength_rr",
+  "strategy_params": {
+    "atr_stop_multiplier": 4.0,
+    "entry_rank_threshold": 3,
+    "exit_rank_threshold": 5,
+    "full_equity_fraction": 1.0,
+    "max_holding_bars": 63,
+    "max_stop_pct": 0.2,
+    "min_score": -0.1,
+    "min_stop_pct": 0.04,
+    "require_positive_fast_momentum": false,
+    "risk_reward_ratio": 2.0,
+    "use_full_equity_sizing": true
+  },
+  "target_monthly_return_pct": 6.0,
+  "tickers": [
+    "AVGO",
+    "AMD",
+    "MU",
+    "NFLX",
+    "COST",
+    "WMT",
+    "PEP",
+    "CSCO",
+    "INTU",
+    "AMAT",
+    "TXN",
+    "QCOM",
+    "ISRG",
+    "AMGN",
+    "HON"
+  ],
+  "warmup_days": 385
+}

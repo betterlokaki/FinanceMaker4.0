@@ -1,0 +1,364 @@
+{
+  "benchmark_ticker": "SPY",
+  "benchmarks": {
+    "SPY": {
+      "mean_monthly_return_pct": 1.0368302842402601,
+      "return_pct": 77.43192896102748
+    },
+    "equal_weight_universe": {
+      "mean_monthly_return_pct": 2.3094678878502806,
+      "return_pct": 231.99334011805828
+    }
+  },
+  "end_date": "2026-06-20",
+  "feature_params": {
+    "atr_period": 20,
+    "fast_momentum_bars": 21,
+    "fast_weight": 1.0,
+    "mid_momentum_bars": 63,
+    "mid_weight": 0.5,
+    "slow_momentum_bars": 126,
+    "slow_weight": 2.0,
+    "trend_ema_period": 30
+  },
+  "full_window_target_hit": true,
+  "holdout_start_date": "2025-01-01",
+  "holdout_target_hit": true,
+  "isolated_backtesting_py": {
+    "AAPL": {
+      "max_drawdown_pct": -48.14161365803421,
+      "return_pct": -22.490492789961607,
+      "trades": 34,
+      "win_rate_pct": 29.411764705882355
+    },
+    "AMZN": {
+      "max_drawdown_pct": -31.827892863203743,
+      "return_pct": 36.83627810573669,
+      "trades": 20,
+      "win_rate_pct": 35.0
+    },
+    "GOOGL": {
+      "max_drawdown_pct": -42.74789600783625,
+      "return_pct": 214.37703271542517,
+      "trades": 26,
+      "win_rate_pct": 50.0
+    },
+    "META": {
+      "max_drawdown_pct": -34.86414888267784,
+      "return_pct": 873.6315653013589,
+      "trades": 32,
+      "win_rate_pct": 50.0
+    },
+    "MSFT": {
+      "max_drawdown_pct": -21.9304086356484,
+      "return_pct": 137.81707107648037,
+      "trades": 17,
+      "win_rate_pct": 35.294117647058826
+    },
+    "NVDA": {
+      "max_drawdown_pct": -64.05904173009823,
+      "return_pct": 1448.955314204236,
+      "trades": 51,
+      "win_rate_pct": 45.09803921568628
+    },
+    "TSLA": {
+      "max_drawdown_pct": -71.7636343296021,
+      "return_pct": 29.14385621774636,
+      "trades": 42,
+      "win_rate_pct": 35.714285714285715
+    }
+  },
+  "live_gate_passed": true,
+  "recent_trades": [
+    {
+      "entry_price": 470.540009,
+      "entry_time": "2025-10-02T13:30:00",
+      "exit_price": 439.600006,
+      "exit_reason": "rank_or_trend_exit",
+      "exit_time": "2025-11-10T14:30:00",
+      "net_return_pct": -6.576142,
+      "shares": 296,
+      "ticker": "TSLA"
+    },
+    {
+      "entry_price": 439.399994,
+      "entry_time": "2025-11-11T14:30:00",
+      "exit_price": 423.130005,
+      "exit_reason": "rank_or_trend_exit",
+      "exit_time": "2025-11-13T14:30:00",
+      "net_return_pct": -3.707831,
+      "shares": 45,
+      "ticker": "TSLA"
+    },
+    {
+      "entry_price": 195.160004,
+      "entry_time": "2025-11-11T14:30:00",
+      "exit_price": 182.860001,
+      "exit_reason": "rank_or_trend_exit",
+      "exit_time": "2025-11-14T14:30:00",
+      "net_return_pct": -6.303203,
+      "shares": 753,
+      "ticker": "NVDA"
+    },
+    {
+      "entry_price": 274.109985,
+      "entry_time": "2025-11-13T14:30:00",
+      "exit_price": 273.609985,
+      "exit_reason": "rank_or_trend_exit",
+      "exit_time": "2025-12-18T14:30:00",
+      "net_return_pct": -0.190171,
+      "shares": 47,
+      "ticker": "AAPL"
+    },
+    {
+      "entry_price": 283.209991,
+      "entry_time": "2025-10-31T13:30:00",
+      "exit_price": 301.720001,
+      "exit_reason": "rank_or_trend_exit",
+      "exit_time": "2025-12-18T14:30:00",
+      "net_return_pct": 6.534991,
+      "shares": 442,
+      "ticker": "GOOGL"
+    },
+    {
+      "entry_price": 272.859985,
+      "entry_time": "2025-12-22T14:30:00",
+      "exit_price": 270.839996,
+      "exit_reason": "rank_or_trend_exit",
+      "exit_time": "2025-12-23T14:30:00",
+      "net_return_pct": -0.760663,
+      "shares": 18,
+      "ticker": "AAPL"
+    },
+    {
+      "entry_price": 274.160004,
+      "entry_time": "2025-12-26T14:30:00",
+      "exit_price": 273.059998,
+      "exit_reason": "rank_or_trend_exit",
+      "exit_time": "2025-12-31T14:30:00",
+      "net_return_pct": -0.418597,
+      "shares": 21,
+      "ticker": "AAPL"
+    },
+    {
+      "entry_price": 425.320007,
+      "entry_time": "2025-12-01T14:30:00",
+      "exit_price": 456.100006,
+      "exit_reason": "rank_or_trend_exit",
+      "exit_time": "2025-12-31T14:30:00",
+      "net_return_pct": 7.236224,
+      "shares": 346,
+      "ticker": "TSLA"
+    },
+    {
+      "entry_price": 447.429993,
+      "entry_time": "2026-01-23T14:30:00",
+      "exit_price": 437.410004,
+      "exit_reason": "rank_or_trend_exit",
+      "exit_time": "2026-01-27T14:30:00",
+      "net_return_pct": -2.240068,
+      "shares": 364,
+      "ticker": "TSLA"
+    },
+    {
+      "entry_price": 301.730011,
+      "entry_time": "2025-12-19T14:30:00",
+      "exit_price": 320.929993,
+      "exit_reason": "rank_or_trend_exit",
+      "exit_time": "2026-02-09T14:30:00",
+      "net_return_pct": 6.362677,
+      "shares": 533,
+      "ticker": "GOOGL"
+    },
+    {
+      "entry_price": 269.200012,
+      "entry_time": "2026-02-03T14:30:00",
+      "exit_price": 262.01001,
+      "exit_reason": "rank_or_trend_exit",
+      "exit_time": "2026-02-13T14:30:00",
+      "net_return_pct": -2.671488,
+      "shares": 608,
+      "ticker": "AAPL"
+    },
+    {
+      "entry_price": 267.859985,
+      "entry_time": "2026-02-24T14:30:00",
+      "exit_price": 262.410004,
+      "exit_reason": "rank_or_trend_exit",
+      "exit_time": "2026-03-02T14:30:00",
+      "net_return_pct": -2.03528,
+      "shares": 582,
+      "ticker": "AAPL"
+    },
+    {
+      "entry_price": 184.050003,
+      "entry_time": "2026-03-12T13:30:00",
+      "exit_price": 184.919998,
+      "exit_reason": "rank_or_trend_exit",
+      "exit_time": "2026-03-13T13:30:00",
+      "net_return_pct": 0.47204,
+      "shares": 830,
+      "ticker": "NVDA"
+    },
+    {
+      "entry_price": 309.269989,
+      "entry_time": "2026-03-18T13:30:00",
+      "exit_price": 304.01001,
+      "exit_reason": "rank_or_trend_exit",
+      "exit_time": "2026-03-19T13:30:00",
+      "net_return_pct": -1.701425,
+      "shares": 496,
+      "ticker": "GOOGL"
+    },
+    {
+      "entry_price": 256.160004,
+      "entry_time": "2026-04-07T13:30:00",
+      "exit_price": 258.450012,
+      "exit_reason": "rank_or_trend_exit",
+      "exit_time": "2026-04-08T13:30:00",
+      "net_return_pct": 0.893313,
+      "shares": 589,
+      "ticker": "AAPL"
+    },
+    {
+      "entry_price": 302.730011,
+      "entry_time": "2026-04-07T13:30:00",
+      "exit_price": 368.837679,
+      "exit_reason": "take_profit",
+      "exit_time": "2026-04-30T13:30:00",
+      "net_return_pct": 21.836507,
+      "shares": 498,
+      "ticker": "GOOGL"
+    },
+    {
+      "entry_price": 223.789993,
+      "entry_time": "2026-04-08T13:30:00",
+      "exit_price": 270.524832,
+      "exit_reason": "take_profit",
+      "exit_time": "2026-04-30T13:30:00",
+      "net_return_pct": 20.882724,
+      "shares": 719,
+      "ticker": "AMZN"
+    },
+    {
+      "entry_price": 259.0,
+      "entry_time": "2026-04-09T13:30:00",
+      "exit_price": 307.630068,
+      "exit_reason": "take_profit",
+      "exit_time": "2026-05-22T13:30:00",
+      "net_return_pct": 18.389988,
+      "shares": 1,
+      "ticker": "AAPL"
+    },
+    {
+      "entry_price": 265.579987,
+      "entry_time": "2026-05-01T13:30:00",
+      "exit_price": 254.699997,
+      "exit_reason": "rank_or_trend_exit",
+      "exit_time": "2026-06-03T13:30:00",
+      "net_return_pct": -4.097208,
+      "shares": 727,
+      "ticker": "AMZN"
+    },
+    {
+      "entry_price": 381.630005,
+      "entry_time": "2026-05-01T13:30:00",
+      "exit_price": 362.029999,
+      "exit_reason": "rank_or_trend_exit",
+      "exit_time": "2026-06-03T13:30:00",
+      "net_return_pct": -5.136323,
+      "shares": 574,
+      "ticker": "GOOGL"
+    },
+    {
+      "entry_price": 196.539993,
+      "entry_time": "2026-04-15T13:30:00",
+      "exit_price": 210.179993,
+      "exit_reason": "rank_or_trend_exit",
+      "exit_time": "2026-06-08T13:30:00",
+      "net_return_pct": 6.936179,
+      "shares": 131,
+      "ticker": "NVDA"
+    },
+    {
+      "entry_price": 309.559998,
+      "entry_time": "2026-05-26T13:30:00",
+      "exit_price": 290.73999,
+      "exit_reason": "rank_or_trend_exit",
+      "exit_time": "2026-06-10T13:30:00",
+      "net_return_pct": -6.097546,
+      "shares": 18,
+      "ticker": "AAPL"
+    },
+    {
+      "entry_price": 211.179993,
+      "entry_time": "2026-06-16T13:30:00",
+      "exit_price": 208.529999,
+      "exit_reason": "rank_or_trend_exit",
+      "exit_time": "2026-06-17T13:30:00",
+      "net_return_pct": -1.255348,
+      "shares": 952,
+      "ticker": "NVDA"
+    },
+    {
+      "entry_price": 300.850006,
+      "entry_time": "2026-06-17T13:30:00",
+      "exit_price": 298.109985,
+      "exit_reason": "rank_or_trend_exit",
+      "exit_time": "2026-06-18T13:30:00",
+      "net_return_pct": -0.91127,
+      "shares": 651,
+      "ticker": "AAPL"
+    },
+    {
+      "entry_price": 369.600006,
+      "entry_time": "2026-06-16T13:30:00",
+      "exit_price": 365.75,
+      "exit_reason": "rank_or_trend_exit",
+      "exit_time": "2026-06-18T13:30:00",
+      "net_return_pct": -1.042166,
+      "shares": 544,
+      "ticker": "GOOGL"
+    }
+  ],
+  "shared_account": {
+    "dev_mean_monthly_return_pct": 7.052316465746846,
+    "final_equity": 194715.27228959498,
+    "holdout_mean_monthly_return_pct": 6.102490180734486,
+    "initial_capital": 10000.0,
+    "max_drawdown_pct": -59.48347330195609,
+    "mean_monthly_return_pct": 6.767368580243137,
+    "months": 60,
+    "months_at_or_above_target": 29,
+    "profit_factor": 2.081665345663712,
+    "return_pct": 1847.1527228959499,
+    "trades": 219,
+    "win_rate_pct": 40.63926940639269
+  },
+  "start_date": "2021-06-21",
+  "strategy": "mag7_relative_strength_rr",
+  "strategy_params": {
+    "atr_stop_multiplier": 4.0,
+    "entry_rank_threshold": 3,
+    "exit_rank_threshold": 5,
+    "full_equity_fraction": 1.0,
+    "max_holding_bars": 63,
+    "max_stop_pct": 0.2,
+    "min_score": -0.1,
+    "min_stop_pct": 0.04,
+    "require_positive_fast_momentum": false,
+    "risk_reward_ratio": 2.0,
+    "use_full_equity_sizing": true
+  },
+  "target_monthly_return_pct": 6.0,
+  "tickers": [
+    "AAPL",
+    "MSFT",
+    "NVDA",
+    "AMZN",
+    "META",
+    "TSLA",
+    "GOOGL"
+  ],
+  "warmup_days": 385
+}

@@ -19,6 +19,9 @@ from common.models.position import Position
 from common.models.pricing_data import PricingData
 from common.models.portfolio import Portfolio
 from common.models.order_response import OrderResponse
+from common.models.strategy_input import StrategyInputModel
+from common.trading.order_request_factory import OrderRequestFactory
+from common.trading.position_sizing import PositionSizer
 from publishers.abstracts.i_broker import IBroker
 from pullers.market.abstracts.i_market_provider import IMarketProvider
 from pullers.realtime.abstracts.i_realtime_provider import IRealtimeProvider
@@ -64,19 +67,29 @@ class Mag7EmaSlopeRegimeLiveStrategy(RealTimeTradingBase):
         band: float = 0.0,
         stop_loss_pct: float = DEFAULT_STOP_LOSS_PCT,
         take_profit_pct: float = DEFAULT_TAKE_PROFIT_PCT,
+        strategy_input: StrategyInputModel | None = None,
     ) -> None:
         """Initialize strategy with tuned MAG7 defaults."""
         super().__init__(realtime_provider, broker=broker)
         self._market_provider: IMarketProvider = market_provider
         self._broker: IBroker = broker
         self._trade_direction: str = trade_direction
-        self._notional_per_trade: float = max(0.0, float(notional_per_trade))
+        self._strategy_input = strategy_input or StrategyInputModel(
+            portfolio_pct_per_trade=0.25,
+            risk_pct=max(0.0, float(stop_loss_pct)),
+            reward_pct=max(0.0, float(take_profit_pct)),
+            max_notional_per_trade=max(0.0, float(notional_per_trade)) or None,
+        )
+        self._notional_per_trade: float = self._strategy_input.max_notional_per_trade or max(
+            0.0,
+            float(notional_per_trade),
+        )
         self._ema_period: int = max(2, int(ema_period))
         self._slope_len: int = max(1, int(slope_len))
         self._flip_slope_len: int = max(1, int(flip_slope_len))
         self._band: float = max(0.0, float(band))
-        self._stop_loss_pct: float = max(0.0, float(stop_loss_pct))
-        self._take_profit_pct: float = max(0.0, float(take_profit_pct))
+        self._stop_loss_pct: float = self._strategy_input.risk_pct
+        self._take_profit_pct: float = self._strategy_input.reward_pct
         self._market_calendar: MarketCalendar = MarketCalendar()
 
         self._hourly_states: dict[str, dict[str, Any]] = {}
@@ -408,13 +421,17 @@ class Mag7EmaSlopeRegimeLiveStrategy(RealTimeTradingBase):
                     logger.info("Skipping %s: exposure still present after transition checks", ticker)
                     return
 
-                quantity = int(min(self._notional_per_trade, await self._broker.get_buying_power()) / max(entry_price, 0.01))
+                quantity = PositionSizer.quantity_for_entry(
+                    portfolio=portfolio,
+                    entry_price=entry_price,
+                    strategy_input=self._strategy_input,
+                )
                 if quantity < 1:
                     logger.warning(
-                        "Skipping %s: quantity < 1 (entry=%.2f, notional=%.2f)",
+                        "Skipping %s: quantity < 1 (entry=%.2f, input=%s)",
                         ticker,
                         entry_price,
-                        self._notional_per_trade,
+                        self._strategy_input,
                     )
                     return
 
@@ -496,22 +513,12 @@ class Mag7EmaSlopeRegimeLiveStrategy(RealTimeTradingBase):
         quantity: int,
         entry_price: float,
     ) -> OrderRequest:
-        entry = round(entry_price, 2)
-        if desired_side == OrderSide.BUY:
-            stop_price = round(entry * (1.0 - self._stop_loss_pct), 2)
-            take_profit_price = round(entry * (1.0 + self._take_profit_pct), 2)
-        else:
-            stop_price = round(entry * (1.0 + self._stop_loss_pct), 2)
-            take_profit_price = round(entry * (1.0 - self._take_profit_pct), 2)
-
-        return OrderRequest(
+        return OrderRequestFactory.bracket_entry(
             ticker=ticker,
             quantity=quantity,
             side=desired_side,
-            order_type=OrderType.LIMIT,
-            limit_price=entry,
-            stop_loss_price=stop_price,
-            take_profit_price=take_profit_price,
+            entry_price=entry_price,
+            strategy_input=self._strategy_input,
             time_in_force=TimeInForce.GTC,
             buy_limit_rth=True,
             take_profit_rth=True,

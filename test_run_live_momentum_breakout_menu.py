@@ -8,6 +8,7 @@ import pytest
 
 from strategy.momentum_breakout_strategy.menu import (
     create_momentum_alpaca_config_from_env,
+    create_momentum_strategy_input_from_env,
     seconds_until_israel_stop,
     seconds_until_ny_scan_time,
     validate_momentum_alpaca_config,
@@ -31,6 +32,20 @@ def test_create_momentum_alpaca_config_reads_dedicated_env_names(
     assert config.api_key == "momentum-key"
     assert config.secret_key == "momentum-secret"
     assert config.paper is False
+
+
+def test_create_momentum_strategy_input_maps_existing_env_names(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("MOMENTUM_CASH_ALLOCATION_PCT", "0.2")
+    monkeypatch.setenv("MOMENTUM_VOLATILE_STOP_LOSS_PCT", "0.03")
+    monkeypatch.setenv("MOMENTUM_REWARD_TO_RISK", "2.5")
+
+    strategy_input = create_momentum_strategy_input_from_env()
+
+    assert strategy_input.portfolio_pct_per_trade == 0.2
+    assert strategy_input.risk_pct == 0.03
+    assert strategy_input.reward_pct == 0.075
 
 
 def test_validate_momentum_alpaca_config_requires_momentum_credentials(

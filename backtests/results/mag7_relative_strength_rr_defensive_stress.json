@@ -1,0 +1,324 @@
+{
+  "benchmark_ticker": "SPY",
+  "benchmarks": {
+    "SPY": {
+      "mean_monthly_return_pct": 1.0368302842402601,
+      "return_pct": 77.43192896102748
+    },
+    "equal_weight_universe": {
+      "mean_monthly_return_pct": 0.6812810116492342,
+      "return_pct": 45.625842323836196
+    }
+  },
+  "end_date": "2026-06-20",
+  "feature_params": {
+    "atr_period": 20,
+    "fast_momentum_bars": 21,
+    "fast_weight": 1.0,
+    "mid_momentum_bars": 63,
+    "mid_weight": 0.5,
+    "slow_momentum_bars": 126,
+    "slow_weight": 2.0,
+    "trend_ema_period": 30
+  },
+  "full_window_target_hit": false,
+  "holdout_start_date": "2025-01-01",
+  "holdout_target_hit": false,
+  "isolated_backtesting_py": {},
+  "live_gate_passed": false,
+  "recent_trades": [
+    {
+      "entry_price": 100.730003,
+      "entry_time": "2025-11-25T14:30:00",
+      "exit_price": 121.905801,
+      "exit_reason": "take_profit",
+      "exit_time": "2026-02-05T14:30:00",
+      "net_return_pct": 21.017492,
+      "shares": 205,
+      "ticker": "MRK"
+    },
+    {
+      "entry_price": 209.910004,
+      "entry_time": "2026-01-13T14:30:00",
+      "exit_price": 236.899207,
+      "exit_reason": "take_profit",
+      "exit_time": "2026-02-05T14:30:00",
+      "net_return_pct": 12.852334,
+      "shares": 92,
+      "ticker": "JNJ"
+    },
+    {
+      "entry_price": 128.580002,
+      "entry_time": "2026-02-05T14:30:00",
+      "exit_price": 123.519997,
+      "exit_reason": "rank_or_trend_exit",
+      "exit_time": "2026-02-23T14:30:00",
+      "net_return_pct": -3.946251,
+      "shares": 71,
+      "ticker": "WMT"
+    },
+    {
+      "entry_price": 120.760002,
+      "entry_time": "2026-02-06T14:30:00",
+      "exit_price": 115.160004,
+      "exit_reason": "rank_or_trend_exit",
+      "exit_time": "2026-03-06T14:30:00",
+      "net_return_pct": -4.640835,
+      "shares": 234,
+      "ticker": "MRK"
+    },
+    {
+      "entry_price": 125.900002,
+      "entry_time": "2026-02-24T14:30:00",
+      "exit_price": 122.5,
+      "exit_reason": "rank_or_trend_exit",
+      "exit_time": "2026-03-06T14:30:00",
+      "net_return_pct": -2.71074,
+      "shares": 78,
+      "ticker": "WMT"
+    },
+    {
+      "entry_price": 125.309998,
+      "entry_time": "2026-03-11T13:30:00",
+      "exit_price": 122.300003,
+      "exit_reason": "rank_or_trend_exit",
+      "exit_time": "2026-03-12T13:30:00",
+      "net_return_pct": -2.405785,
+      "shares": 213,
+      "ticker": "WMT"
+    },
+    {
+      "entry_price": 238.960007,
+      "entry_time": "2026-02-06T14:30:00",
+      "exit_price": 237.869995,
+      "exit_reason": "rank_or_trend_exit",
+      "exit_time": "2026-03-18T13:30:00",
+      "net_return_pct": -0.461379,
+      "shares": 80,
+      "ticker": "JNJ"
+    },
+    {
+      "entry_price": 125.389999,
+      "entry_time": "2026-03-13T13:30:00",
+      "exit_price": 122.400002,
+      "exit_reason": "rank_or_trend_exit",
+      "exit_time": "2026-03-19T13:30:00",
+      "net_return_pct": -2.388374,
+      "shares": 209,
+      "ticker": "WMT"
+    },
+    {
+      "entry_price": 240.0,
+      "entry_time": "2026-03-26T13:30:00",
+      "exit_price": 236.639999,
+      "exit_reason": "rank_or_trend_exit",
+      "exit_time": "2026-04-08T13:30:00",
+      "net_return_pct": -1.404007,
+      "shares": 104,
+      "ticker": "JNJ"
+    },
+    {
+      "entry_price": 123.800003,
+      "entry_time": "2026-04-01T13:30:00",
+      "exit_price": 122.279999,
+      "exit_reason": "rank_or_trend_exit",
+      "exit_time": "2026-04-08T13:30:00",
+      "net_return_pct": -1.317541,
+      "shares": 9,
+      "ticker": "WMT"
+    },
+    {
+      "entry_price": 241.300003,
+      "entry_time": "2026-04-09T13:30:00",
+      "exit_price": 237.710007,
+      "exit_reason": "rank_or_trend_exit",
+      "exit_time": "2026-04-13T13:30:00",
+      "net_return_pct": -1.491758,
+      "shares": 104,
+      "ticker": "JNJ"
+    },
+    {
+      "entry_price": 127.089996,
+      "entry_time": "2026-04-09T13:30:00",
+      "exit_price": 123.150002,
+      "exit_reason": "rank_or_trend_exit",
+      "exit_time": "2026-04-14T13:30:00",
+      "net_return_pct": -3.887005,
+      "shares": 1,
+      "ticker": "WMT"
+    },
+    {
+      "entry_price": 239.940002,
+      "entry_time": "2026-04-15T13:30:00",
+      "exit_price": 237.419998,
+      "exit_reason": "rank_or_trend_exit",
+      "exit_time": "2026-04-16T13:30:00",
+      "net_return_pct": -1.054474,
+      "shares": 99,
+      "ticker": "JNJ"
+    },
+    {
+      "entry_price": 118.959999,
+      "entry_time": "2026-03-26T13:30:00",
+      "exit_price": 117.129997,
+      "exit_reason": "rank_or_trend_exit",
+      "exit_time": "2026-04-16T13:30:00",
+      "net_return_pct": -1.542318,
+      "shares": 211,
+      "ticker": "MRK"
+    },
+    {
+      "entry_price": 119.150002,
+      "entry_time": "2026-04-20T13:30:00",
+      "exit_price": 116.489998,
+      "exit_reason": "rank_or_trend_exit",
+      "exit_time": "2026-04-21T13:30:00",
+      "net_return_pct": -2.236597,
+      "shares": 204,
+      "ticker": "MRK"
+    },
+    {
+      "entry_price": 124.330002,
+      "entry_time": "2026-04-16T13:30:00",
+      "exit_price": 128.080002,
+      "exit_reason": "rank_or_trend_exit",
+      "exit_time": "2026-05-12T13:30:00",
+      "net_return_pct": 3.011933,
+      "shares": 190,
+      "ticker": "WMT"
+    },
+    {
+      "entry_price": 231.0,
+      "entry_time": "2026-05-14T13:30:00",
+      "exit_price": 226.710007,
+      "exit_reason": "rank_or_trend_exit",
+      "exit_time": "2026-05-18T13:30:00",
+      "net_return_pct": -2.00144,
+      "shares": 3,
+      "ticker": "JNJ"
+    },
+    {
+      "entry_price": 114.629997,
+      "entry_time": "2026-05-20T13:30:00",
+      "exit_price": 112.790001,
+      "exit_reason": "rank_or_trend_exit",
+      "exit_time": "2026-05-21T13:30:00",
+      "net_return_pct": -1.895952,
+      "shares": 3,
+      "ticker": "MRK"
+    },
+    {
+      "entry_price": 129.190002,
+      "entry_time": "2026-05-13T13:30:00",
+      "exit_price": 121.339996,
+      "exit_reason": "rank_or_trend_exit",
+      "exit_time": "2026-05-22T13:30:00",
+      "net_return_pct": -6.080444,
+      "shares": 188,
+      "ticker": "WMT"
+    },
+    {
+      "entry_price": 1077.0,
+      "entry_time": "2026-05-19T13:30:00",
+      "exit_price": 997.451006,
+      "exit_reason": "stop",
+      "exit_time": "2026-05-26T13:30:00",
+      "net_return_pct": -7.479015,
+      "shares": 1,
+      "ticker": "COST"
+    },
+    {
+      "entry_price": 78.190002,
+      "entry_time": "2026-05-05T13:30:00",
+      "exit_price": 78.580002,
+      "exit_reason": "rank_or_trend_exit",
+      "exit_time": "2026-06-01T13:30:00",
+      "net_return_pct": 0.494605,
+      "shares": 306,
+      "ticker": "KO"
+    },
+    {
+      "entry_price": 120.550003,
+      "entry_time": "2026-05-22T13:30:00",
+      "exit_price": 114.5,
+      "exit_reason": "rank_or_trend_exit",
+      "exit_time": "2026-06-02T13:30:00",
+      "net_return_pct": -5.023518,
+      "shares": 171,
+      "ticker": "MRK"
+    },
+    {
+      "entry_price": 90.57,
+      "entry_time": "2026-05-26T13:30:00",
+      "exit_price": 87.419998,
+      "exit_reason": "rank_or_trend_exit",
+      "exit_time": "2026-06-03T13:30:00",
+      "net_return_pct": -3.846014,
+      "shares": 3,
+      "ticker": "CL"
+    },
+    {
+      "entry_price": 120.940002,
+      "entry_time": "2026-06-05T13:30:00",
+      "exit_price": 115.879997,
+      "exit_reason": "rank_or_trend_exit",
+      "exit_time": "2026-06-16T13:30:00",
+      "net_return_pct": -4.188595,
+      "shares": 176,
+      "ticker": "MRK"
+    },
+    {
+      "entry_price": 79.309998,
+      "entry_time": "2026-06-08T13:30:00",
+      "exit_price": 79.870003,
+      "exit_reason": "rank_or_trend_exit",
+      "exit_time": "2026-06-18T13:30:00",
+      "net_return_pct": 0.285805,
+      "shares": 3,
+      "ticker": "KO"
+    }
+  ],
+  "shared_account": {
+    "dev_mean_monthly_return_pct": 1.5973560523908892,
+    "final_equity": 19766.756900323697,
+    "holdout_mean_monthly_return_pct": 1.4433258197523284,
+    "initial_capital": 10000.0,
+    "max_drawdown_pct": -39.92496028439933,
+    "mean_monthly_return_pct": 1.5511469825993207,
+    "months": 60,
+    "months_at_or_above_target": 16,
+    "profit_factor": 1.204947291062974,
+    "return_pct": 97.66756900323696,
+    "trades": 272,
+    "win_rate_pct": 34.92647058823529
+  },
+  "start_date": "2021-06-21",
+  "strategy": "mag7_relative_strength_rr",
+  "strategy_params": {
+    "atr_stop_multiplier": 4.0,
+    "entry_rank_threshold": 3,
+    "exit_rank_threshold": 5,
+    "full_equity_fraction": 1.0,
+    "max_holding_bars": 63,
+    "max_stop_pct": 0.2,
+    "min_score": -0.1,
+    "min_stop_pct": 0.04,
+    "require_positive_fast_momentum": false,
+    "risk_reward_ratio": 2.0,
+    "use_full_equity_sizing": true
+  },
+  "target_monthly_return_pct": 6.0,
+  "tickers": [
+    "PG",
+    "KO",
+    "PEP",
+    "WMT",
+    "COST",
+    "MCD",
+    "CL",
+    "JNJ",
+    "MRK",
+    "ABT"
+  ],
+  "warmup_days": 385
+}

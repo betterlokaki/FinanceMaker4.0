@@ -13,12 +13,15 @@ env:
   PYTHON_VERSION: "3.12"
   ARTIFACT_REPOSITORY: financemaker-repo
   IMAGE_NAME: mag7-alpaca
+  MAG7_RS_IMAGE_NAME: mag7-relative-strength-alpaca
   MOMENTUM_IMAGE_NAME: momentum-breakout-alpaca
   PULLBACK_IMAGE_NAME: pullback-trading-alpaca
   JOB_NAME: financemaker-mag7-alpaca-paper
+  MAG7_RS_JOB_NAME: financemaker-mag7-relative-strength-alpaca-paper
   MOMENTUM_JOB_NAME: financemaker-momentum-breakout-alpaca-paper
   PULLBACK_JOB_NAME: financemaker-pullback-trading-alpaca-paper
   SCHEDULER_NAME: financemaker-mag7-alpaca-paper-scheduler
+  MAG7_RS_SCHEDULER_NAME: financemaker-mag7-relative-strength-alpaca-paper-scheduler
   MOMENTUM_SCHEDULER_NAME: financemaker-momentum-breakout-alpaca-paper-scheduler
   PULLBACK_SCHEDULER_NAME: financemaker-pullback-trading-alpaca-paper-scheduler
   SCHEDULER_CRON: "0 14 * * 1-5"
@@ -53,6 +56,8 @@ jobs:
             test_alpaca_order_request_converter.py \
             test_alpaca_broker.py \
             test_run_live_mag7_entrypoint.py \
+            test_mag7_relative_strength_rr_live_strategy.py \
+            test_run_live_mag7_relative_strength_rr_entrypoint.py \
             test_run_live_strategies_menu.py \
             test_live_strategy_random_feed_e2e.py \
             test_settings_env_precedence.py \
@@ -66,6 +71,8 @@ jobs:
           BROKER_PROVIDER: alpaca
           ALPACA_API_KEY: dummy
           ALPACA_SECRET_KEY: dummy
+          MAG7_RS_ALPACA_API_KEY: dummy
+          MAG7_RS_ALPACA_SECRET_KEY: dummy
           MOMENTUM_ALPACA_API_KEY: dummy
           MOMENTUM_ALPACA_SECRET_KEY: dummy
           PULLBACK_ALPACA_API_KEY: dummy
@@ -76,9 +83,12 @@ jobs:
         run: |
           python -m py_compile \
             run_live_mag7_ema_slope_regime_strategy.py \
+            run_live_mag7_relative_strength_rr_strategy.py \
             run_live_strategies_menu.py \
             run_live_momentum_breakout_menu.py \
             run_live_pullback_trading_strategy.py \
+            strategy/mag7_relative_strength_rr_strategy/__init__.py \
+            strategy/mag7_relative_strength_rr_strategy/mag7_relative_strength_rr_live_strategy.py \
             strategy/momentum_breakout_strategy/menu.py \
             strategy/momentum_breakout_strategy/momentum_breakout_live_strategy.py \
             strategy/pullback_trading_strategy/__init__.py \
@@ -89,6 +99,13 @@ jobs:
           docker build \
             -f Dockerfile.mag7-alpaca \
             -t financemaker-mag7-alpaca:test \
+            .
+
+      - name: Build Mag7 Relative Strength Alpaca Docker image
+        run: |
+          docker build \
+            -f Dockerfile.mag7-relative-strength-alpaca \
+            -t financemaker-mag7-relative-strength-alpaca:test \
             .
 
       - name: Build Momentum Alpaca Docker image
@@ -212,6 +229,19 @@ jobs:
             .
           docker push "$IMAGE_URI"
 
+      - name: Build and push Mag7 Relative Strength Alpaca image
+        id: mag7_rs_image
+        run: |
+          set -euo pipefail
+          IMAGE_URI="${GCP_REGION}-docker.pkg.dev/${GCP_PROJECT_ID}/${ARTIFACT_REPOSITORY}/${MAG7_RS_IMAGE_NAME}:${GITHUB_SHA}"
+          echo "image_uri=${IMAGE_URI}" >> "$GITHUB_OUTPUT"
+
+          docker build \
+            -f Dockerfile.mag7-relative-strength-alpaca \
+            -t "$IMAGE_URI" \
+            .
+          docker push "$IMAGE_URI"
+
       - name: Build and push Momentum Alpaca image
         id: momentum_image
         run: |
@@ -264,6 +294,34 @@ jobs:
             gcloud run jobs update "$JOB_NAME" "${JOB_FLAGS[@]}" --quiet
           else
             gcloud run jobs create "$JOB_NAME" "${JOB_FLAGS[@]}" --quiet
+          fi
+
+      - name: Create or update Mag7 Relative Strength Cloud Run Job
+        run: |
+          set -euo pipefail
+          ENV_VARS="MAG7_RS_ALPACA_PAPER=true,MAG7_RS_PORTFOLIO_PCT_PER_TRADE=1.0,EOD_REPORT_ENABLED=false,PYTHONUNBUFFERED=1,YFINANCE_CACHE_DIR=/tmp/yfinance-cache"
+          SECRET_VARS="MAG7_RS_ALPACA_API_KEY=${ALPACA_API_KEY_SECRET_NAME}:latest,MAG7_RS_ALPACA_SECRET_KEY=${ALPACA_SECRET_KEY_SECRET_NAME}:latest"
+          JOB_FLAGS=(
+            --image "${{ steps.mag7_rs_image.outputs.image_uri }}"
+            --region "$GCP_REGION"
+            --project "$GCP_PROJECT_ID"
+            --service-account "$GCP_SA_EMAIL"
+            --tasks 1
+            --parallelism 1
+            --max-retries 0
+            --task-timeout "$TASK_TIMEOUT"
+            --cpu 1
+            --memory 2Gi
+            --set-env-vars "$ENV_VARS"
+            --set-secrets "$SECRET_VARS"
+          )
+
+          if gcloud run jobs describe "$MAG7_RS_JOB_NAME" \
+            --region "$GCP_REGION" \
+            --project "$GCP_PROJECT_ID" >/dev/null 2>&1; then
+            gcloud run jobs update "$MAG7_RS_JOB_NAME" "${JOB_FLAGS[@]}" --quiet
+          else
+            gcloud run jobs create "$MAG7_RS_JOB_NAME" "${JOB_FLAGS[@]}" --quiet
           fi
 
       - name: Create or update Momentum Cloud Run Job
@@ -331,6 +389,15 @@ jobs:
             --role roles/run.invoker \
             --quiet
 
+      - name: Allow scheduler account to execute Mag7 Relative Strength Cloud Run Job
+        run: |
+          gcloud run jobs add-iam-policy-binding "$MAG7_RS_JOB_NAME" \
+            --region "$GCP_REGION" \
+            --project "$GCP_PROJECT_ID" \
+            --member "serviceAccount:${GCP_SA_EMAIL}" \
+            --role roles/run.invoker \
+            --quiet
+
       - name: Allow scheduler account to execute Momentum Cloud Run Job
         run: |
           gcloud run jobs add-iam-policy-binding "$MOMENTUM_JOB_NAME" \
@@ -377,6 +444,52 @@ jobs:
               --description "$DESCRIPTION"
           else
             gcloud scheduler jobs create http "$SCHEDULER_NAME" \
+              --location "$GCP_REGION" \
+              --project "$GCP_PROJECT_ID" \
+              --schedule "$SCHEDULER_CRON" \
+              --time-zone "$SCHEDULER_TIME_ZONE" \
+              --uri "$JOBS_API_URL" \
+              --http-method POST \
+              --oauth-service-account-email "$GCP_SA_EMAIL" \
+              --headers "Content-Type=application/json" \
+              --message-body "{}" \
+              --attempt-deadline 30s \
+              --max-retry-attempts 0 \
+              --max-retry-duration 0s \
+              --min-backoff 5s \
+              --max-backoff 5s \
+              --max-doublings 0 \
+              --description "$DESCRIPTION"
+          fi
+
+      - name: Create or update Mag7 Relative Strength Cloud Scheduler trigger
+        run: |
+          set -euo pipefail
+          JOBS_API_URL="https://run.googleapis.com/v2/projects/${GCP_PROJECT_ID}/locations/${GCP_REGION}/jobs/${MAG7_RS_JOB_NAME}:run"
+          DESCRIPTION="Start ${MAG7_RS_JOB_NAME} at 14:00 Israel time Monday-Friday"
+
+          if gcloud scheduler jobs describe "$MAG7_RS_SCHEDULER_NAME" \
+            --location "$GCP_REGION" \
+            --project "$GCP_PROJECT_ID" >/dev/null 2>&1; then
+            gcloud scheduler jobs update http "$MAG7_RS_SCHEDULER_NAME" \
+              --location "$GCP_REGION" \
+              --project "$GCP_PROJECT_ID" \
+              --schedule "$SCHEDULER_CRON" \
+              --time-zone "$SCHEDULER_TIME_ZONE" \
+              --uri "$JOBS_API_URL" \
+              --http-method POST \
+              --oauth-service-account-email "$GCP_SA_EMAIL" \
+              --update-headers "Content-Type=application/json" \
+              --message-body "{}" \
+              --attempt-deadline 30s \
+              --max-retry-attempts 0 \
+              --max-retry-duration 0s \
+              --min-backoff 5s \
+              --max-backoff 5s \
+              --max-doublings 0 \
+              --description "$DESCRIPTION"
+          else
+            gcloud scheduler jobs create http "$MAG7_RS_SCHEDULER_NAME" \
               --location "$GCP_REGION" \
               --project "$GCP_PROJECT_ID" \
               --schedule "$SCHEDULER_CRON" \

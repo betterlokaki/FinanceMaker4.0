@@ -19,6 +19,9 @@ from common.models.order_response import OrderResponse
 from common.models.period import Period
 from common.models.portfolio import Portfolio
 from common.models.pricing_data import PricingData
+from common.models.strategy_input import StrategyInputModel
+from common.trading.order_request_factory import OrderRequestFactory
+from common.trading.position_sizing import PositionSizer
 from publishers.abstracts.i_broker import IBroker
 from pullers.market.abstracts.i_market_provider import IMarketProvider
 from pullers.realtime.abstracts.i_realtime_provider import IRealtimeProvider
@@ -103,11 +106,19 @@ class MomentumBreakoutLiveStrategy(RealTimeTradingBase):
         reward_to_risk: float = 2.0,
         scan_concurrency: int = 4,
         now_provider: Callable[[], datetime] | None = None,
+        strategy_input: StrategyInputModel | None = None,
     ) -> None:
         super().__init__(realtime_provider, broker=broker)
         self._market_provider = market_provider
         self._broker = broker
-        self._cash_allocation_pct = min(1.0, max(0.0, float(cash_allocation_pct)))
+        self._uses_common_strategy_input = strategy_input is not None
+        legacy_risk_pct = max(0.0, float(volatile_stop_loss_pct))
+        self._strategy_input = strategy_input or StrategyInputModel(
+            portfolio_pct_per_trade=min(1.0, max(0.0001, float(cash_allocation_pct))),
+            risk_pct=legacy_risk_pct,
+            reward_pct=legacy_risk_pct * max(0.0, float(reward_to_risk)),
+        )
+        self._cash_allocation_pct = self._strategy_input.portfolio_pct_per_trade
         self._max_positions = max(1, int(max_positions))
         self._min_rvol = max(0.0, float(min_rvol))
         self._high_proximity_pct = max(0.0, float(high_proximity_pct))
@@ -559,11 +570,12 @@ class MomentumBreakoutLiveStrategy(RealTimeTradingBase):
             )
 
     def _calculate_quantity_from_cash(self, portfolio: Portfolio, entry_price: float) -> int:
-        cash_balance = max(0.0, float(portfolio.cash_balance))
-        available_cash = max(0.0, cash_balance - sum(self._reserved_cash.values()))
-        target_notional = cash_balance * self._cash_allocation_pct
-        notional = min(target_notional, available_cash)
-        return int(notional / max(entry_price, 0.01))
+        return PositionSizer.quantity_for_entry(
+            portfolio=portfolio,
+            entry_price=entry_price,
+            strategy_input=self._strategy_input,
+            reserved_notional=sum(self._reserved_cash.values()),
+        )
 
     def _build_entry_order_request(
         self,
@@ -571,17 +583,22 @@ class MomentumBreakoutLiveStrategy(RealTimeTradingBase):
         quantity: int,
         entry_price: float,
     ) -> OrderRequest:
-        entry = round(entry_price, 2)
         stop_pct = self._stop_loss_pct_for_ticker(ticker)
-        take_profit_pct = stop_pct * self._reward_to_risk
-        return OrderRequest(
-            ticker=ticker.upper(),
+        strategy_input = (
+            self._strategy_input
+            if self._uses_common_strategy_input
+            else StrategyInputModel(
+                portfolio_pct_per_trade=self._strategy_input.portfolio_pct_per_trade,
+                risk_pct=stop_pct,
+                reward_pct=stop_pct * self._reward_to_risk,
+            )
+        )
+        return OrderRequestFactory.bracket_entry(
+            ticker=ticker,
             quantity=quantity,
             side=OrderSide.BUY,
-            order_type=OrderType.LIMIT,
-            limit_price=entry,
-            stop_loss_price=round(entry * (1.0 - stop_pct), 2),
-            take_profit_price=round(entry * (1.0 + take_profit_pct), 2),
+            entry_price=entry_price,
+            strategy_input=strategy_input,
             time_in_force=TimeInForce.GTC,
             buy_limit_rth=True,
             take_profit_rth=True,

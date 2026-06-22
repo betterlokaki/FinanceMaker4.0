@@ -16,6 +16,8 @@ from common.settings import (
     PortfolioAllocationConfig,
     settings,
 )
+from common.models.strategy_input import StrategyInputModel
+from common.runners import CommonStrategyRunner
 from publishers.abstracts import IBroker
 from pullers.market.abstracts import IMarketProvider
 from pullers.realtime.abstracts import IRealtimeProvider
@@ -56,6 +58,7 @@ class LiveStrategyContext:
     ai_scanner_config: AIScannerConfig
     portfolio_allocation_config: PortfolioAllocationConfig
     order_params_config: OrderParamsConfig
+    strategy_input: StrategyInputModel
 
 
 StrategyFactory = Callable[[LiveStrategyContext], ITradingStrategy]
@@ -77,7 +80,7 @@ def _create_mag7_strategy(context: LiveStrategyContext) -> ITradingStrategy:
         realtime_provider=context.realtime_provider,
         market_provider=context.market_provider,
         broker=context.broker,
-        notional_per_trade=settings.alpaca.notional_per_trade,
+        strategy_input=context.strategy_input,
     )
 
 
@@ -91,7 +94,7 @@ def _create_earnings_strategy(context: LiveStrategyContext) -> ITradingStrategy:
         ticker_cache=context.ticker_cache,
         portfolio_allocation_config=context.portfolio_allocation_config,
         order_params_config=context.order_params_config,
-        notional_per_trade=settings.alpaca.notional_per_trade,
+        strategy_input=context.strategy_input,
     )
 
 
@@ -136,6 +139,7 @@ def create_live_strategies(
     ai_scanner_config: AIScannerConfig,
     portfolio_allocation_config: PortfolioAllocationConfig,
     order_params_config: OrderParamsConfig,
+    strategy_input: StrategyInputModel | None = None,
 ) -> list[ITradingStrategy]:
     """Create selected live strategies with one shared broker and realtime provider."""
     context = LiveStrategyContext(
@@ -147,8 +151,23 @@ def create_live_strategies(
         ai_scanner_config=ai_scanner_config,
         portfolio_allocation_config=portfolio_allocation_config,
         order_params_config=order_params_config,
+        strategy_input=strategy_input or create_strategy_input_from_settings(),
     )
     return [spec.factory(context) for spec in _selected_strategy_specs(selection)]
+
+
+def create_strategy_input_from_settings() -> StrategyInputModel:
+    """Build the shared live strategy input model from existing settings."""
+    portfolio_pct = (
+        settings.portfolio_allocation.strategy_allocation_pct
+        * settings.portfolio_allocation.ticker_allocation_pct
+    )
+    return StrategyInputModel(
+        portfolio_pct_per_trade=min(1.0, max(0.0001, float(portfolio_pct))),
+        risk_pct=max(0.0, float(settings.alpaca.stop_loss_pct)),
+        reward_pct=max(0.0, float(settings.alpaca.take_profit_pct)),
+        max_notional_per_trade=max(0.0, float(settings.alpaca.notional_per_trade)) or None,
+    )
 
 
 async def initialize_live_strategies(
@@ -212,6 +231,7 @@ async def run_selected_strategies(selection: LiveStrategySelection) -> None:
     earnings_scanner = container.earning_tomorrow_ai_scanner()
     ticker_cache = container.ticker_cache()
     http_client = container.http_client()
+    strategy_input = create_strategy_input_from_settings()
 
     strategies = create_live_strategies(
         selection,
@@ -223,6 +243,7 @@ async def run_selected_strategies(selection: LiveStrategySelection) -> None:
         ai_scanner_config=settings.ai_scanner,
         portfolio_allocation_config=settings.portfolio_allocation,
         order_params_config=settings.order_params,
+        strategy_input=strategy_input,
     )
     if not strategies:
         logger.warning("No strategies selected")
@@ -231,6 +252,7 @@ async def run_selected_strategies(selection: LiveStrategySelection) -> None:
     shutdown_event = asyncio.Event()
     install_shutdown_signal_handlers(shutdown_event)
     started_strategies: list[ITradingStrategy] = []
+    runner: CommonStrategyRunner | None = None
 
     try:
         await broker.connect()
@@ -240,7 +262,14 @@ async def run_selected_strategies(selection: LiveStrategySelection) -> None:
             ", ".join(type(strategy).__name__ for strategy in strategies),
         )
 
-        started_strategies = await initialize_live_strategies(strategies)
+        runner = CommonStrategyRunner(
+            strategies=strategies,
+            strategy_input=strategy_input,
+            max_retries=settings.scheduler.strategy_max_retries,
+            retry_delay=settings.scheduler.strategy_retry_delay,
+        )
+        await runner.start_all()
+        started_strategies = runner.active_strategies
         if not started_strategies:
             logger.error("No selected strategies initialized successfully. Exiting.")
             return
@@ -261,11 +290,8 @@ async def run_selected_strategies(selection: LiveStrategySelection) -> None:
         logger.info("Live strategies are running. Press Ctrl+C to stop.")
         await shutdown_event.wait()
     finally:
-        for strategy in reversed(started_strategies):
-            try:
-                await strategy.shutdown()
-            except Exception as exc:
-                logger.warning("Strategy shutdown error for %s: %s", type(strategy).__name__, exc)
+        if runner is not None:
+            await runner.stop_all()
         try:
             await realtime_provider.disconnect()
         except Exception as exc:

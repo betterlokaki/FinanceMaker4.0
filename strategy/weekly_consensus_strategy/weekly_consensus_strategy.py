@@ -17,8 +17,11 @@ from common.helpers.live_weekly_ai_consensus import (
 )
 from common.models.candlestick import CandleStick
 from common.models.period import Period
+from common.models.portfolio import Portfolio
 from common.models.pricing_data import PricingData
+from common.models.strategy_input import StrategyInputModel
 from common.settings import OrderParamsConfig, PortfolioAllocationConfig
+from common.trading.position_sizing import PositionSizer
 from gpt.abstracts.gpt_base import GPTBase
 from interactive_borkers import BracketOrderPlan, InteractiveBorkersOrderAdapter
 from publishers.abstracts.i_broker import IBroker
@@ -75,6 +78,7 @@ class WeeklyDoubleConsensusLiveStrategy(RealTimeTradingBase):
         min_ai_score: float = 80.0,
         rr_ratio: float = 2.5,
         direction_preference: str = "long",
+        strategy_input: StrategyInputModel | None = None,
     ) -> None:
         super().__init__(realtime_provider)
         self._market_provider = market_provider
@@ -86,6 +90,11 @@ class WeeklyDoubleConsensusLiveStrategy(RealTimeTradingBase):
         self._min_ai_score = min_ai_score
         self._rr_ratio = rr_ratio
         self._direction_preference = direction_preference
+        self._strategy_input = strategy_input or StrategyInputModel(
+            portfolio_pct_per_trade=portfolio_allocation_config.strategy_allocation_pct,
+            risk_pct=0.0,
+            reward_pct=0.0,
+        )
 
         self._order_adapter = InteractiveBorkersOrderAdapter(
             buy_limit_rth=self._order_params_config.buy_limit_rth,
@@ -118,10 +127,12 @@ class WeeklyDoubleConsensusLiveStrategy(RealTimeTradingBase):
             return []
 
         total_buying_power = await self._broker.get_buying_power()
-        strategy_buying_power = (
-            total_buying_power * self._portfolio_allocation_config.strategy_allocation_pct
-        )
-        self._buying_power_per_ticker = strategy_buying_power / max(1, len(self._plans))
+        self._buying_power_per_ticker = total_buying_power * self._strategy_input.portfolio_pct_per_trade
+        if self._strategy_input.max_notional_per_trade is not None:
+            self._buying_power_per_ticker = min(
+                self._buying_power_per_ticker,
+                self._strategy_input.max_notional_per_trade,
+            )
 
         self._orders_placed = {
             order.ticker.upper()
@@ -130,9 +141,9 @@ class WeeklyDoubleConsensusLiveStrategy(RealTimeTradingBase):
         self._ticker_cache.save_tickers(sorted(self._plans.keys()), datetime.now(NY_TZ).date())
 
         logger.info(
-            "Weekly consensus plans ready: %d tickers, strategy BP=$%.2f, per ticker=$%.2f",
+            "Weekly consensus plans ready: %d tickers, buying_power=$%.2f, per trade=$%.2f",
             len(self._plans),
-            strategy_buying_power,
+            total_buying_power,
             self._buying_power_per_ticker,
         )
         return sorted(self._plans.keys())
@@ -153,7 +164,20 @@ class WeeklyDoubleConsensusLiveStrategy(RealTimeTradingBase):
             await self._safe_unsubscribe([ticker])
             return
 
-        quantity = int(self._buying_power_per_ticker / max(plan.entry_price, 0.01))
+        sizing_portfolio = Portfolio(
+            cash_balance=self._buying_power_per_ticker,
+            buying_power=self._buying_power_per_ticker,
+        )
+        quantity = PositionSizer.quantity_for_entry(
+            portfolio=sizing_portfolio,
+            entry_price=plan.entry_price,
+            strategy_input=StrategyInputModel(
+                portfolio_pct_per_trade=1.0,
+                risk_pct=self._strategy_input.risk_pct,
+                reward_pct=self._strategy_input.reward_pct,
+                max_notional_per_trade=self._strategy_input.max_notional_per_trade,
+            ),
+        )
         if quantity < 1:
             logger.warning(
                 "Skipping %s due to insufficient buying power. Entry=%.2f, per-ticker BP=%.2f",

@@ -1,4 +1,4 @@
-"""Run the pullback trading strategy in live Alpaca mode."""
+"""Run the Mag7 relative-strength RR strategy in live Alpaca mode."""
 from __future__ import annotations
 
 import asyncio
@@ -14,7 +14,7 @@ from common.models.strategy_input import StrategyInputModel
 from common.runners import CommonStrategyRunner
 from common.settings import AlpacaConfig
 from publishers.alpaca import AlpacaBroker
-from strategy.pullback_trading_strategy import PullbackTradingLiveStrategy
+from strategy.mag7_relative_strength_rr_strategy import Mag7RelativeStrengthRRLiveStrategy
 
 logging.basicConfig(
     level=logging.INFO,
@@ -32,30 +32,32 @@ STOP_TIME_ISRAEL = time(hour=23, minute=0)
 REGULAR_OPEN_TIME_NY = time(hour=9, minute=30)
 
 
-def create_pullback_alpaca_config_from_env() -> AlpacaConfig:
-    """Create a separate Alpaca config from PULLBACK_* environment variables."""
+def create_mag7_rs_alpaca_config_from_env() -> AlpacaConfig:
+    """Create an Alpaca config from dedicated MAG7_RS_* environment variables."""
     return AlpacaConfig(
-        api_key=os.getenv("PULLBACK_ALPACA_API_KEY", "").strip(),
-        secret_key=os.getenv("PULLBACK_ALPACA_SECRET_KEY", "").strip(),
-        paper=_env_bool("PULLBACK_ALPACA_PAPER", default=True),
-        url_override=os.getenv("PULLBACK_ALPACA_URL_OVERRIDE", "").strip(),
+        api_key=os.getenv("MAG7_RS_ALPACA_API_KEY", "").strip(),
+        secret_key=os.getenv("MAG7_RS_ALPACA_SECRET_KEY", "").strip(),
+        paper=_env_bool("MAG7_RS_ALPACA_PAPER", default=True),
+        url_override=os.getenv("MAG7_RS_ALPACA_URL_OVERRIDE", "").strip(),
     )
 
 
-def validate_pullback_alpaca_config(config: AlpacaConfig) -> None:
-    """Fail fast when the dedicated pullback Alpaca credentials are missing."""
+def validate_mag7_rs_alpaca_config(config: AlpacaConfig) -> None:
+    """Fail fast when dedicated Mag7 relative-strength credentials are missing."""
     if not config.api_key or not config.secret_key:
         raise RuntimeError(
-            "Missing pullback Alpaca credentials. Set PULLBACK_ALPACA_API_KEY "
-            "and PULLBACK_ALPACA_SECRET_KEY."
+            "Missing Mag7 relative-strength Alpaca credentials. Set "
+            "MAG7_RS_ALPACA_API_KEY and MAG7_RS_ALPACA_SECRET_KEY."
         )
 
 
-def create_pullback_strategy_input_from_env() -> StrategyInputModel:
+def create_mag7_rs_strategy_input_from_env() -> StrategyInputModel:
+    """Create shared sizing input; risk/reward is made dynamic per order."""
     return StrategyInputModel(
-        portfolio_pct_per_trade=_env_float("PULLBACK_CASH_ALLOCATION_PCT", 0.25),
-        risk_pct=_env_float("PULLBACK_STOP_LOSS_PCT", 0.015),
-        reward_pct=_env_float("PULLBACK_TAKE_PROFIT_PCT", 0.04),
+        portfolio_pct_per_trade=_env_float("MAG7_RS_PORTFOLIO_PCT_PER_TRADE", 1.0),
+        risk_pct=0.04,
+        reward_pct=0.08,
+        max_notional_per_trade=_env_optional_float("MAG7_RS_MAX_NOTIONAL_PER_TRADE"),
     )
 
 
@@ -112,9 +114,9 @@ def install_shutdown_signal_handlers(shutdown_event: asyncio.Event) -> None:
 
 
 async def main() -> None:
-    """Start the isolated pullback strategy runner."""
-    alpaca_config = create_pullback_alpaca_config_from_env()
-    validate_pullback_alpaca_config(alpaca_config)
+    """Start the isolated Mag7 relative-strength strategy runner."""
+    alpaca_config = create_mag7_rs_alpaca_config_from_env()
+    validate_mag7_rs_alpaca_config(alpaca_config)
 
     runtime_seconds = seconds_until_israel_stop()
     if runtime_seconds <= 0:
@@ -143,7 +145,7 @@ async def main() -> None:
             task.cancel()
         await asyncio.gather(*pending, return_exceptions=True)
         if shutdown_task in done:
-            logger.info("Shutdown requested before pullback startup. Exiting.")
+            logger.info("Shutdown requested before strategy startup. Exiting.")
             return
 
     from common.di_container import container
@@ -152,31 +154,22 @@ async def main() -> None:
     realtime_provider = container.yahoo_realtime_provider()
     market_provider = container.yahoo_market_provider()
     http_client = container.http_client()
-    strategy_input = create_pullback_strategy_input_from_env()
-    strategy = PullbackTradingLiveStrategy(
+    strategy_input = create_mag7_rs_strategy_input_from_env()
+    strategy = Mag7RelativeStrengthRRLiveStrategy(
         realtime_provider=realtime_provider,
         market_provider=market_provider,
         broker=broker,
         strategy_input=strategy_input,
-        ema_fast_period=_env_int("PULLBACK_EMA_FAST_PERIOD", 20),
-        ema_slow_period=_env_int("PULLBACK_EMA_SLOW_PERIOD", 50),
-        rsi_period=_env_int("PULLBACK_RSI_PERIOD", 14),
-        min_rsi=_env_float("PULLBACK_MIN_RSI", 50.0),
     )
     runner = CommonStrategyRunner(strategies=[strategy], strategy_input=strategy_input)
 
     try:
         await broker.connect()
         await runner.start_all()
-        if not strategy.active_signals:
-            logger.info(
-                "No pullback signals found today. Staying alive until 23:00 Israel time."
-            )
+        if not strategy.active_setups:
+            logger.info("No Mag7 relative-strength setups found. Staying alive until stop.")
         else:
-            logger.info(
-                "Pullback strategy running with active signals: %s",
-                sorted(strategy.active_signals),
-            )
+            logger.info("Mag7 relative-strength setups: %s", sorted(strategy.active_setups))
 
         await wait_until_stop_or_shutdown(shutdown_event)
     finally:
@@ -193,22 +186,21 @@ async def main() -> None:
         except Exception as exc:
             logger.warning("Broker disconnect error: %s", exc)
         await http_client.aclose()
-        logger.info("Pullback runner shutdown complete")
+        logger.info("Mag7 relative-strength runner shutdown complete")
 
 
 async def wait_until_stop_or_shutdown(shutdown_event: asyncio.Event) -> None:
-    """Keep the Cloud Run job alive until the configured stop time or shutdown."""
-    remaining_runtime = seconds_until_israel_stop()
-    stop_task = asyncio.create_task(asyncio.sleep(remaining_runtime))
+    """Keep the Cloud Run job alive until stop time or shutdown."""
+    stop_task = asyncio.create_task(asyncio.sleep(seconds_until_israel_stop()))
     shutdown_task = asyncio.create_task(shutdown_event.wait())
     done, pending = await asyncio.wait(
         {stop_task, shutdown_task},
         return_when=asyncio.FIRST_COMPLETED,
     )
     if stop_task in done:
-        logger.info("Reached 23:00 Israel time. Stopping pullback strategy...")
+        logger.info("Reached 23:00 Israel time. Stopping strategy...")
     if shutdown_task in done:
-        logger.info("Shutdown requested. Stopping pullback strategy...")
+        logger.info("Shutdown requested. Stopping strategy...")
     for task in pending:
         task.cancel()
     await asyncio.gather(*pending, return_exceptions=True)
@@ -228,11 +220,12 @@ def _env_float(name: str, default: float) -> float:
     return float(value)
 
 
-def _env_int(name: str, default: int) -> int:
+def _env_optional_float(name: str) -> float | None:
     value = os.getenv(name)
     if value is None or not value.strip():
-        return default
-    return int(value)
+        return None
+    parsed = float(value)
+    return parsed if parsed > 0 else None
 
 
 if __name__ == "__main__":

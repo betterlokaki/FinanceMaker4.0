@@ -11,7 +11,9 @@ from common.models.order import OrderSide, OrderType, TimeInForce
 from common.models.order_request import OrderRequest
 from common.models.pricing_data import PricingData
 from common.models.scanner_params import ScannerParams
+from common.models.strategy_input import StrategyInputModel
 from common.settings import OrderParamsConfig, PortfolioAllocationConfig
+from common.trading.order_request_factory import OrderRequestFactory
 from gpt.abstracts.gpt_base import GPTBase
 from publishers.abstracts.i_broker import IBroker
 from pullers.realtime.abstracts.i_realtime_provider import IRealtimeProvider
@@ -52,6 +54,7 @@ class DemandZoneStrategy(RealTimeTradingBase):
         finviz_url: str,
         portfolio_allocation_config: PortfolioAllocationConfig,
         order_params_config: OrderParamsConfig,
+        strategy_input: StrategyInputModel | None = None,
     ) -> None:
         """Initialize the demand zone strategy.
         
@@ -83,6 +86,14 @@ class DemandZoneStrategy(RealTimeTradingBase):
         self._finviz_url: str = finviz_url
         self._portfolio_allocation_config: PortfolioAllocationConfig = portfolio_allocation_config
         self._order_params_config: OrderParamsConfig = order_params_config
+        self._strategy_input = strategy_input or StrategyInputModel(
+            portfolio_pct_per_trade=(
+                portfolio_allocation_config.strategy_allocation_pct
+                * portfolio_allocation_config.ticker_allocation_pct
+            ),
+            risk_pct=0.045,
+            reward_pct=0.10,
+        )
         self._buying_power_per_ticker: float = 0.0  # Will be calculated in load_tickers()
         self._total_tickers: int = 0  # Will be set in load_tickers()
         self._processed_tickers: set[str] = set()  # Track processed tickers to avoid duplicates
@@ -143,18 +154,14 @@ class DemandZoneStrategy(RealTimeTradingBase):
         self._total_tickers = len(ai_tickers)
         if self._total_tickers > 0:
             total_buying_power: float = await self._broker.get_buying_power()
-            # Allocate percentage of total buying power to this strategy
-            strategy_buying_power: float = total_buying_power * self._portfolio_allocation_config.strategy_allocation_pct
-            # Each ticker gets a fixed percentage of the strategy's allocation
-            # ticker_allocation_pct is the percentage of strategy's allocation per ticker (e.g., 33% = 16.5% of total)
-            self._buying_power_per_ticker = strategy_buying_power * self._portfolio_allocation_config.ticker_allocation_pct
+            target_notional = total_buying_power * self._strategy_input.portfolio_pct_per_trade
+            if self._strategy_input.max_notional_per_trade is not None:
+                target_notional = min(target_notional, self._strategy_input.max_notional_per_trade)
+            self._buying_power_per_ticker = target_notional
             logger.info(
-                "💰 Total buying power: $%.2f, Strategy allocation (%.1f%%): $%.2f, Per ticker (%.1f%% of strategy = %.1f%% of total): $%.2f",
+                "💰 Total buying power: $%.2f, per-trade allocation (%.1f%%): $%.2f",
                 total_buying_power,
-                self._portfolio_allocation_config.strategy_allocation_pct * 100,
-                strategy_buying_power,
-                self._portfolio_allocation_config.ticker_allocation_pct * 100,
-                (self._portfolio_allocation_config.strategy_allocation_pct * self._portfolio_allocation_config.ticker_allocation_pct) * 100,
+                self._strategy_input.portfolio_pct_per_trade * 100,
                 self._buying_power_per_ticker,
             )
         
@@ -268,18 +275,16 @@ class DemandZoneStrategy(RealTimeTradingBase):
                 await self._safe_unsubscribe(ticker)
                 return
             
-            order_request = OrderRequest(
+            order_request = OrderRequestFactory.bracket_entry(
                 ticker=ticker,
                 quantity=params.quantity,
                 side=OrderSide.BUY,
-                order_type=OrderType.LIMIT,
-                limit_price=params.entry_price,
-                stop_loss_price=params.stop_loss_price,
-                take_profit_price=params.take_profit_price,
+                entry_price=params.entry_price,
+                strategy_input=self._strategy_input,
                 time_in_force=self._order_params_config.buy_limit_tif,
                 buy_limit_rth=self._order_params_config.buy_limit_rth,
-                stop_loss_rth=self._order_params_config.stop_loss_rth,
                 take_profit_rth=self._order_params_config.take_profit_rth,
+                stop_loss_rth=self._order_params_config.stop_loss_rth,
             )
             
             # Mark as order placed BEFORE placing to prevent race conditions

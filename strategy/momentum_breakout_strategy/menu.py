@@ -10,6 +10,8 @@ from datetime import datetime, time
 from zoneinfo import ZoneInfo
 
 from common.helpers.market_calendar import MarketCalendar
+from common.models.strategy_input import StrategyInputModel
+from common.runners import CommonStrategyRunner
 from common.settings import AlpacaConfig
 from publishers.alpaca import AlpacaBroker
 from strategy.momentum_breakout_strategy import MomentumBreakoutLiveStrategy
@@ -47,6 +49,16 @@ def validate_momentum_alpaca_config(config: AlpacaConfig) -> None:
             "Missing momentum Alpaca credentials. Set MOMENTUM_ALPACA_API_KEY "
             "and MOMENTUM_ALPACA_SECRET_KEY."
         )
+
+
+def create_momentum_strategy_input_from_env() -> StrategyInputModel:
+    risk_pct = _env_float("MOMENTUM_VOLATILE_STOP_LOSS_PCT", 0.02)
+    reward_to_risk = _env_float("MOMENTUM_REWARD_TO_RISK", 2.0)
+    return StrategyInputModel(
+        portfolio_pct_per_trade=_env_float("MOMENTUM_CASH_ALLOCATION_PCT", 0.25),
+        risk_pct=risk_pct,
+        reward_pct=risk_pct * reward_to_risk,
+    )
 
 
 def seconds_until_israel_stop(now: datetime | None = None) -> float:
@@ -142,22 +154,21 @@ async def main() -> None:
     realtime_provider = container.yahoo_realtime_provider()
     market_provider = container.yahoo_market_provider()
     http_client = container.http_client()
+    strategy_input = create_momentum_strategy_input_from_env()
     strategy = MomentumBreakoutLiveStrategy(
         realtime_provider=realtime_provider,
         market_provider=market_provider,
         broker=broker,
-        cash_allocation_pct=_env_float("MOMENTUM_CASH_ALLOCATION_PCT", 0.25),
+        strategy_input=strategy_input,
         max_positions=_env_int("MOMENTUM_MAX_POSITIONS", 3),
         min_rvol=_env_float("MOMENTUM_MIN_RVOL", 2.0),
         high_proximity_pct=_env_float("MOMENTUM_HIGH_PROXIMITY_PCT", 0.03),
-        liquid_stop_loss_pct=_env_float("MOMENTUM_LIQUID_STOP_LOSS_PCT", 0.01),
-        volatile_stop_loss_pct=_env_float("MOMENTUM_VOLATILE_STOP_LOSS_PCT", 0.02),
-        reward_to_risk=_env_float("MOMENTUM_REWARD_TO_RISK", 2.0),
     )
+    runner = CommonStrategyRunner(strategies=[strategy], strategy_input=strategy_input)
 
     try:
         await broker.connect()
-        await strategy.initialize()
+        await runner.start_all()
         logger.info("Momentum strategy running with tickers: %s", strategy.tickers)
 
         remaining_runtime = seconds_until_israel_stop()
@@ -176,7 +187,7 @@ async def main() -> None:
         await asyncio.gather(*pending, return_exceptions=True)
     finally:
         try:
-            await strategy.shutdown()
+            await runner.stop_all()
         except Exception as exc:
             logger.warning("Strategy shutdown error: %s", exc)
         try:

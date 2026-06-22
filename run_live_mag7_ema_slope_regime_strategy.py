@@ -8,6 +8,8 @@ import sys
 from datetime import datetime, time
 from zoneinfo import ZoneInfo
 
+from common.models.strategy_input import StrategyInputModel
+from common.runners import CommonStrategyRunner
 from common.settings import settings
 
 logging.basicConfig(
@@ -50,6 +52,19 @@ def validate_alpaca_only() -> None:
             "MAG7 Cloud Run runner supports only Alpaca. "
             f"Set BROKER_PROVIDER={ALLOWED_BROKER_PROVIDER}; got {broker_provider!r}."
         )
+
+
+def create_mag7_strategy_input_from_settings() -> StrategyInputModel:
+    portfolio_pct = (
+        settings.portfolio_allocation.strategy_allocation_pct
+        * settings.portfolio_allocation.ticker_allocation_pct
+    )
+    return StrategyInputModel(
+        portfolio_pct_per_trade=min(1.0, max(0.0001, float(portfolio_pct))),
+        risk_pct=max(0.0, float(settings.alpaca.stop_loss_pct)),
+        reward_pct=max(0.0, float(settings.alpaca.take_profit_pct)),
+        max_notional_per_trade=max(0.0, float(settings.alpaca.notional_per_trade)) or None,
+    )
 
 
 def install_shutdown_signal_handlers(shutdown_event: asyncio.Event) -> None:
@@ -95,17 +110,24 @@ async def main() -> None:
     realtime_provider = container.yahoo_realtime_provider()
     market_provider = container.yahoo_market_provider()
     http_client = container.http_client()
+    strategy_input = create_mag7_strategy_input_from_settings()
 
     strategy = Mag7EmaSlopeRegimeLiveStrategy(
         realtime_provider=realtime_provider,
         market_provider=market_provider,
         broker=broker,
-        notional_per_trade=settings.alpaca.notional_per_trade,
+        strategy_input=strategy_input,
+    )
+    runner = CommonStrategyRunner(
+        strategies=[strategy],
+        strategy_input=strategy_input,
+        max_retries=settings.scheduler.strategy_max_retries,
+        retry_delay=settings.scheduler.strategy_retry_delay,
     )
 
     try:
         await broker.connect()
-        await strategy.initialize()
+        await runner.start_all()
 
         if not strategy.tickers:
             logger.warning("No tickers loaded. Exiting.")
@@ -135,7 +157,7 @@ async def main() -> None:
         await asyncio.gather(*pending, return_exceptions=True)
     finally:
         try:
-            await strategy.shutdown()
+            await runner.stop_all()
         except Exception as exc:
             logger.warning("Strategy shutdown error: %s", exc)
         try:

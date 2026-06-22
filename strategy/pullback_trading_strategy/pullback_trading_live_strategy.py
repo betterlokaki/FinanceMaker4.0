@@ -18,6 +18,9 @@ from common.models.order_response import OrderResponse
 from common.models.period import Period
 from common.models.portfolio import Portfolio
 from common.models.pricing_data import PricingData
+from common.models.strategy_input import StrategyInputModel
+from common.trading.order_request_factory import OrderRequestFactory
+from common.trading.position_sizing import PositionSizer
 from publishers.abstracts.i_broker import IBroker
 from pullers.market.abstracts.i_market_provider import IMarketProvider
 from pullers.realtime.abstracts.i_realtime_provider import IRealtimeProvider
@@ -105,13 +108,19 @@ class PullbackTradingLiveStrategy(RealTimeTradingBase):
         min_rsi: float = 50.0,
         scan_concurrency: int = 4,
         now_provider: Callable[[], datetime] | None = None,
+        strategy_input: StrategyInputModel | None = None,
     ) -> None:
         super().__init__(realtime_provider, broker=broker)
         self._market_provider = market_provider
         self._broker = broker
-        self._cash_allocation_pct = min(1.0, max(0.0, float(cash_allocation_pct)))
-        self._stop_loss_pct = max(0.0, float(stop_loss_pct))
-        self._take_profit_pct = max(0.0, float(take_profit_pct))
+        self._strategy_input = strategy_input or StrategyInputModel(
+            portfolio_pct_per_trade=min(1.0, max(0.0001, float(cash_allocation_pct))),
+            risk_pct=max(0.0, float(stop_loss_pct)),
+            reward_pct=max(0.0, float(take_profit_pct)),
+        )
+        self._cash_allocation_pct = self._strategy_input.portfolio_pct_per_trade
+        self._stop_loss_pct = self._strategy_input.risk_pct
+        self._take_profit_pct = self._strategy_input.reward_pct
         self._ema_fast_period = max(2, int(ema_fast_period))
         self._ema_slow_period = max(2, int(ema_slow_period))
         self._rsi_period = max(2, int(rsi_period))
@@ -624,11 +633,12 @@ class PullbackTradingLiveStrategy(RealTimeTradingBase):
         )
 
     def _calculate_quantity_from_cash(self, portfolio: Portfolio, entry_price: float) -> int:
-        cash_balance = max(0.0, float(portfolio.cash_balance))
-        available_cash = max(0.0, cash_balance - sum(self._reserved_cash.values()))
-        target_notional = cash_balance * self._cash_allocation_pct
-        notional = min(target_notional, available_cash)
-        return int(notional / max(entry_price, 0.01))
+        return PositionSizer.quantity_for_entry(
+            portfolio=portfolio,
+            entry_price=entry_price,
+            strategy_input=self._strategy_input,
+            reserved_notional=sum(self._reserved_cash.values()),
+        )
 
     def _build_entry_order_request(
         self,
@@ -636,15 +646,12 @@ class PullbackTradingLiveStrategy(RealTimeTradingBase):
         quantity: int,
         entry_price: float,
     ) -> OrderRequest:
-        entry = round(entry_price, 2)
-        return OrderRequest(
-            ticker=ticker.upper(),
+        return OrderRequestFactory.bracket_entry(
+            ticker=ticker,
             quantity=quantity,
             side=OrderSide.BUY,
-            order_type=OrderType.LIMIT,
-            limit_price=entry,
-            stop_loss_price=round(entry * (1.0 - self._stop_loss_pct), 2),
-            take_profit_price=round(entry * (1.0 + self._take_profit_pct), 2),
+            entry_price=entry_price,
+            strategy_input=self._strategy_input,
             time_in_force=TimeInForce.GTC,
             buy_limit_rth=True,
             take_profit_rth=True,

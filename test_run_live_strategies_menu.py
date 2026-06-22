@@ -4,6 +4,7 @@ from __future__ import annotations
 import asyncio
 
 from common.settings import AIScannerConfig, OrderParamsConfig, PortfolioAllocationConfig
+from common.models.strategy_input import StrategyInputModel
 from run_live_strategies_menu import (
     LiveStrategySelection,
     create_live_strategies,
@@ -27,6 +28,12 @@ def test_create_live_strategies_shares_broker_and_realtime_provider() -> None:
     market_provider = object()
     earnings_scanner = object()
     ticker_cache = object()
+    strategy_input = StrategyInputModel(
+        portfolio_pct_per_trade=0.25,
+        risk_pct=0.03,
+        reward_pct=0.05,
+        max_notional_per_trade=14_000,
+    )
 
     strategies = create_live_strategies(
         LiveStrategySelection.BOTH,
@@ -38,6 +45,7 @@ def test_create_live_strategies_shares_broker_and_realtime_provider() -> None:
         ai_scanner_config=AIScannerConfig(),
         portfolio_allocation_config=PortfolioAllocationConfig(),
         order_params_config=OrderParamsConfig(),
+        strategy_input=strategy_input,
     )
 
     assert len(strategies) == 2
@@ -48,9 +56,10 @@ def test_create_live_strategies_shares_broker_and_realtime_provider() -> None:
     assert strategies[1]._market_provider is market_provider
     assert strategies[0]._realtime_provider is realtime_provider
     assert strategies[1]._realtime_provider is realtime_provider
-    assert strategies[0]._notional_per_trade == strategies[1]._notional_per_trade
-    assert strategies[0]._take_profit_pct == 0.04
-    assert strategies[0]._stop_loss_pct == 0.02
+    assert strategies[0]._strategy_input is strategy_input
+    assert strategies[1]._strategy_input is strategy_input
+    assert strategies[0]._take_profit_pct == strategy_input.reward_pct
+    assert strategies[0]._stop_loss_pct == strategy_input.risk_pct
 
 
 class FakeLiveStrategy:
