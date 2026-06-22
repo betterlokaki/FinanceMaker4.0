@@ -5,11 +5,12 @@ import logging
 
 import pytest
 from alpaca.trading.enums import OrderClass, OrderSide as AlpacaOrderSide, TimeInForce as AlpacaTimeInForce
-from alpaca.trading.requests import LimitOrderRequest, MarketOrderRequest
+from alpaca.trading.requests import LimitOrderRequest, MarketOrderRequest, TrailingStopOrderRequest
 
 from common.converters.alpaca import AlpacaOrderRequestConverter
 from common.models.order import OrderSide, OrderType, TimeInForce
 from common.models.order_request import OrderRequest
+from common.trading.order_request_factory import OrderRequestFactory
 
 
 def test_mag7_fixed_bracket_maps_to_native_alpaca_gtc_bracket() -> None:
@@ -124,3 +125,22 @@ def test_trailing_stop_bracket_is_not_supported() -> None:
 
     with pytest.raises(ValueError, match="trailing stop legs"):
         AlpacaOrderRequestConverter.to_alpaca(request)
+
+
+def test_standalone_trailing_stop_exit_maps_to_alpaca_trailing_stop() -> None:
+    request = OrderRequestFactory.trailing_stop_exit(
+        ticker="AAPL",
+        quantity=10,
+        side=OrderSide.SELL,
+        trailing_stop_pct=0.02,
+        time_in_force=TimeInForce.GTC,
+    )
+
+    alpaca_request = AlpacaOrderRequestConverter.to_alpaca(request)
+
+    assert isinstance(alpaca_request, TrailingStopOrderRequest)
+    assert alpaca_request.symbol == "AAPL"
+    assert alpaca_request.qty == 10
+    assert alpaca_request.side == AlpacaOrderSide.SELL
+    assert alpaca_request.time_in_force == AlpacaTimeInForce.GTC
+    assert alpaca_request.trail_percent == 2.0

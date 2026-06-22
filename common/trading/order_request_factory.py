@@ -62,6 +62,45 @@ class OrderRequestFactory:
         )
 
     @staticmethod
+    def simple_limit_entry(
+        ticker: str,
+        quantity: int,
+        entry_price: float,
+        side: OrderSide,
+        *,
+        time_in_force: TimeInForce = TimeInForce.DAY,
+        buy_limit_rth: bool | None = True,
+    ) -> OrderRequest:
+        return OrderRequest(
+            ticker=ticker.upper(),
+            quantity=quantity,
+            side=side,
+            order_type=OrderType.LIMIT,
+            limit_price=round(entry_price, 2),
+            time_in_force=time_in_force,
+            buy_limit_rth=buy_limit_rth,
+        )
+
+    @staticmethod
+    def trailing_stop_exit(
+        ticker: str,
+        quantity: int,
+        side: OrderSide,
+        trailing_stop_pct: float,
+        *,
+        time_in_force: TimeInForce = TimeInForce.GTC,
+    ) -> OrderRequest:
+        return OrderRequest(
+            ticker=ticker.upper(),
+            quantity=quantity,
+            side=side,
+            order_type=OrderType.TRAILING_STOP,
+            trailing_stop_amt=round(max(0.0, float(trailing_stop_pct)) * 100.0, 4),
+            trailing_stop_type="%",
+            time_in_force=time_in_force,
+        )
+
+    @staticmethod
     def flatten_market(ticker: str, quantity: int, side: OrderSide) -> OrderRequest:
         return OrderRequest(
             ticker=ticker.upper(),
